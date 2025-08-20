@@ -1,0 +1,74 @@
+body {
+    background-color: #f4f4f4;
+}
+p{
+    font-family: Arial, Helvetica, sans-serif;
+}
+a{
+    font-size: 13px;
+}
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+.bottom-links {
+    margin-top: auto; 
+}
+.sidebar {
+    background-color: rgb(94, 94, 94);
+    min-height: 100vh;
+    color: white;
+}
+.sidebar a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 0.4rem 0.8rem;
+}
+.sidebar a:hover {
+    background-color: #444;
+}
+.submenu {
+    display: none;
+    padding-left: 1rem;
+}
+#header{
+    background-color: rgb(20, 189, 62);
+}
+.menu-item:hover .submenu {
+    display: block;
+}
+.table th {
+    background-color: rgb(20, 189, 62);
+    color: white;
+}
+#logosena2{
+    clip-path: circle(50%);
+    height: 4rem;
+    width: 4rem;
+}
+.titulo{
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: white;
+}
+#icono{
+    margin-left: 4rem;
+}
+#icono2{
+    margin-left: 1rem;
+}
+#icono3{
+    margin-left: 0.4rem;
+}
+#icono4{
+    margin-left: 0.4rem;
+}
+#icono5{
+    margin-left: 1.3rem;
+}
+#icn{
+    font-size: 15px;
+}

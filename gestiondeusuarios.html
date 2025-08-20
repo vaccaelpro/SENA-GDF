@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrador</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/gestiousuarios.css">
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2 sidebar p-3">
+            <div class="text-center mb-4">
+                <img src="img/logosena2.png" alt="SENA" class="img-fluid mb-2" id="logosena2" >
+                <h5 class="titulo">SENA GDF</h5>
+                <p>Administrador</p>
+            </div>
+            <hr>
+
+            <div class="menu-item">
+                <a href="#"><i class="bi bi-newspaper" id="icn">&nbsp;</i>Novedades<i class="bi bi-caret-down-fill" id="icono"></i></a>
+                <div class="submenu">
+                    <a href="#"> Agregar Novedades</a>
+                    <a href="#"> Eliminar Novedades</a>
+                </div>
+            </div>
+
+            <div class="menu-item">
+                <a href="#"><i class="bi bi-person-fill-gear" id="icn">&nbsp;</i>Gestión de Usuario <i class="bi bi-caret-down-fill" id="icono2"></i></a>
+                <div class="submenu">
+                    <a href="#"> Modificar Usuarios</a>
+                </div>
+            </div>
+
+            <div class="menu-item">
+                <a href="#"><i class="bi bi-download" id="icn">&nbsp;</i>Exportacion de Datos<i class="bi bi-caret-down-fill" id="icono4"></i></a>
+            </div>
+
+            <div class="menu-item">
+                <a href="#"><i class="bi bi-chat-right-text-fill" id="icn">&nbsp;</i>Encuentas y Anlisis<i class="bi bi-caret-down-fill" id="icono5"></i></a>
+            </div>
+
+            <div class="bottom-links">
+                <hr>
+                <a href="#"><i class="bi bi-gear-fill" id="icn"></i>&nbsp;Ajustes</a>
+                <a href="#"><i class="bi bi-box-arrow-left" id="icn"></i> &nbsp;Cerrar Sesión</a>
+            </div>
+        </div>
+
+        <div class="col-md-10 p-0">
+            <div class="text-white p-2 d-flex justify-content-between align-items-center" id="header">
+                <div>
+                    <h5 class="titulo">Bienvenido, Santiago Vacca</h5>
+                    <p>Mantente al día en la administración de tus ingresos</p>
+               </div>
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-person-circle me-2" style="font-size: 1.5rem;"></i>
+                    <span>Santiago Vacca </span>&nbsp;
+                    <i class="bi bi-caret-down-fill"></i>
+                </div>
+            </div>
+
+            <div class="p-4">
+                <div class="input-group mb-4">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control border-start-0" placeholder="Buscar usuario">
+                </div>
+
+                <table class="table table-bordered align-middle text-center">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Documento</th>
+                            <th>Modificar</th>
+                            <th>Eliminar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Santiago</td>
+                            <td>Vacca</td>
+                            <td>1013109723</td>
+                            <td><button class="btn btn-dark btn-sm"><i class="bi bi-pencil-square"></i></button></td>
+                            <td><button class="btn btn-dark btn-sm"><i class="bi bi-trash3-fill"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td>Dayam</td>
+                            <td>Beltran</td>
+                            <td>1020223830</td>
+                            <td><button class="btn btn-dark btn-sm"><i class="bi bi-pencil-square"></i></button></td>
+                            <td><button class="btn btn-dark btn-sm"><i class="bi bi-trash3-fill"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td>Sara</td>
+                            <td>Villada</td>
+                            <td>1013460683</td>
+                            <td><button class="btn btn-dark btn-sm"><i class="bi bi-pencil-square"></i></button></td>
+                            <td><button class="btn btn-dark btn-sm"><i class="bi bi-trash3-fill"></i></button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+

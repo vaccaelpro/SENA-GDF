@@ -1,0 +1,47 @@
+.left-panel {
+    background-color: rgb(20, 189, 62); 
+    color: white;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.right-panel {
+    background-color: rgb(94, 94, 94); 
+    color: white;
+    padding: 2rem;
+}
+.custom-input {
+    background-color: white;
+    color: black;
+    border: none;
+}
+.custom-input:focus {
+    background-color: #555;
+    color: white;
+    outline: none;
+    box-shadow: none;
+}
+
+.logosena{
+    height: 6rem;
+    width: 6rem;
+    clip-path: circle(50%);
+}
+
+.titulo{
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: 1.9rem;
+    color: white;
+}
+
+.btn-light{
+    font-weight: bold;
+}
+
+.btn-success{
+    background-color: white;
+    color: black;
+}
