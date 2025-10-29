@@ -1,38 +1,3 @@
-
-.table th {
-    background-color: rgb(20, 189, 62);
-    color: white;
-}
-#logosena2{
-    clip-path: circle(50%);
-    height: 4rem;
-    width: 4rem;
-}
-.titulo{
-    font-family: Arial, Helvetica, sans-serif;
-    font-weight: bold;
-    font-size: 1.5rem;
-    color: white;
-}
-#icono{
-    margin-left: 4rem;
-}
-#icono2{
-    margin-left: 1rem;
-}
-#icono3{
-    margin-left: 0.4rem;
-}
-#icono4{
-    margin-left: 0.4rem;
-}
-#icono5{
-    margin-left: 1.3rem;
-}
-#icn{
-    font-size: 15px;
-}
-
 body {
     background-color: #f5f6fa;
     margin: 0;
@@ -56,6 +21,14 @@ body {
     height: auto;
     clip-path: circle(50%);
 }
+
+.titulo{
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: white;
+}
+
 .sidebar a {
     display: block;
     padding: 8px 0;

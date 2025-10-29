@@ -5,18 +5,20 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.registro-container {
-  width: 900px;
-  max-width: 95%;
+.login-container {
+  width: 650px;
   height: 550px;
+  max-width: 95%;
   border-radius: 20px;
+  display: flex;
   overflow: hidden;
   background: #2d3436;
   box-shadow: 0px 20px 40px rgba(0,0,0,0.5);
   animation: fadeIn 1s ease-in-out;
 }
 
-.left-panel {
+.left-login {
+  flex: 1.2;
   background-color: #28a745;
   color: white;
   padding: 2rem 1.5rem;
@@ -26,13 +28,15 @@ body {
   align-items: center;
 }
 
-.right-panel {
+.right-login {
+  flex: 2.2;
   background: #2d3436;
   color: white;
-  padding: 2rem;
+  padding: 2rem 1.5rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
 }
 
 .logosena {
@@ -47,14 +51,23 @@ body {
 }
 
 .titulo {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: bold;
   margin-bottom: 10px;
 }
 
 .texto {
-  font-size: 1rem;
   margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.sena-title {
+  font-size: 1.7rem;
+}
+
+.sena-subtitle {
+  font-size: 1rem;
+  opacity: 0.85;
 }
 
 .custom-input {
@@ -70,6 +83,20 @@ body {
 
 .custom-input:hover {
   box-shadow: 0 0 0 4px rgba(40,167,69,0.6);
+}
+
+.doc-link {
+  display: block;
+  margin-top: 10px;
+  color: #1abc9c;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: 0.3s;
+}
+
+.doc-link:hover {
+  text-decoration: underline;
+  color: #28a745;
 }
 
 .btn-custom {
@@ -105,4 +132,3 @@ body {
   from { opacity: 0; transform: translateY(-20px); }
   to { opacity: 1; transform: translateY(0); }
 }
-

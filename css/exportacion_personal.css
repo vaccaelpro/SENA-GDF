@@ -1,0 +1,121 @@
+body {
+  background-color: #f5f6fa;
+  margin: 0;
+  padding: 0;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 16.666%;
+  height: 100vh;
+  background: #2d3436;
+  color: #fff;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+}
+
+.logo-sena {
+  width: 80px;
+  height: auto;
+  clip-path: circle(50%);
+}
+
+.titulo {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.sidebar a {
+  display: block;
+  padding: 8px 0;
+  color: #dfe6e9;
+  text-decoration: none;
+  transition: 0.3s;
+}
+.sidebar a:hover {
+  color: #1abc9c;
+  padding-left: 8px;
+}
+.submenu {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+  padding-left: 15px;
+}
+.menu-item:hover .submenu {
+  max-height: 200px;
+}
+
+.header-fixed {
+  position: fixed;
+  top: 0;
+  left: 16.666%;
+  width: 83.334%;
+  z-index: 900;
+  background: #28a745;
+}
+
+.main-content {
+  margin-left: 16.666%;
+  padding-top: 120px;
+}
+
+.titulo-seccion {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #2d3436;
+}
+
+.subtitulo {
+  font-size: 1rem;
+  margin-bottom: 20px;
+  color: #555;
+}
+
+.search-box input {
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  transition: all 0.3s ease;
+}
+
+.search-box input:focus {
+  box-shadow: 0 0 0 3px rgba(40,167,69,0.6);
+  outline: none;
+}
+
+.custom-table {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.custom-table thead {
+  background: #28a745;
+  color: white;
+}
+
+.custom-table th, 
+.custom-table td {
+  padding: 12px;
+}
+
+.download-btn {
+  font-size: 1.3rem;
+  color: #28a745;
+  transition: 0.3s;
+}
+
+.download-btn:hover {
+  color: #218838;
+  transform: scale(1.2);
+}
+

@@ -1,0 +1,140 @@
+body {
+  background-color: #f5f6fa;
+  margin: 0;
+  padding: 0;
+}
+
+#logosena2 {
+  clip-path: circle(50%);
+  height: 4rem;
+  width: 4rem;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 16.666%;
+  height: 100vh;
+  background: #2d3436;
+  color: #fff;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+}
+
+.titulo {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.sidebar a {
+  display: block;
+  padding: 8px 0;
+  color: #dfe6e9;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.sidebar a:hover {
+  color: #1abc9c;
+  padding-left: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+}
+
+.menu-container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.bottom-links {
+  margin-top: auto;
+}
+
+.header-fixed {
+  position: fixed;
+  top: 0;
+  left: 16.666%;
+  width: 83.334%;
+  z-index: 900;
+  background: #28a745;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.main-content {
+  margin-left: 16.666%;
+  padding-top: 120px;
+}
+
+.contenedor-bot {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 320px;
+  height: 300px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  z-index: 1100;
+}
+
+.headerbot {
+  background-color: #28a745;
+  color: white;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  padding: 10px;
+}
+
+.Titulo-bot {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.chat-body {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  font-size: 0.9rem;
+}
+
+.mensaje-bot {
+  background: #e9ecef;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  display: inline-block;
+}
+
+.input-area {
+  border-top: 1px solid #ddd;
+  padding: 10px;
+}
+
+.form-control {
+  border: none;
+  box-shadow: none;
+}
+
+.btn-success {
+  background-color: #28a745;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .contenedor-bot {
+    width: 90%;
+    right: 5%;
+    bottom: 10px;
+    height: 300px;
+  }
+}

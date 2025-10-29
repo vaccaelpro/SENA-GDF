@@ -1,0 +1,15 @@
+.contenedor{
+    border: 2px solid rgb(194, 194, 194);
+    width: 30%;
+}
+.textopeq{
+    font-size: 15px;
+    text-align: left;
+    color: gray;
+    padding-left: 25px;
+    padding-right: 20px;
+}
+.botonrecuperar{
+    background-color: rgb(48, 48, 48);
+    color: white;
+}
