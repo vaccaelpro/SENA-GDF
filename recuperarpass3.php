@@ -90,12 +90,6 @@
                     class="btn btn-primary fw-bold botonrecuperar">
             </div>
         </form>
-
-        <br>
-
-        <a href="">
-            <p class="link-regresar">Regresa para iniciar sesión</p>
-        </a>
     </div>
 
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>

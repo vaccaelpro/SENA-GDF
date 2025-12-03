@@ -1,0 +1,28 @@
+/* Importar la base general */
+@import url('layout.css');
+
+/* ====== TABLA MODERNA ====== */
+
+.table-modern {
+    border-radius: 14px;
+    overflow: hidden;
+    background: white;
+}
+
+thead {
+    background: #28a745 !important;
+    color: white !important;
+}
+
+tbody tr:hover {
+    background: rgba(40,167,69,0.08);
+    cursor: pointer;
+}
+
+/* Botones de acción */
+.btn-action {
+    padding: 7px 12px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}

@@ -11,7 +11,7 @@
 
     <style>
         .contenedor {
-            height: 68%;
+            height: 45%;
             max-width: 400px;
             background-color: #f8f9fa;
         }

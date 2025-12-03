@@ -118,4 +118,12 @@ body {
   color: #218838;
   transform: scale(1.2);
 }
-
+.cerrar{
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  font-weight: bold;
+  transition: 0.3s;
+  background: #2d3436;
+}

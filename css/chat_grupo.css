@@ -1,0 +1,74 @@
+/* Importar base */
+@import url('layout.css');
+
+/* ====== CONTENEDOR DEL CHAT ====== */
+.chat-container {
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.08);
+    padding: 25px;
+    height: 560px;
+    display: flex;
+    flex-direction: column;
+}
+
+.messages-box {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+/* ====== BURBUJAS DE MENSAJES ====== */
+
+.msg {
+    padding: 12px 16px;
+    border-radius: 12px;
+    max-width: 70%;
+    margin-bottom: 14px;
+    font-size: 0.95rem;
+}
+
+.msg.other {
+    background: #e9ecef;
+    color: #000;
+}
+
+.msg.me {
+    background: #28a745;
+    color: white;
+    margin-left: auto;
+}
+
+/* ====== BARRA DE ENVÍO ====== */
+
+.send-box {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.send-box input {
+    border-radius: 12px;
+    padding: 12px;
+    border: 2px solid #d9d9d9;
+}
+
+.send-box input:focus {
+    border-color: #28a745 !important;
+    box-shadow: 0 0 8px rgba(40,167,69,0.3);
+}
+
+.btn-send {
+    background: #28a745;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 12px;
+    color: white;
+    font-size: 1.1rem;
+    transition: 0.3s;
+}
+
+.btn-send:hover {
+    transform: scale(1.05);
+}
+

@@ -1,0 +1,16 @@
+{
+  "name": "sena/gdf",
+  "description": "Sistema de Gestión de Finanzas SENA",
+  "type": "project",
+  "license": "MIT",
+  "require": {
+    "php": "^7.4|^8.0",
+    "phpmailer/phpmailer": "^6.8"
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "preferred-install": "dist"
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}

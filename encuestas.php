@@ -1,3 +1,11 @@
+<?php
+// Protección: muestra 404 si no está autenticado o no es ADMIN
+require_once 'config/auth_protect.php';
+require_role_or_404('ADMIN');
+
+$nombre = $_SESSION['primer_nombre'] . " " . $_SESSION['primer_apellido'];
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -21,48 +29,51 @@
     <div class="menu-item">
       <a href="#"><i class="bi bi-newspaper"></i> Novedades</a>
       <div class="submenu">
-        <a href="nueva_novedad.html"> Agregar Novedades</a>
-        <a href="eliminar_novedades.html"> Eliminar Novedades</a>
+        <a href="nueva_novedad.php"> Agregar Novedades</a>
+        <a href="eliminar_novedades.php"> Eliminar Novedades</a>
       </div>
     </div>
     <div class="menu-item">
-      <a href="gestiondeusuarios.html"><i class="bi bi-person-fill-gear"></i> Gestión de Usuario</a>
+      <a href="gestiondeusuarios.php"><i class="bi bi-person-fill-gear"></i> Gestión de Usuario</a>
     </div>
     <div class="menu-item">
-      <a href="exportacion_de_datos.html"><i class="bi bi-download"></i> Exportación de Datos</a>
+      <a href="exportacion_de_datos.php"><i class="bi bi-download"></i> Exportación de Datos</a>
       <div class="submenu">
-        <a href="exportar_finanzas.html"> Finanzas</a>
-        <a href="exportar_personal.html"> Personal</a>
+        <a href="exportar_finanzas.php"> Finanzas</a>
+        <a href="exportar_personal.php"> Personal</a>
       </div>
     </div>
     <div class="menu-item">
       <a href="#"><i class="bi bi-chat-right-text-fill"></i> Encuestas y Análisis</a>
       <div class="submenu">
-        <a href="#"> Encuestas</a>
-        <a href="analisis.html"> Análisis</a>
+        <a href="encuestas.php"> Encuestas</a>
+        <a href="analisis.php"> Análisis</a>
       </div>
+    </div>
+    <div class="menu-item">
+        <a href="lista_grupos.php"><i class="bi bi-people-fill"></i> Grupos</a>
     </div>
   </div>
   <div class="bottom-links mt-auto">
     <hr>
     <a href="#"><i class="bi bi-gear-fill"></i> Ajustes</a>
-    <a href="login.html"><i class="bi bi-box-arrow-left"></i> Cerrar Sesión</a>
+    <a href="cerrar_sesio.php" class="cerrar"><i class="bi bi-box-arrow-left"></i> Cerrar Sesión</a>
   </div>
 </div>
 
 <div class="main-content">
-  <div class="text-white p-4 d-flex justify-content-between align-items-center header-fixed" id="header">
-    <div>
-      <h5 class="titulo">Bienvenido, Santiago Vacca</h5>
-      <p>Mantente al día en la administración de tus ingresos</p>
+    <div class="text-white p-4 d-flex justify-content-between align-items-center header-fixed" id="header">
+        <div>
+            <h5 class="titulo">Bienvenida, <?= $nombre ?></h5>
+            <p>Mantente al día en la administración de tus ingresos</p>
+        </div>
+        <div class="d-flex align-items-center">
+            <i class="bi bi-person-circle me-2" style="font-size: 1.5rem;"></i>
+            <span><?= $nombre ?></span>&nbsp;
+            <i class="bi bi-caret-down-fill"></i>
+            <span class="ms-3" id="clock"></span>
+        </div>
     </div>
-    <div class="d-flex align-items-center">
-      <i class="bi bi-person-circle me-2" style="font-size: 1.5rem;"></i>
-      <span>Santiago Vacca</span>&nbsp;
-      <i class="bi bi-caret-down-fill"></i>
-      <span class="ms-3" id="clock"></span>
-    </div>
-  </div>
 
   <div class="contenido p-5">
     <div class="card encuesta-card shadow">

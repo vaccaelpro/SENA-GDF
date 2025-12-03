@@ -1,3 +1,15 @@
+<?php
+// Protección: muestra 404 si no está autenticado o no es ADMIN
+require_once 'config/auth_protect.php';
+require_role_or_404('ADMIN');
+
+include("config/db.php");
+
+$nombre = $_SESSION['primer_nombre'] . " " . $_SESSION['primer_apellido'];
+
+$sql = "SELECT primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, tipo_documento, documento, grupo_formacion, correo_electronico, rol FROM Usuario ORDER BY primer_nombre ASC";
+$result = $conn->query($sql);
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -22,104 +34,132 @@
         <div class="menu-item">
             <a href="#"><i class="bi bi-newspaper"></i> Novedades</a>
             <div class="submenu">
-                <a href="agregar_meta.html"> Agregar Novedades</a>
-                <a href="eliminar_novedades.html"> Eliminar Novedades</a>
+                <a href="nueva_novedad.php"> Agregar Novedades</a>
+                <a href="eliminar_novedades.php"> Eliminar Novedades</a>
             </div>
         </div>
         <div class="menu-item">
-            <a href="gestiondeusuarios.html"><i class="bi bi-person-fill-gear"></i> Gestión de Usuario</a>
+            <a href="gestiondeusuarios.php"><i class="bi bi-person-fill-gear"></i> Gestión de Usuario</a>
         </div>
         <div class="menu-item">
             <a href="#"><i class="bi bi-download"></i> Exportación de Datos</a>
             <div class="submenu">
-                <a href="exportar_finanzas.html"> Finanzas</a>
-                <a href="exportar_personal.html"> Personal</a>
+                <a href="exportar_finanzas.php"> Finanzas</a>
+                <a href="exportar_personal.php"> Personal</a>
             </div>
         </div>
         <div class="menu-item">
             <a href="#"><i class="bi bi-chat-right-text-fill"></i> Encuestas y Análisis</a>
             <div class="submenu">
-                <a href="#"> Encuestas</a>
-                <a href="#"> Análisis</a>
+                <a href="encuestas.php"> Encuestas</a>
+                <a href="analisis.php"> Análisis</a>
             </div>
+        </div>
+
+        <div class="menu-item">
+            <a href="lista_grupos.php"><i class="bi bi-people-fill"></i> Grupos</a>
         </div>
     </div>
     <div class="bottom-links mt-auto">
         <hr>
         <a href="#"><i class="bi bi-gear-fill"></i> Ajustes</a>
-        <a href="login.html"><i class="bi bi-box-arrow-left"></i> Cerrar Sesión</a>
+        <a href="cerrar_sesio.php"><i class="bi bi-box-arrow-left"></i> Cerrar Sesión</a>
     </div>
 </div>
 
 <div class="main-content">
     <div class="text-white p-4 d-flex justify-content-between align-items-center header-fixed" id="header">
         <div>
-            <h5 class="titulo">Bienvenido, Santiago Vacca</h5>
+            <h5 class="titulo">Bienvenido, <?= $nombre ?></h5>
             <p>Mantente al día en la administración de tus ingresos</p>
         </div>
         <div class="d-flex align-items-center">
             <i class="bi bi-person-circle me-2" style="font-size: 1.5rem;"></i>
-            <span>Santiago Vacca</span>&nbsp;
+            <span><?= $nombre ?></span>&nbsp;
             <i class="bi bi-caret-down-fill"></i>
             <span class="ms-3" id="clock"></span>
         </div>
     </div>
 
     <div class="p-4">
-                <div class="input-group mb-4">
-                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-                    <input type="text" class="form-control border-start-0" placeholder="Buscar usuario">
-                </div>
+        <div class="input-group mb-4">
+            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control border-start-0" placeholder="Buscar usuario" id="buscarUsuario">
+        </div>
 
-                <table class="table table-bordered align-middle text-center">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Apellido</th>
-                            <th>Documento</th>
-                            <th>Modificar</th>
-                            <th>Eliminar</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Santiago</td>
-                            <td>Vacca</td>
-                            <td>1013109723</td>
-                            <td><button class="btn btn-dark btn-sm"><i class="bi bi-pencil-square"></i></button></td>
-                            <td><button class="btn btn-dark btn-sm"><i class="bi bi-trash3-fill"></i></button></td>
-                        </tr>
-                        <tr>
-                            <td>Dayam</td>
-                            <td>Beltran</td>
-                            <td>1020223830</td>
-                            <td><button class="btn btn-dark btn-sm"><i class="bi bi-pencil-square"></i></button></td>
-                            <td><button class="btn btn-dark btn-sm"><i class="bi bi-trash3-fill"></i></button></td>
-                        </tr>
-                        <tr>
-                            <td>Sara</td>
-                            <td>Villada</td>
-                            <td>1013460683</td>
-                            <td><button class="btn btn-dark btn-sm"><i class="bi bi-pencil-square"></i></button></td>
-                            <td><button class="btn btn-dark btn-sm"><i class="bi bi-trash3-fill"></i></button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <table class="table table-bordered align-middle text-center" id="tablaUsuarios">
+            <thead>
+                <tr>
+                    <th>Primer Nombre</th>
+                    <th>Segundo Nombre</th>
+                    <th>Primer Apellido</th>
+                    <th>Segundo Apellido</th>
+                    <th>Tipo Documento</th>
+                    <th>Documento</th>
+                    <th>Grupo Formación</th>
+                    <th>Correo Electrónico</th>
+                    <th>Rol</th>
+                    <th>Modificar</th>
+                    <th>Eliminar</th>
+                </tr>
+            </thead>
+            <tbody>
+    <?php if($result->num_rows > 0): ?>
+        <?php while($row = $result->fetch_assoc()): ?>
+            <tr>
+                <td><?= htmlspecialchars($row['primer_nombre']) ?></td>
+                <td><?= htmlspecialchars($row['segundo_nombre']) ?></td>
+                <td><?= htmlspecialchars($row['primer_apellido']) ?></td>
+                <td><?= htmlspecialchars($row['segundo_apellido']) ?></td>
+                <td><?= htmlspecialchars($row['tipo_documento']) ?></td>
+                <td><?= htmlspecialchars($row['documento']) ?></td>
+                <td><?= htmlspecialchars($row['grupo_formacion']) ?></td>
+                <td><?= htmlspecialchars($row['correo_electronico']) ?></td>
+                <td><?= htmlspecialchars($row['rol']) ?></td>
+                <td>
+                    <a href="editar_usuario.php?documento=<?= $row['documento'] ?>" class="btn btn-dark btn-sm">
+                        <i class="bi bi-pencil-square"></i>
+                    </a>
+                </td>
+                <td>
+                    <a href="eliminar_usuario.php?documento=<?= $row['documento'] ?>" class="btn btn-dark btn-sm" onclick="return confirm('¿Seguro que quieres eliminar este usuario?');">
+                        <i class="bi bi-trash3-fill"></i>
+                    </a>
+                </td>
+            </tr>
+        <?php endwhile; ?>
+    <?php else: ?>
+        <tr>
+            <td colspan="11">No hay usuarios registrados</td>
+        </tr>
+    <?php endif; ?>
+</tbody>
+
+        </table>
+    </div>
 </div>
 
 <script>
-    function updateClock(){
-        const now = new Date();
-        const clock = document.getElementById("clock");
-        clock.textContent = now.toLocaleTimeString();
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
+function updateClock(){
+    const now = new Date();
+    const clock = document.getElementById("clock");
+    clock.textContent = now.toLocaleTimeString();
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+const buscarInput = document.getElementById('buscarUsuario');
+buscarInput.addEventListener('keyup', function() {
+    const filtro = this.value.toLowerCase();
+    const filas = document.querySelectorAll('#tablaUsuarios tbody tr');
+
+    filas.forEach(fila => {
+        let textoFila = fila.textContent.toLowerCase();
+        fila.style.display = textoFila.includes(filtro) ? '' : 'none';
+    });
+});
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
-

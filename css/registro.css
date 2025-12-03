@@ -6,15 +6,16 @@ body {
 }
 
 .registro-container {
-  width: 900px;
+  width: 950px;
   max-width: 95%;
-  height: 550px;
+  height: 590px;
   border-radius: 20px;
   overflow: hidden;
   background: #2d3436;
-  box-shadow: 0px 20px 40px rgba(0,0,0,0.5);
+  box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.5);
   animation: fadeIn 1s ease-in-out;
 }
+
 
 .left-panel {
   background-color: #28a745;
@@ -64,12 +65,12 @@ body {
 }
 
 .custom-input:focus {
-  box-shadow: 0 0 0 8px rgba(40,167,69,0.6);
+  box-shadow: 0 0 0 8px rgba(40, 167, 69, 0.6);
   outline: none;
 }
 
 .custom-input:hover {
-  box-shadow: 0 0 0 4px rgba(40,167,69,0.6);
+  box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.6);
 }
 
 .btn-custom {
@@ -82,7 +83,7 @@ body {
 .btn-custom:hover {
   background: #f1f1f1;
   color: #28a745;
-  transform: scale(1.05);
+  transform: scale(1.03);
 }
 
 .btn-login {
@@ -98,11 +99,23 @@ body {
 .btn-login:hover {
   background-color: #218838;
   transform: scale(1.05);
-  box-shadow: 0 0 10px rgba(40,167,69,0.7);
+  box-shadow: 0 0 10px rgba(40, 167, 69, 0.7);
 }
+
+.text-contraseña {
+  font-size: 0.7rem;
+  color: white;
+}
+
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
 
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

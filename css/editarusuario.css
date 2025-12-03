@@ -1,0 +1,59 @@
+body {
+  background: linear-gradient(135deg, #28a745, #2d3436);
+  margin: 0;
+  padding: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.form-container {
+  width: 500px;
+  background: #2d3436;
+  padding: 2rem;
+  border-radius: 15px;
+  color: white;
+  box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.5);
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+.custom-input {
+  border-radius: 8px;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.custom-input:focus {
+  box-shadow: 0 0 0 8px rgba(40, 167, 69, 0.6);
+  outline: none;
+}
+
+.custom-input:hover {
+  box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.6);
+}
+
+.btn-login {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.btn-login:hover {
+  background-color: #218838;
+  transform: scale(1.03);
+  box-shadow: 0 0 10px rgba(40, 167, 69, 0.7);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

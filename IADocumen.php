@@ -1,3 +1,11 @@
+<?php
+// Protección: muestra 404 si no está autenticado
+require_once 'config/auth_protect.php';
+require_auth_or_404();
+
+$nombre = $_SESSION['primer_nombre'] . " " . $_SESSION['primer_apellido'];
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -20,34 +28,37 @@
 
   <div class="menu-container flex-grow-1 d-flex flex-column justify-content-center">
     <div class="menu-item">
-      <a href="novedades_aprendiz.html"><i class="bi bi-newspaper" id="icn">&nbsp;</i>Novedades</a>
+      <a href="novedades_aprendiz.php"><i class="bi bi-newspaper" id="icn">&nbsp;</i>Novedades</a>
     </div>
     <div class="menu-item">
-      <a href="IAFinace.html"><i class="bi bi-robot" id="icn">&nbsp;</i>IA Finance</a>
+      <a href="IAFinace.php"><i class="bi bi-robot" id="icn">&nbsp;</i>IA Finance</a>
     </div>
     <div class="menu-item">
-      <a href="metas _de _ahorro.html"><i class="bi bi-piggy-bank-fill" id="icn">&nbsp;</i>Metas De Ahorro</a>
+      <a href="metas_de_ahorro.php"><i class="bi bi-piggy-bank-fill" id="icn">&nbsp;</i>Metas De Ahorro</a>
     </div>
     <div class="menu-item">
       <a href=""><i class="bi bi-robot" id="icn">&nbsp;</i>IA Guía Formularios</a>
+    </div>
+    <div class="menu-item">
+      <a href="mi_grupo.php"><i class="bi bi-people-fill" id="icn">&nbsp;</i>Mi Grupo</a>
     </div>
   </div>
 
   <div class="bottom-links mt-auto">
     <hr>
     <a href="#"><i class="bi bi-gear-fill" id="icn"></i>&nbsp;Ajustes</a>
-    <a href="login.html"><i class="bi bi-box-arrow-left" id="icn"></i> &nbsp;Cerrar Sesión</a>
+    <a href="cerrar_sesio.php" class="cerrar"><i class="bi bi-box-arrow-left"></i> Cerrar Sesión</a>
   </div>
 </div>
 
 <div class="text-white p-4 d-flex justify-content-between align-items-center header-fixed" id="header">
   <div>
-    <h5 class="titulo">Bienvenido, Santiago Vacca</h5>
+    <h5 class="titulo">Bienvenido,<?= $nombre ?></h5>
     <p>Mantente al día en la administración de tus ingresos</p>
   </div>
   <div class="d-flex align-items-center">
     <i class="bi bi-person-circle me-2" style="font-size: 1.5rem;"></i>
-    <span>Santiago Vacca</span>&nbsp;
+    <span><?= $nombre ?></span>&nbsp;
     <i class="bi bi-caret-down-fill"></i>
     <span class="ms-3" id="clock"></span>
   </div>

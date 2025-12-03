@@ -1,0 +1,27 @@
+/* CONTENEDOR GENERAL */
+#wrapper {
+    margin-left: 16.666%; /* espacio sidebar */
+    padding-top: 95px; /* espacio header */
+}
+
+/* CONTENIDO INTERNO */
+.page-content {
+    padding: 30px 50px;
+}
+
+/* TITULOS */
+.titulo-vista {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #28a745;
+    margin-bottom: 20px;
+}
+
+/* CARDS */
+.card-modern {
+    background: #fff;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 3px 18px rgba(0,0,0,0.12);
+}
+

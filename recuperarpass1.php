@@ -1,92 +1,67 @@
+<?php
+include("config/db.php");
+include("config/mail_config.php");
+
+$mensaje = "";
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $correo = $_POST['correo'];
+
+    $sql = "SELECT id_usuario FROM Usuario WHERE correo_electronico = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $correo);
+    $stmt->execute();
+    $resultado = $stmt->get_result();
+
+    if ($resultado->num_rows > 0) {
+        $usuario = $resultado->fetch_assoc();
+        $usuario_id = $usuario['id_usuario'];
+
+        $token = bin2hex(random_bytes(50));
+        $fecha_solicitud = date("Y-m-d H:i:s");
+
+        $insert = $conn->prepare("INSERT INTO recuperacion_contrasena (token, fecha_solicitud, usuario_id_usuario) VALUES (?, ?, ?)");
+        $insert->bind_param("ssi", $token, $fecha_solicitud, $usuario_id);
+        $insert->execute();
+
+        if (enviarCorreoRecuperacion($correo, $token)) {
+            $mensaje = "<div class='alert alert-success text-center'>
+                Se ha enviado un correo de recuperación a <b>$correo</b>.<br>
+                Revisa tu bandeja de entrada o carpeta de spam.
+            </div>";
+        } else {
+            $mensaje = "<div class='alert alert-danger text-center'>
+                 Error al enviar el correo. Intenta de nuevo.
+            </div>";
+        }
+    } else {
+        $mensaje = "<div class='alert alert-warning text-center'>
+             El correo ingresado no está registrado.
+        </div>";
+    }
+}
+?>
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="css/recuperarcontraseña.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
-
-    <style>
-        .contenedor {
-            background-color: #f8f9fa;
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .titulo-recuperar {
-            font-size: 25px;
-        }
-
-        .textopeq {
-            font-size: 14px;
-            color: #6c757d;
-        }
-
-        .icono-email {
-            font-size: 20px;
-        }
-
-        .input-email {
-            border: 1px solid #ced4da;
-            border-radius: 0.375rem;
-            padding: 0.375rem 0.75rem;
-        }
-
-        .botonrecuperar {
-            background-color: rgb(48, 48, 48);
-            color: white;
-            border: none;
-            height: 40px;
-            width: 255px;
-        }
-
-        .link-regresar {
-            color: rgb(91, 199, 3);
-            text-decoration: underline;
-            margin-top: 100px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recuperar Contraseña</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+<body class="d-flex justify-content-center align-items-center vh-100 bg-light">
+    <div class="p-5 rounded-4 bg-white shadow text-center" style="width:400px;">
+        <h4 class="mb-3 fw-bold">¿Olvidaste tu contraseña?</h4>
+        <p class="text-muted mb-4">Ingresa tu correo electrónico y te enviaremos un enlace para restablecerla.</p>
 
-<body class="d-flex justify-content-center align-items-center vh-100">
-    <div class="p-5 rounded-5 text-center contenedor">
-        <div>
-            <p class="fw-bold titulo-recuperar">Olvidaste tu contraseña?</p>
-            <br>
-            <p class="textopeq">Escribe tu email y se te enviará un link para restablecer tu contraseña</p>
-        </div>
-        <br>
-        <form action="" method="post">
-            <div class="input-group mb-3 justify-content-center">
-                <div class="input-group-text">
-                    <ion-icon name="mail-outline" class="icono-email"></ion-icon>
-                </div>
-                <div>
-                    <input type="email" name="correo" id="correo" placeholder="email@adress.com" class="input-email" required>
-                </div>
-            </div>
-            <div>
-                <input type="submit" value="Restablecer Contraseña" id="restablecer"
-                    class="btn btn-primary fw-bold botonrecuperar">
-            </div>
+        <?php if (!empty($mensaje)) echo $mensaje; ?>
+
+        <form method="POST" action="recuperarpass1.php">
+            <input type="email" name="correo" class="form-control mb-3" placeholder="email@ejemplo.com" required>
+            <button type="submit" class="btn btn-dark w-100 fw-bold">Restablecer Contraseña</button>
         </form>
-        <br>
-        <a href="login.html">
-            <p class="link-regresar">Regresa para iniciar sesión</p>
-        </a>
+
+        <a href="login.php" class="d-block mt-4 text-success text-decoration-underline">← Volver al inicio de sesión</a>
     </div>
-
-    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
-        crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.min.js"
-        integrity="sha384-7qAoOXltbVP82dhxHAUje59V5r2YsVfBafyUDxEdApLPmcdhBPg1DKg1ERo0BZlK"
-        crossorigin="anonymous"></script>
 </body>
-
 </html>
