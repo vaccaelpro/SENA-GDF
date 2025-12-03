@@ -25,17 +25,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $insert->execute();
 
         if (enviarCorreoRecuperacion($correo, $token)) {
-            $mensaje = "<div class='alert alert-success text-center'>
+            $mensaje = "<div class='alert alert-success'>
                 Se ha enviado un correo de recuperación a <b>$correo</b>.<br>
                 Revisa tu bandeja de entrada o carpeta de spam.
             </div>";
         } else {
-            $mensaje = "<div class='alert alert-danger text-center'>
+            $mensaje = "<div class='alert alert-danger'>
                  Error al enviar el correo. Intenta de nuevo.
             </div>";
         }
     } else {
-        $mensaje = "<div class='alert alert-warning text-center'>
+        $mensaje = "<div class='alert alert-warning'>
              El correo ingresado no está registrado.
         </div>";
     }
@@ -48,20 +48,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Recuperar Contraseña</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/login.css">
 </head>
-<body class="d-flex justify-content-center align-items-center vh-100 bg-light">
-    <div class="p-5 rounded-4 bg-white shadow text-center" style="width:400px;">
-        <h4 class="mb-3 fw-bold">¿Olvidaste tu contraseña?</h4>
-        <p class="text-muted mb-4">Ingresa tu correo electrónico y te enviaremos un enlace para restablecerla.</p>
-
-        <?php if (!empty($mensaje)) echo $mensaje; ?>
-
-        <form method="POST" action="recuperarpass1.php">
-            <input type="email" name="correo" class="form-control mb-3" placeholder="email@ejemplo.com" required>
-            <button type="submit" class="btn btn-dark w-100 fw-bold">Restablecer Contraseña</button>
-        </form>
-
-        <a href="login.php" class="d-block mt-4 text-success text-decoration-underline">← Volver al inicio de sesión</a>
+<body class="d-flex justify-content-center align-items-center vh-100">
+  <div class="login-container">
+    <div class="left-login text-center">
+      <p class="titulo">¿Ya recordaste?</p>
+      <p class="texto">Vuelve al inicio de sesión</p>
+      <a href="login.php"><button type="button" class="btn btn-light btn-custom">Iniciar Sesión</button></a>
     </div>
+
+    <div class="right-login text-center">
+      <img src="img/logosena2.png" alt="logo-sena" class="logosena mb-3">
+      <div class="fw-bold sena-title">RECUPERAR CONTRASEÑA</div>
+      <div class="sena-subtitle mb-3">Ingresa tu correo electrónico y te enviaremos un enlace</div>
+
+      <?php if (!empty($mensaje)) echo $mensaje; ?>
+
+      <form action="recuperarpass1.php" method="POST">
+        <input type="email" name="correo" class="form-control custom-input mb-3" placeholder="email@ejemplo.com" required>
+        <button type="submit" class="btn btn-login w-100">Enviar Enlace de Recuperación</button>
+      </form>
+
+      <a href="login.php" class="doc-link mt-3">← Volver al inicio de sesión</a>
+    </div>
+  </div>
 </body>
 </html>
