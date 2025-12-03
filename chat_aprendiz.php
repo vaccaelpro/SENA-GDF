@@ -88,10 +88,6 @@ $nombre = $_SESSION['primer_nombre'] . " " . $_SESSION['primer_apellido'];
         <div class="menu-item">
             <a href="mi_grupo.php"><i class="bi bi-people-fill" id="icn">&nbsp;</i>Mi Grupo</a>
         </div>
-
-        <div class="menu-item">
-            <a href="chat_aprendiz.php"><i class="bi bi-chat-dots-fill" id="icn">&nbsp;</i>Mensajes</a>
-        </div>
     </div>
 
     <div class="bottom-links mt-auto">

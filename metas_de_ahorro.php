@@ -1,5 +1,4 @@
 <?php
-// Protección: muestra 404 si no está autenticado
 require_once 'config/auth_protect.php';
 require_auth_or_404();
 

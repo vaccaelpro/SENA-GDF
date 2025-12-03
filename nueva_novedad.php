@@ -1,5 +1,4 @@
 <?php
-// Protección: muestra 404 si no está autenticado o no es ADMIN
 require_once 'config/auth_protect.php';
 require_role_or_404('ADMIN');
 

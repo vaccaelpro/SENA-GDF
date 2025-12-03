@@ -84,6 +84,9 @@ $nombre = $_SESSION['primer_nombre'] . " " . $_SESSION['primer_apellido'];
         <button class="btn btn-link text-success d-flex align-items-center mb-2" onclick="mostrarGraficas()">
           <i class="bi bi-eye-fill me-2"></i> Analizar Resultados
         </button>
+        <button class="btn btn-link text-success d-flex align-items-center mb-2" onclick="exportarDatos()">
+          <i class="bi bi-download me-2"></i> Exportar Análisis
+        </button>
         <button class="btn btn-link text-success d-flex align-items-center">
           <i class="bi bi-pencil-fill me-2"></i> Editar Encuesta
         </button>
@@ -136,6 +139,41 @@ new Chart(document.getElementById("grafico2"), {
       backgroundColor: ["#28a745","#17a2b8","#ffc107","#dc3545"]
     }]
   }
+
+  function exportarDatos() {
+    // Datos de la encuesta
+    const datos = [
+      ["Opción", "Cantidad de Respuestas", "Porcentaje"],
+      ["Muy satisfecho", 40, "40%"],
+      ["Satisfecho", 35, "35%"],
+      ["Neutral", 15, "15%"],
+      ["Insatisfecho", 10, "10%"],
+      ["", "", ""],
+      ["Total de respuestas", 100, "100%"]
+    ];
+
+    // Crear contenido CSV
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "RESULTADOS DE LA ENCUESTA DE SATISFACCIÓN\n";
+    csvContent += "Fecha de exportación: " + new Date().toLocaleDateString() + "\n\n";
+    
+    datos.forEach(function(rowArray) {
+      let row = rowArray.join(",");
+      csvContent += row + "\n";
+    });
+
+    // Crear enlace de descarga
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "resultados_encuesta_" + new Date().toISOString().slice(0,10) + ".csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    alert("Datos exportados exitosamente");
+  }
+
 });
 
   }
