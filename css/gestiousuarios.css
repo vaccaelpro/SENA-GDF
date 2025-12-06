@@ -1,35 +1,180 @@
+.table {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    background: white;
+}
 
 .table th {
-    background-color: rgb(20, 189, 62);
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    padding: 15px 12px;
+    border: none;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.table tbody tr {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.table tbody tr:hover {
+    background: linear-gradient(90deg, rgba(40, 167, 69, 0.1) 0%, rgba(32, 201, 151, 0.1) 100%);
+    transform: scale(1.01);
+    box-shadow: 0 3px 10px rgba(40, 167, 69, 0.15);
+}
+
+.table td {
+    padding: 12px;
+    vertical-align: middle;
+    color: #2d3436;
+    font-size: 0.95rem;
+}
+
+.table tbody tr:last-child {
+    border-bottom: none;
+}
+
+/* Botones dentro de latabla */
+.table .btn {
+    transition: all 0.3s ease;
+    border-radius: 6px;
+}
+
+.table .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.table .btn-dark {
+    background: #2d3436;
+    border: none;
+}
+
+.table .btn-dark:hover {
+    background: #1abc9c;
+}
+
+/* Estilos para custom-table (mismos que exportar) */
+.custom-table {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.custom-table thead {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
     color: white;
 }
-#logosena2{
+
+.custom-table th {
+    padding: 15px 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.custom-table td {
+    padding: 12px;
+    vertical-align: middle;
+    color: #2d3436;
+    font-size: 0.95rem;
+}
+
+.custom-table tbody tr {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.custom-table tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.custom-table tbody tr:hover {
+    background: linear-gradient(90deg, rgba(40, 167, 69, 0.1) 0%, rgba(32, 201, 151, 0.1) 100%);
+    transform: scale(1.01);
+    box-shadow: 0 3px 10px rgba(40, 167, 69, 0.15);
+}
+
+.custom-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.custom-table .btn {
+    transition: all 0.3s ease;
+    border-radius: 6px;
+}
+
+.custom-table .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.custom-table .btn-dark {
+    background: #2d3436;
+    border: none;
+}
+
+.custom-table .btn-dark:hover {
+    background: #1abc9c;
+}
+
+/* Wrapper responsive */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+#logosena2 {
     clip-path: circle(50%);
     height: 4rem;
     width: 4rem;
 }
-.titulo{
+
+.titulo {
     font-family: Arial, Helvetica, sans-serif;
     font-weight: bold;
     font-size: 1.5rem;
     color: white;
 }
-#icono{
+
+#icono {
     margin-left: 4rem;
 }
-#icono2{
+
+#icono2 {
     margin-left: 1rem;
 }
-#icono3{
+
+#icono3 {
     margin-left: 0.4rem;
 }
-#icono4{
+
+#icono4 {
     margin-left: 0.4rem;
 }
-#icono5{
+
+#icono5 {
     margin-left: 1.3rem;
 }
-#icn{
+
+#icn {
     font-size: 15px;
 }
 
@@ -38,6 +183,7 @@ body {
     margin: 0;
     padding: 0;
 }
+
 .sidebar {
     position: fixed;
     top: 0;
@@ -51,11 +197,13 @@ body {
     flex-direction: column;
     z-index: 1000;
 }
+
 .logo-sena {
     width: 80px;
     height: auto;
     clip-path: circle(50%);
 }
+
 .sidebar a {
     display: block;
     padding: 8px 0;
@@ -63,19 +211,23 @@ body {
     text-decoration: none;
     transition: 0.3s;
 }
+
 .sidebar a:hover {
     color: #1abc9c;
     padding-left: 8px;
 }
+
 .submenu {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.4s ease;
     padding-left: 15px;
 }
+
 .menu-item:hover .submenu {
     max-height: 200px;
 }
+
 .header-fixed {
     position: fixed;
     top: 0;
@@ -84,28 +236,34 @@ body {
     z-index: 900;
     background: #28a745;
 }
+
 .main-content {
     margin-left: 16.666%;
     padding-top: 110px;
 }
+
 .card {
     border: none;
     border-radius: 15px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transition: 0.3s;
 }
+
 .card:hover {
     transform: translateY(-6px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
+
 .kpi-card {
     border-radius: 12px;
     color: #fff;
 }
+
 .kpi-icon {
     font-size: 2rem;
     opacity: 0.8;
 }
+
 .btn-success:hover {
     background-color: #218838;
     transform: scale(1.05);

@@ -2,7 +2,12 @@
 require_once 'config/auth_protect.php';
 require_role_or_404('ADMIN');
 
+include("config/db.php");
+
 $nombre = $_SESSION['primer_nombre'] . " " . $_SESSION['primer_apellido'];
+
+$sql = "SELECT primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, tipo_documento, documento, grupo_formacion, correo_electronico, tipo_apoyo, rol FROM Usuario WHERE rol != 'ADMIN' ORDER BY primer_nombre ASC";
+$result = $conn->query($sql);
 ?>
 
 <!DOCTYPE html>
@@ -78,34 +83,51 @@ $nombre = $_SESSION['primer_nombre'] . " " . $_SESSION['primer_apellido'];
     <h2 class="titulo-seccion">Exportación de Datos Personales</h2>
     <p class="subtitulo">Descarga los datos personales de los usuarios en formato Excel.</p>
 
-    <div class="d-flex gap-2 mb-4">
-      <input type="text" class="form-control custom-input" placeholder="Buscar usuario..." style="flex: 1;">
-      <button class="btn btn-success px-4">
+    <div class="d-flex gap-2 mb-4 justify-content-end">
+      <a href="exportar_personal_excel.php" class="btn btn-success px-4">
         <i class="bi bi-download"></i> Exportar
-      </button>
+      </a>
     </div>
 
     <div class="table-responsive">
-      <table class="table table-hover align-middle custom-table">
+      <table class="table table-hover align-middle custom-table" id="tablaUsuarios">
         <thead>
           <tr>
-            <th>Nombre</th>
-            <th>Apellido</th>
+            <th>Primer Nombre</th>
+            <th>Segundo Nombre</th>
+            <th>Primer Apellido</th>
+            <th>Segundo Apellido</th>
+            <th>Tipo Documento</th>
             <th>Documento</th>
+            <th>Grupo Formación</th>
+            <th>Correo Electrónico</th>
+            <th>Tipo de Apoyo</th>
+            <th>Rol</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>Santiago</td>
-            <td>Vacca</td>
-            <td>123456789</td>
-          </tr>
-          <tr>
-            <td>Ana</td>
-            <td>Pérez</td>
-            <td>987654321</td>
-          </tr>
-        </tbody>
+    <?php if($result->num_rows > 0): ?>
+        <?php while($row = $result->fetch_assoc()): ?>
+            <tr>
+                <td><?= htmlspecialchars($row['primer_nombre']) ?></td>
+                <td><?= htmlspecialchars($row['segundo_nombre']) ?></td>
+                <td><?= htmlspecialchars($row['primer_apellido']) ?></td>
+                <td><?= htmlspecialchars($row['segundo_apellido']) ?></td>
+                <td><?= htmlspecialchars($row['tipo_documento']) ?></td>
+                <td><?= htmlspecialchars($row['documento']) ?></td>
+                <td><?= htmlspecialchars($row['grupo_formacion']) ?></td>
+                <td><?= htmlspecialchars($row['correo_electronico']) ?></td>
+                <td><?= htmlspecialchars($row['tipo_apoyo']) ?></td>
+                <td><?= htmlspecialchars($row['rol']) ?></td>
+            </tr>
+        <?php endwhile; ?>
+    <?php else: ?>
+        <tr>
+            <td colspan="10">No hay usuarios registrados</td>
+        </tr>
+    <?php endif; ?>
+</tbody>
+
       </table>
     </div>
   </div>

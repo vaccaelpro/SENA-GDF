@@ -6,7 +6,7 @@ include("config/db.php");
 
 $nombre = $_SESSION['primer_nombre'] . " " . $_SESSION['primer_apellido'];
 
-$sql = "SELECT primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, tipo_documento, documento, grupo_formacion, correo_electronico, rol FROM Usuario ORDER BY primer_nombre ASC";
+$sql = "SELECT primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, tipo_documento, documento, grupo_formacion, correo_electronico, rol FROM Usuario WHERE rol != 'ADMIN' ORDER BY primer_nombre ASC";
 $result = $conn->query($sql);
 ?>
 <!DOCTYPE html>
@@ -86,7 +86,8 @@ $result = $conn->query($sql);
             <input type="text" class="form-control border-start-0" placeholder="Buscar usuario" id="buscarUsuario">
         </div>
 
-        <table class="table table-bordered align-middle text-center" id="tablaUsuarios">
+        <div class="table-responsive">
+        <table class="custom-table table-hover align-middle text-center" id="tablaUsuarios">
             <thead>
                 <tr>
                     <th>Primer Nombre</th>
@@ -135,6 +136,7 @@ $result = $conn->query($sql);
 </tbody>
 
         </table>
+        </div>
     </div>
 </div>
 

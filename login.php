@@ -29,30 +29,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $passIngresada = $contrasena;
             $passGuardada  = $row['contrasena'];
 
-            // Validar contraseña en texto plano o hash
             $esCorrecta = false;
 
-            // 1. Coincide como texto plano (para admins antiguos)
             if ($passIngresada === $passGuardada) {
                 $esCorrecta = true;
             }
 
-            // 2. Coincide como hash (para usuarios con contraseña encriptada)
             if (password_verify($passIngresada, $passGuardada)) {
                 $esCorrecta = true;
             }
 
             if ($esCorrecta) {
-
-                // Guardar variables de sesión
                 $_SESSION['id_usuario']      = $row['id_usuario'];
                 $_SESSION['rol']             = $row['rol'];
                 $_SESSION['primer_nombre']   = $row['primer_nombre'];
                 $_SESSION['primer_apellido'] = $row['primer_apellido'];
-                $_SESSION['last_activity']   = time(); // Timestamp para control de inactividad
+                $_SESSION['last_activity']   = time();
 
-
-                // Redirección por rol
                 switch ($row['rol']) {
                     case "USUARIO":
                         header("Location: dashboard_aprendiz.php");
