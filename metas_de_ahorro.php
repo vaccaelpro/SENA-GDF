@@ -30,10 +30,13 @@ $nombre = $_SESSION['primer_nombre'] . " " . $_SESSION['primer_apellido'];
             <a href="novedades_aprendiz.php"><i class="bi bi-newspaper" id="icn">&nbsp;</i>Novedades</a>
         </div>
         <div class="menu-item">
+            <a href="satisfaccion_encuesta.php"><i class="bi bi-check2-square" id="icn">&nbsp;</i>Satisfacción Encuestas</a>
+        </div>
+        <div class="menu-item">
             <a href="IAFinace.php"><i class="bi bi-robot" id="icn">&nbsp;</i>IA Finance</a>
         </div>
         <div class="menu-item">
-            <a href="#"><i class="bi bi-piggy-bank-fill" id="icn">&nbsp;</i>Metas De Ahorro</a>
+            <a href="metas_de_ahorro.php"><i class="bi bi-piggy-bank-fill" id="icn">&nbsp;</i>Metas De Ahorro</a>
         </div>
         <div class="menu-item">
             <a href="IADocumen.php"><i class="bi bi-robot" id="icn">&nbsp;</i>IA Guía Formularios</a>

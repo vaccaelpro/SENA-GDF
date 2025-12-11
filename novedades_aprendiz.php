@@ -25,7 +25,8 @@ $nombre = $_SESSION['primer_nombre'] . " " . $_SESSION['primer_apellido'];
   </div>
   <hr>
   <div class="menu-container flex-grow-1 d-flex flex-column justify-content-center">
-    <div class="menu-item"><a href="#"><i class="bi bi-newspaper"></i>&nbsp;Novedades</a></div>
+    <div class="menu-item"><a href="novedades_aprendiz.php"><i class="bi bi-newspaper"></i>&nbsp;Novedades</a></div>
+    <div class="menu-item"><a href="satisfaccion_encuesta.php"><i class="bi bi-check2-square"></i>&nbsp;Satisfacción Encuestas</a></div>
     <div class="menu-item"><a href="IAFinace.php"><i class="bi bi-robot"></i>&nbsp;IA Finance</a></div>
     <div class="menu-item"><a href="metas_de_ahorro.php"><i class="bi bi-piggy-bank-fill"></i>&nbsp;Metas De Ahorro</a></div>
     <div class="menu-item"><a href="IADocumen.php"><i class="bi bi-robot"></i>&nbsp;IA Guía Formularios</a></div>

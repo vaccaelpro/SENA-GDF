@@ -53,9 +53,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     case "ADMIN":
                         header("Location: dashboard_administrador.php");
                         exit;
-                    case "INSTRUCTOR":
-                        header("Location: dashboard_instructor.php");
-                        exit;
                     default:
                         $mensaje = "Rol no autorizado.";
                 }

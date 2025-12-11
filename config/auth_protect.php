@@ -2,27 +2,6 @@
 
 session_start();
 
-define('SESSION_TIMEOUT', 300);
-
-function check_session_timeout() {
-    if (isset($_SESSION['id_usuario'])) {
-        if (isset($_SESSION['last_activity'])) {
-            $inactive_time = time() - $_SESSION['last_activity'];
-
-            if ($inactive_time > SESSION_TIMEOUT) {
-                session_unset();
-                session_destroy();
-                
-                header("Location: login.php?timeout=1");
-                exit;
-            }
-        }
-        
-        $_SESSION['last_activity'] = time();
-    }
-}
-check_session_timeout();
-
 function require_auth_or_404() {
     if (!isset($_SESSION['id_usuario']) || empty($_SESSION['id_usuario'])) {
         header("HTTP/1.0 404 Not Found");
