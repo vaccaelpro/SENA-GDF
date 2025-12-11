@@ -165,7 +165,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         </form>
     </div>
-
+<script src="js/session_timeout.js"></script>
 </body>
 </html>
 

@@ -179,6 +179,7 @@ new Chart(document.getElementById("grafico2"), {
   }
 </script>
 
+<script src="js/session_timeout.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

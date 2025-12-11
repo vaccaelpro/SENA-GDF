@@ -91,7 +91,7 @@ $nombre = $_SESSION['primer_nombre'] . " " . $_SESSION['primer_apellido'];
   setInterval(updateClock, 1000);
   updateClock();
 </script>
-
+<script src="js/session_timeout.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

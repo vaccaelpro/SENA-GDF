@@ -4,22 +4,18 @@ require_role_or_404('ADMIN');
 
 include("config/db.php");
 
-// Consulta para obtener todos los usuarios excepto ADMIN
 $sql = "SELECT primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, tipo_documento, documento, grupo_formacion, correo_electronico, tipo_apoyo, rol FROM Usuario WHERE rol != 'ADMIN' ORDER BY primer_nombre ASC";
 $result = $conn->query($sql);
 
-// Generar nombre del archivo con la fecha actual
 $fecha_actual = date('Y-m-d');
 $nombre_archivo = "exportacion_finanzas_" . $fecha_actual . ".xlsx";
 
-// Configurar headers para descarga de Excel
 header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
 header("Content-Disposition: attachment; filename=\"$nombre_archivo\"");
 header("Pragma: no-cache");
 header("Expires: 0");
 
-// Iniciar el documento HTML que Excel interpretará como XLSX
-echo "\xEF\xBB\xBF"; // BOM UTF-8
+echo "\xEF\xBB\xBF"; 
 ?>
 <!DOCTYPE html>
 <html>

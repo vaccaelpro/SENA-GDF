@@ -200,7 +200,7 @@ $nombre = $_SESSION['primer_nombre'] . " " . $_SESSION['primer_apellido'];
     const chatContainer = document.getElementById('chatContainer');
     chatContainer.scrollTop = chatContainer.scrollHeight;
 </script>
-
+<script src="js/session_timeout.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
