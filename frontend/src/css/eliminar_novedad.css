@@ -1,0 +1,27 @@
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.kpi-card {
+    border-radius: 12px;
+    color: #fff;
+}
+
+.kpi-icon {
+    font-size: 2rem;
+    opacity: 0.8;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+    transition: 0.2s;
+}

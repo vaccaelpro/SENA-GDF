@@ -1,0 +1,60 @@
+.card {
+  border-radius: 15px;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.ia-card {
+  height: 400px;
+  background-color: #2d3436;
+  color: white;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.chat-input-wrapper {
+  background: transparent;
+}
+
+.chat-box {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 25px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.chat-input {
+  flex: 1;
+  border: none;
+  padding: 12px 15px;
+  outline: none;
+}
+
+.chat-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 0 20px;
+  font-size: 1.2rem;
+  display: flex;
+  height: 3rem;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.chat-btn svg {
+  font-size: 1.1rem;
+}
+
+.presupuesto-card svg {
+  font-size: 1.2rem;
+}

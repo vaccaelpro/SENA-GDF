@@ -1,0 +1,27 @@
+.header-fixed {
+  position: fixed;
+  top: 0;
+  left: 16.666%;
+  width: 83.334%;
+  z-index: 900;
+  background: #28a745;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2); 
+}
+
+.menu-icon {
+  margin-right: 2px;
+  font-size: 1.1rem;
+  vertical-align: middle;
+  margin-top: -4px;
+}
+
+.header-icon {
+  font-size: 1.4rem;
+  margin-top: 3px;
+  margin-right: 10px;
+}
+
+.header-icon-small {
+  font-size: 1.1rem;
+  margin-top: 3px;
+}

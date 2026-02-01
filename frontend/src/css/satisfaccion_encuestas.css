@@ -1,0 +1,37 @@
+.containeree{
+    margin-top: 40px;
+}
+
+.rating-options {
+    display: flex;
+    justify-content: space-between;
+    max-width: 400px;
+    margin-bottom: 10px;
+}
+
+.rating-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+}
+
+.rating-item input {
+    margin-bottom: 5px;
+    cursor: pointer;
+}
+
+.question-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    border-left: 5px solid #28a745;
+}
+
+.question-title {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 15px;
+}

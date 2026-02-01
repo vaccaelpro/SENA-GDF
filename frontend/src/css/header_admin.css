@@ -1,0 +1,8 @@
+.header-fixed {
+    position: fixed;
+    top: 0;
+    left: 16.666%;
+    width: 83.334%;
+    z-index: 900;
+    background: #28a745;
+}

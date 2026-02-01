@@ -1,0 +1,44 @@
+.encuesta-card {
+  background: #fff;
+  border-radius: 15px;
+  padding: 25px;
+}
+
+.custom-input {
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  transition: all 0.3s ease;
+}
+.custom-input:focus {
+  box-shadow: 0 0 0 3px rgba(40,167,69,0.6);
+  outline: none;
+  transform: scale(1.01);
+}
+.custom-input:hover {
+  box-shadow: 0 0 0 2px rgba(40,167,69,0.4);
+}
+
+.pregunta-box {
+  background: #f9f9f9;
+  border-left: 4px solid #28a745;
+}
+
+.btn-success {
+  background-color: #28a745;
+  border: none;
+  transition: 0.3s;
+}
+.btn-success:hover {
+  background-color: #218838;
+  transform: scale(1.03);
+}
+
+.btn-outline-success {
+  border-radius: 20px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+.btn-outline-success:hover {
+  background: #28a745;
+  color: white;
+}

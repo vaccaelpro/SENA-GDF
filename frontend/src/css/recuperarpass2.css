@@ -1,0 +1,134 @@
+.rp-container {
+    width: 650px;
+    height: 450px;
+    max-width: 95%;
+    border-radius: 20px;
+    display: flex;
+    overflow: hidden;
+    background: #2d3436;
+    box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.5);
+    animation: rpFadeIn 1s ease-in-out;
+}
+
+.rp-left {
+    flex: 1;
+    background-color: #28a745;
+    color: white;
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.rp-right {
+    flex: 2;
+    background: #2d3436;
+    color: white;
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.rp-logo {
+    height: 5rem;
+    width: 5rem;
+    clip-path: circle(50%);
+    margin-bottom: 1rem;
+    transition: transform 0.4s ease;
+}
+
+.rp-logo:hover {
+    transform: rotate(10deg) scale(1.05);
+}
+
+/* Textos */
+.rp-title {
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.rp-text {
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+}
+
+.rp-form-title {
+    font-size: 1.7rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.rp-form-subtitle {
+    font-size: 1rem;
+    opacity: 0.85;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.rp-input {
+    border-radius: 8px;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.rp-input:focus {
+    box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.6);
+    outline: none;
+}
+
+.rp-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-weight: bold;
+    width: 100%;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.rp-btn:hover {
+    background-color: #218838;
+    transform: scale(1.02);
+    box-shadow: 0 0 10px rgba(40, 167, 69, 0.7);
+}
+
+.rp-btn:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.rp-message {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.rp-message.success {
+    color: #28a745;
+}
+
+.rp-message.error {
+    color: #ff4757;
+}
+
+@keyframes rpFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

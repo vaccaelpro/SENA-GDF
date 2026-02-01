@@ -1,0 +1,133 @@
+.titulo-seccion {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #2d3436;
+}
+
+.subtitulo {
+  font-size: 1rem;
+  margin-bottom: 20px;
+  color: #555;
+}
+
+.search-box input {
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  transition: all 0.3s ease;
+}
+
+.search-box input:focus {
+  box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.6);
+  outline: none;
+}
+
+/* Estilos mejorados para la tabla */
+.custom-table {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.custom-table thead {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+}
+
+.custom-table th {
+  padding: 15px 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.custom-table td {
+  padding: 12px;
+  vertical-align: middle;
+  color: #2d3436;
+  font-size: 0.95rem;
+}
+
+.custom-table tbody tr {
+  transition: all 0.3s ease;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.custom-table tbody tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+.custom-table tbody tr:hover {
+  background: linear-gradient(90deg, rgba(40, 167, 69, 0.1) 0%, rgba(32, 201, 151, 0.1) 100%);
+  transform: scale(1.01);
+  box-shadow: 0 3px 10px rgba(40, 167, 69, 0.15);
+}
+
+.custom-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+/* Animación suave al cargar */
+.custom-table tbody tr {
+  animation: fadeInUp 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+.custom-table tbody tr:nth-child(1) {
+  animation-delay: 0.05s;
+}
+
+.custom-table tbody tr:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.custom-table tbody tr:nth-child(3) {
+  animation-delay: 0.15s;
+}
+
+.custom-table tbody tr:nth-child(4) {
+  animation-delay: 0.2s;
+}
+
+.custom-table tbody tr:nth-child(5) {
+  animation-delay: 0.25s;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.download-btn {
+  font-size: 1.3rem;
+  color: #28a745;
+  transition: 0.3s;
+}
+
+.download-btn:hover {
+  color: #218838;
+  transform: scale(1.2);
+}
+
+/* Tarjetas de gráficas */
+.card {
+  border-radius: 12px;
+  background: #fff;
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
