@@ -69,10 +69,6 @@ const RecuperarPassword = () => {
             </form>
 
             {mensaje && <p className="mt-3 text-danger">{mensaje}</p>}
-
-            <Link to="/" className="doc-link mt-3">
-              ← Volver al inicio de sesión
-            </Link>
           </div>
         </div>
       </div>
