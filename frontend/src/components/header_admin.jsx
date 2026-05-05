@@ -4,6 +4,7 @@ import { BsPersonCircle, BsCaretDownFill } from "react-icons/bs";
 
 const Header_admin = ({ nombre }) => {
   const [time, setTime] = useState("");
+  const [nombreUsuario, setNombreUsuario] = useState("");
 
   useEffect(() => {
     const updateClock = () => {
@@ -13,6 +14,16 @@ const Header_admin = ({ nombre }) => {
 
     const interval = setInterval(updateClock, 1000);
     updateClock(); 
+
+    const usuarioStorage = localStorage.getItem("usuario");
+    if (usuarioStorage) {
+      try {
+        const usuario = JSON.parse(usuarioStorage);
+        setNombreUsuario(`${usuario.primer_nombre || ""} ${usuario.primer_apellido || ""}`.trim());
+      } catch (error) {
+        console.error("Error parseando usuario", error);
+      }
+    }
 
     return () => clearInterval(interval); 
   }, []);
@@ -24,13 +35,13 @@ const Header_admin = ({ nombre }) => {
         id="header"
       >
         <div>
-          <h5 className="titulo">Bienvenida, Leidy Johana</h5>
+          <h5 className="titulo">Bienvenida, {nombreUsuario || "Admin"}</h5>
           <p>Mantente al día en la administración de tus ingresos</p>
         </div>
 
         <div className="d-flex align-items-center">
           <BsPersonCircle style={{ fontSize: "1.5rem" }} className="me-2" />
-          <span>Leidy Johana</span>&nbsp;
+          <span>{nombreUsuario || "Admin"}</span>&nbsp;
           <BsCaretDownFill />
           <span className="ms-3">{time}</span>
         </div>
