@@ -1,0 +1,46 @@
+.formulario-editar h2 {
+  margin-bottom: 20px;
+  color: black;
+  margin-top: 55px;
+  margin-left: 40px;
+}
+
+.formulario {
+  background: #2d3436;
+  padding: 20px;
+  border-radius: 15px;
+  color: white;
+  max-width: 400px;
+  margin-left: 40px;
+}
+
+.formulario label {
+  display: block;
+  margin: 12px 0 6px;
+}
+
+.formulario input, 
+.formulario textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+  margin-bottom: 10px;
+}
+
+.formulario textarea {
+  height: 70px;
+}
+
+.btn-actualizar {
+  background: #28a745;
+  border: none;
+  padding: 10px 20px;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-actualizar:hover {
+  background: #218838;
+}

@@ -1,0 +1,49 @@
+      .chat-container {
+            height: 500px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .mensaje {
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            border-radius: 15px;
+            max-width: 70%;
+            animation: fadeIn 0.3s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .mensaje-admin {
+            background: linear-gradient(135deg, #28a745, #218838);
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+        .mensaje-info {
+            background: #e9ecef;
+            color: #495057;
+            text-align: center;
+            max-width: 100%;
+            font-size: 0.85rem;
+        }
+        .mensaje-header {
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        .mensaje-fecha {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .mensaje svg,
+.mensaje-header svg,
+.alert svg {
+  margin-right: 6px;
+  position: relative;
+  top: -1px;
+}

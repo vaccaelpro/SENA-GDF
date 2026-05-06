@@ -1,0 +1,79 @@
+.error404-container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #28a745 0%, #2d3436 100%);
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+    padding: 20px;
+}
+
+.error404-content {
+    background: rgba(45, 52, 54, 0.9);
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    max-width: 500px;
+    width: 100%;
+    animation: slideUp 0.6s ease-out;
+}
+
+.error404-icon {
+    font-size: 6rem;
+    color: #28a745;
+    margin-bottom: 1rem;
+}
+
+.error404-title {
+    font-size: 5rem;
+    font-weight: 800;
+    margin: 0;
+    line-height: 1;
+    color: #28a745;
+}
+
+.error404-subtitle {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+.error404-text {
+    font-size: 1rem;
+    color: #b2bec3;
+    margin-bottom: 2rem;
+}
+
+.btn-back {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 30px;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.btn-back:hover {
+    background-color: #218838;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    color: white;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

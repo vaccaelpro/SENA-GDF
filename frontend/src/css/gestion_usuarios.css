@@ -1,0 +1,271 @@
+.table {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    background: white;
+}
+
+.table th {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    padding: 15px 12px;
+    border: none;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.table tbody tr {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.table tbody tr:hover {
+    background: linear-gradient(90deg, rgba(40, 167, 69, 0.1) 0%, rgba(32, 201, 151, 0.1) 100%);
+    transform: scale(1.01);
+    box-shadow: 0 3px 10px rgba(40, 167, 69, 0.15);
+}
+
+.table td {
+    padding: 12px;
+    vertical-align: middle;
+    color: #2d3436;
+    font-size: 0.95rem;
+}
+
+.table tbody tr:last-child {
+    border-bottom: none;
+}
+
+/* Botones dentro de latabla */
+.table .btn {
+    transition: all 0.3s ease;
+    border-radius: 6px;
+}
+
+.table .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.table .btn-dark {
+    background: #2d3436;
+    border: none;
+}
+
+.table .btn-dark:hover {
+    background: #1abc9c;
+}
+
+/* Estilos para custom-table (mismos que exportar) */
+.custom-table {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.custom-table thead {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.custom-table th {
+    padding: 15px 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.custom-table td {
+    padding: 12px;
+    vertical-align: middle;
+    color: #2d3436;
+    font-size: 0.95rem;
+}
+
+.custom-table tbody tr {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.custom-table tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.custom-table tbody tr:hover {
+    background: linear-gradient(90deg, rgba(40, 167, 69, 0.1) 0%, rgba(32, 201, 151, 0.1) 100%);
+    transform: scale(1.01);
+    box-shadow: 0 3px 10px rgba(40, 167, 69, 0.15);
+}
+
+.custom-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.custom-table .btn {
+    transition: all 0.3s ease;
+    border-radius: 6px;
+}
+
+.custom-table .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.custom-table .btn-dark {
+    background: #2d3436;
+    border: none;
+}
+
+.custom-table .btn-dark:hover {
+    background: #1abc9c;
+}
+
+/* Botones de acción */
+.btn-edit {
+    background: #2d3436;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    transition: all 0.3s ease;
+}
+
+.btn-edit:hover {
+    background: #28a745;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+}
+
+.btn-delete {
+    background: #2d3436;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    transition: all 0.3s ease;
+}
+
+.btn-delete:hover {
+    background: #dc3545;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+}
+
+/* Modal Premium */
+.modal-content {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border-radius: 15px 15px 0 0;
+    padding: 20px;
+}
+
+.modal-title {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.btn-close-white {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+.modal-body {
+    padding: 30px;
+}
+
+.form-group-premium {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+.form-label-premium {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #28a745;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-control-premium {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 12px 15px;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+    color: #2d3436;
+}
+
+.form-control-premium:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.1);
+    outline: none;
+}
+
+.modal-footer {
+    border-top: 1px solid #e9ecef;
+    padding: 20px;
+}
+
+.btn-save-premium {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+    color: white;
+    padding: 10px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-save-premium:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+}
+
+.search-container .form-control:focus {
+    box-shadow: none;
+    border-color: #28a745;
+}
+
+.search-container .input-group-text {
+    color: #28a745;
+}
+
+/* Badge styles */
+.badge {
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+/* Wrapper responsive */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}

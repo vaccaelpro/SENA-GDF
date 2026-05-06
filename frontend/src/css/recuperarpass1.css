@@ -1,0 +1,149 @@
+body {
+  background: linear-gradient(135deg, #28a745, #2d3436);
+  margin: 0;
+  padding: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.login-container {
+  width: 650px;
+  height: 550px;
+  max-width: 95%;
+  border-radius: 20px;
+  display: flex;
+  overflow: hidden;
+  background: #2d3436;
+  box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.5);
+  animation: fadeIn 1s ease-in-out;
+}
+
+.left-login {
+  flex: 1.2;
+  background-color: #28a745;
+  color: white;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.right-login {
+  flex: 2.2;
+  background: #2d3436;
+  color: white;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.logosena {
+  height: 5rem;
+  width: 5rem;
+  clip-path: circle(50%);
+  transition: transform 0.4s ease;
+}
+
+.logosena:hover {
+  transform: rotate(10deg) scale(1.05);
+}
+
+.titulo {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.texto {
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.sena-title {
+  font-size: 1.7rem;
+}
+
+.sena-subtitle {
+  font-size: 1rem;
+  opacity: 0.85;
+}
+
+.form-control {
+  width: 120px;
+}
+
+.custom-input {
+  width: 120px;
+  border-radius: 8px;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.custom-input:focus {
+  box-shadow: 0 0 0 8px rgba(40, 167, 69, 0.6);
+  outline: none;
+}
+
+.custom-input:hover {
+  box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.6);
+}
+
+.doc-link {
+  display: block;
+  margin-top: 10px;
+  color: #1abc9c;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: 0.3s;
+}
+
+.doc-link:hover {
+  text-decoration: underline;
+  color: #28a745;
+}
+
+.btn-custom {
+  border-radius: 20px;
+  padding: 10px 25px;
+  font-weight: bold;
+  transition: 0.3s;
+  background-color: whitesmoke;
+  color: black;
+  text-decoration: none;
+}
+
+.btn-custom:hover {
+  background: #f1f1f1;
+  color: #28a745;
+  transform: scale(1.05);
+}
+
+.btn-login {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.btn-login:hover {
+  background-color: #218838;
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(40, 167, 69, 0.7);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

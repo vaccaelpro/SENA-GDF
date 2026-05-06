@@ -1,0 +1,8 @@
+.encuesta-card {
+  border-radius: 15px;
+  transition: all 0.3s ease;
+}
+.encuesta-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.2) !important;
+}

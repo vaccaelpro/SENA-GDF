@@ -1,0 +1,51 @@
+.formulario-monto {
+  padding: 30px;
+  justify-content: center;
+  align-items: center;
+
+}
+
+.formulario-monto h2 {
+  margin-bottom: 20px;
+  color: black;
+  margin-top: 10PX;
+}
+
+.formulario {
+  background: #2d3436;
+  padding: 20px;
+  border-radius: 15px;
+  color: white;
+  max-width: 400px;
+}
+
+.formulario label {
+  display: block;
+  margin: 12px 0 6px;
+  font-size:14px; 
+  font-weight: normal;
+}
+
+.formulario input,
+.formulario select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+  margin-bottom: 10px;
+  font-size: 15px;
+}
+
+.btn-añadir {
+  background: #28a745;
+  border: none;
+  padding: 10px 20px;  
+  font-size: 15px;    
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-añadir:hover {
+  background: #218838;
+}
