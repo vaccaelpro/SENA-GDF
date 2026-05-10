@@ -94,3 +94,165 @@ exports.registrarExportacion = async (data) => {
         throw error;
     }
 };
+
+exports.crearGrupo = async (data) => {
+    try {
+        const { nombre, descripcion, tipo_apoyo } = data;
+        const [result] = await db.query(
+            "INSERT INTO grupos (nombre, descripcion, tipo_apoyo, fecha_creacion, ultima_actualizacion) VALUES (?, ?, ?, NOW(), NOW())",
+            [nombre, descripcion, tipo_apoyo]
+        );
+        const grupoId = result.insertId;
+
+        const [usuarios] = await db.query(
+            "SELECT id_usuario FROM usuario WHERE tipo_apoyo = ? AND rol = 'USUARIO'",
+            [tipo_apoyo]
+        );
+
+        if (usuarios.length > 0) {
+            const values = usuarios.map(u => [grupoId, u.id_usuario]);
+            await db.query(
+                "INSERT INTO grupos_usuarios (grupo_id, usuario_id) VALUES ?",
+                [values]
+            );
+        }
+
+        return { success: true, id_grupo: grupoId, usuarios_agregados: usuarios.length };
+    } catch (error) {
+        console.error("Error en crearGrupo:", error);
+        throw error;
+    }
+};
+
+exports.listarGrupos = async () => {
+    try {
+        const [rows] = await db.query(
+            `SELECT g.*, 
+            COUNT(gu.usuario_id) as cantidad_miembros,
+            GROUP_CONCAT(CONCAT(u.primer_nombre, ' ', u.primer_apellido, ' (Ficha: ', IFNULL(u.grupo_formacion, 'N/A'), ')') SEPARATOR ', ') as nombres_miembros
+            FROM grupos g 
+            LEFT JOIN grupos_usuarios gu ON g.id_grupo = gu.grupo_id
+            LEFT JOIN usuario u ON gu.usuario_id = u.id_usuario
+            GROUP BY g.id_grupo
+            ORDER BY g.fecha_creacion DESC`
+        );
+        return rows;
+    } catch (error) {
+        console.error("Error en listarGrupos:", error);
+        throw error;
+    }
+};
+
+exports.obtenerMensajesGrupo = async (grupoId) => {
+    try {
+        const [rows] = await db.query(
+            `SELECT m.id_mensaje, m.mensaje, m.fecha_envio, m.usuario_id, u.primer_nombre, u.primer_apellido, u.rol 
+            FROM chat_grupo m 
+            JOIN usuario u ON m.usuario_id = u.id_usuario 
+            WHERE m.grupo_id = ? 
+            ORDER BY m.fecha_envio ASC`,
+            [grupoId]
+        );
+        return rows;
+    } catch (error) {
+        console.error("Error en obtenerMensajesGrupo:", error);
+        throw error;
+    }
+};
+
+exports.enviarMensajeGrupo = async (grupoId, usuarioId, mensaje) => {
+    try {
+        const [result] = await db.query(
+            "INSERT INTO chat_grupo (grupo_id, usuario_id, mensaje, fecha_envio) VALUES (?, ?, ?, NOW())",
+            [grupoId, usuarioId, mensaje]
+        );
+        return { success: true, id_mensaje: result.insertId };
+    } catch (error) {
+        console.error("Error en enviarMensajeGrupo:", error);
+        throw error;
+    }
+};
+
+exports.actualizarGrupo = async (id, nombre, descripcion) => {
+    try {
+        await db.query(
+            "UPDATE grupos SET nombre = ?, descripcion = ?, ultima_actualizacion = NOW() WHERE id_grupo = ?",
+            [nombre, descripcion, id]
+        );
+        return { success: true };
+    } catch (error) {
+        console.error("Error en actualizarGrupo:", error);
+        throw error;
+    }
+};
+
+exports.eliminarGrupo = async (id) => {
+    try {
+        await db.query("DELETE FROM chat_grupo WHERE grupo_id = ?", [id]);
+        await db.query("DELETE FROM grupos_usuarios WHERE grupo_id = ?", [id]);
+        await db.query("DELETE FROM grupos WHERE id_grupo = ?", [id]);
+        return { success: true };
+    } catch (error) {
+        console.error("Error en eliminarGrupo:", error);
+        throw error;
+    }
+};
+
+exports.actualizarMensajeGrupo = async (id, mensaje) => {
+    try {
+        await db.query(
+            "UPDATE chat_grupo SET mensaje = ? WHERE id_mensaje = ?",
+            [mensaje, id]
+        );
+        return { success: true };
+    } catch (error) {
+        console.error("Error en actualizarMensajeGrupo:", error);
+        throw error;
+    }
+};
+
+exports.eliminarMensajeGrupo = async (id) => {
+    try {
+        await db.query("DELETE FROM chat_grupo WHERE id_mensaje = ?", [id]);
+        return { success: true };
+    } catch (error) {
+        console.error("Error en eliminarMensajeGrupo:", error);
+        throw error;
+    }
+};
+
+exports.obtenerDetalleGrupo = async (id) => {
+    try {
+        const [rows] = await db.query(
+            `SELECT g.*, 
+            (SELECT COUNT(*) FROM usuario WHERE tipo_apoyo = g.tipo_apoyo AND rol = 'USUARIO') as total_aprendices
+            FROM grupos g 
+            WHERE g.id_grupo = ?`,
+            [id]
+        );
+        return rows[0];
+    } catch (error) {
+        console.error("Error en obtenerDetalleGrupo:", error);
+        throw error;
+    }
+};
+
+exports.obtenerMiembrosGrupo = async (grupoId) => {
+    try {
+        const [grupo] = await db.query("SELECT tipo_apoyo FROM grupos WHERE id_grupo = ?", [grupoId]);
+        if (grupo.length === 0) return [];
+        
+        const tipoApoyo = grupo[0].tipo_apoyo;
+
+        const [rows] = await db.query(
+            `SELECT id_usuario, primer_nombre, primer_apellido, grupo_formacion, rol 
+            FROM usuario 
+            WHERE tipo_apoyo = ? AND rol = 'USUARIO'`,
+            [tipoApoyo]
+        );
+        return rows;
+    } catch (error) {
+        console.error("Error en obtenerMiembrosGrupo:", error);
+        throw error;
+    }
+};

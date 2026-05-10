@@ -13,7 +13,7 @@ import IAFinance from "./pages/aprendiz/IAFinance";
 import Metas_de_ahorro from "./pages/aprendiz/metas_de_ahorro";
 import IADocument from "./pages/aprendiz/IADocument";
 import Mi_grupo from "./pages/aprendiz/mi_grupo";
-import Chat_aprenidiz from "./pages/aprendiz/chat_aprendiz";
+import Chat_aprendiz from "./pages/aprendiz/chat_aprendiz";
 import Agregar_meta from "./pages/aprendiz/agregar_meta";
 import Agregar_monto from "./pages/aprendiz/agregar_monto";
 import Editar_meta from "./pages/aprendiz/editar_meta";
@@ -55,7 +55,7 @@ function App() {
           <Route path="/Metas_de_ahorro" element={<Metas_de_ahorro />} />
           <Route path="/IADocument" element={<IADocument />} />
           <Route path="/Mi_grupo" element={<Mi_grupo />} />
-          <Route path="/Chat_aprenidiz" element={<Chat_aprenidiz />} />
+          <Route path="/Chat_aprenidiz" element={<Chat_aprendiz />} />
           <Route path="/Agregar_meta" element={<Agregar_meta />} />
           <Route path="/Agregar_monto" element={<Agregar_monto />} />
           <Route path="/Editar_meta" element={<Editar_meta />} />
@@ -76,7 +76,7 @@ function App() {
           <Route path="/Analisis" element={<Analisis />} />
           <Route path="/Lista_grupos" element={<Lista_grupos />} />
           <Route path="/Crear_grupo" element={<Crear_grupo />} />
-          <Route path="/Chat_admin" element={<Chat_admin />} />
+          <Route path="/Chat_admin/:id" element={<Chat_admin />} />
         </Route>
 
         {/* Ruta para capturar cualquier otra URL inexistente */}
