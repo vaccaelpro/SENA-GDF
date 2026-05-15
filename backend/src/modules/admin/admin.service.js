@@ -58,6 +58,26 @@ exports.actualizarUsuario = async (id, data) => {
                 id
             ]
         );
+
+        // ACTUALIZAR RELACIÓN EN GRUPOS_USUARIOS
+        // Primero eliminamos cualquier relación previa en grupos_usuarios para este usuario
+        await db.query("DELETE FROM grupos_usuarios WHERE usuario_id = ?", [id]);
+
+        // Si el usuario es un Aprendiz (USUARIO), lo asignamos al grupo que coincida con su nuevo tipo_apoyo
+        if (rol === 'USUARIO' && tipo_apoyo) {
+            const [grupos] = await db.query(
+                "SELECT id_grupo FROM grupos WHERE tipo_apoyo = ? LIMIT 1",
+                [tipo_apoyo]
+            );
+
+            if (grupos.length > 0) {
+                await db.query(
+                    "INSERT INTO grupos_usuarios (grupo_id, usuario_id) VALUES (?, ?)",
+                    [grupos[0].id_grupo, id]
+                );
+            }
+        }
+
         return { success: true };
     } catch (error) {
         console.error("Error en actualizarUsuario:", error);
@@ -128,12 +148,10 @@ exports.listarGrupos = async () => {
     try {
         const [rows] = await db.query(
             `SELECT g.*, 
-            COUNT(gu.usuario_id) as cantidad_miembros,
-            GROUP_CONCAT(CONCAT(u.primer_nombre, ' ', u.primer_apellido, ' (Ficha: ', IFNULL(u.grupo_formacion, 'N/A'), ')') SEPARATOR ', ') as nombres_miembros
+            (SELECT COUNT(*) FROM usuario u WHERE LOWER(TRIM(u.tipo_apoyo)) = LOWER(TRIM(g.tipo_apoyo)) AND u.rol = 'USUARIO') as cantidad_miembros,
+            (SELECT GROUP_CONCAT(CONCAT(u2.primer_nombre, ' ', u2.primer_apellido, ' (Ficha: ', IFNULL(u2.grupo_formacion, 'N/A'), ')') SEPARATOR ', ') 
+             FROM usuario u2 WHERE LOWER(TRIM(u2.tipo_apoyo)) = LOWER(TRIM(g.tipo_apoyo)) AND u2.rol = 'USUARIO') as nombres_miembros
             FROM grupos g 
-            LEFT JOIN grupos_usuarios gu ON g.id_grupo = gu.grupo_id
-            LEFT JOIN usuario u ON gu.usuario_id = u.id_usuario
-            GROUP BY g.id_grupo
             ORDER BY g.fecha_creacion DESC`
         );
         return rows;
@@ -225,7 +243,7 @@ exports.obtenerDetalleGrupo = async (id) => {
     try {
         const [rows] = await db.query(
             `SELECT g.*, 
-            (SELECT COUNT(*) FROM usuario WHERE tipo_apoyo = g.tipo_apoyo AND rol = 'USUARIO') as total_aprendices
+            (SELECT COUNT(*) FROM usuario u WHERE LOWER(TRIM(u.tipo_apoyo)) = LOWER(TRIM(g.tipo_apoyo)) AND u.rol = 'USUARIO') as total_aprendices
             FROM grupos g 
             WHERE g.id_grupo = ?`,
             [id]
