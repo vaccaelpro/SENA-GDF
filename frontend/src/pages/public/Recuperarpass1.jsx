@@ -39,7 +39,7 @@ const RecuperarPassword = () => {
 
   return (
     <>
-      <div className="d-flex justify-content-center align-items-center vh-100">
+      <div className="recuperar-wrapper">
         <div className="login-container">
           <div className="left-login text-center">
             <p className="titulo">¿Ya recordaste?</p>

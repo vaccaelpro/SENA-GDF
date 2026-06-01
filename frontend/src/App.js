@@ -3,8 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/layout";
 import Layout_admin from "./components/layout_admin";
 
-import Login from "./pages/public/login";
-import Registro from "./pages/public/registro";
+import Auth from "./pages/public/Auth";
 import Repecuperar_contraseña1 from "./pages/public/Recuperarpass1";
 
 import Novedades_aprendiz from "./pages/aprendiz/novedades_aprendiz";
@@ -38,8 +37,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/*Vistas que ven todos los roles*/}
-        <Route path="/" element={<Login />} />
-        <Route path="/Registro" element={<Registro />} />
+        <Route path="/" element={<Auth />} />
+        <Route path="/Registro" element={<Auth />} />
         <Route path="/Repecuperar_contraseña" element={<Repecuperar_contraseña1 />} />
         <Route path="/restablecer/:token" element={<RestablecerPassword />} />
 

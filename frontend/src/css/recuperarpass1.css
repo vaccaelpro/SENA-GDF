@@ -1,8 +1,13 @@
-body {
-  background: linear-gradient(135deg, #28a745, #2d3436);
+.recuperar-wrapper {
+  background: radial-gradient(circle at center, #28a745 0%, #2d3436 80%);
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin: 0;
   padding: 0;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 .login-container {
