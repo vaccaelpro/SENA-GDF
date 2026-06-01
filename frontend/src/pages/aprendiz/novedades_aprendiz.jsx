@@ -1,100 +1,102 @@
+import { useState, useEffect } from "react";
+import { listarPublicos } from "../../services/comunicados.service";
 import "../../css/novedades_aprendiz.css";
-import Publicacion1 from "../../assets/img/publicacion1.jpg";
-import Publicacion2 from "../../assets/img/publicacion2.jpg";
-import Publicacion3 from "../../assets/img/publicacion3.jpg";
-import Publicacion4 from "../../assets/img/publicacion4.jpg";
 
 const Novedades_aprendiz = () => {
+  const [comunicados, setComunicados] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await listarPublicos();
+        setComunicados(data);
+      } catch (err) {
+        console.error("Error al cargar novedades:", err);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  const getImagenUrl = (comunicado) => {
+    if (comunicado.imagen_url) {
+      return `http://localhost:3001/uploads/${comunicado.imagen_url}`;
+    }
+    return null;
+  };
+
+  if (loading) {
+    return (
+      <div className="container mt-5 text-center">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mt-5">
       <h3 className="mb-4">Publicaciones</h3>
 
-      <div className="row row-cols-1 row-cols-md-2 row-cols-lg-2 g-4">
-        <div className="col mb-4">
-          <div className="card h-100 text-center">
-            <img
-              src={Publicacion1}
-              className="card-img-top"
-              alt="Imagen de publicación"
-            />
-            <div className="card-body">
-              <h5 className="card-title">
-                Convocatoria de Apoyo de Sostenimiento 2024
-              </h5>
-              <p className="card-text">
-                Material institucional del Centro Textil y de Gestión Industrial
-                que acompaña la difusión de la Convocatoria de Apoyo de
-                Sostenimiento 2024. La pieza promueve la participación de los
-                aprendices en el proceso de postulación, destacando la
-                disponibilidad de apoyos económicos destinados a facilitar su
-                permanencia y continuidad en la formación. La imagen refuerza el
-                mensaje institucional mediante elementos visuales alusivos a la
-                identidad del SENA.
-              </p>
-            </div>
-          </div>
+      {comunicados.length === 0 ? (
+        <div className="alert alert-info">No hay novedades disponibles.</div>
+      ) : (
+        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-2 g-4">
+          {comunicados.map((comunicado) => {
+            const imgUrl = getImagenUrl(comunicado);
+            return (
+              <div className="col mb-4" key={comunicado.id_comunicado}>
+                <div className="card h-100 text-center">
+                  {imgUrl ? (
+                    <img
+                      src={imgUrl}
+                      className="card-img-top"
+                      alt={comunicado.titulo}
+                      style={{ height: "200px", objectFit: "cover" }}
+                    />
+                  ) : (
+                    <div
+                      className="card-img-top bg-secondary d-flex align-items-center justify-content-center"
+                      style={{ height: "200px", color: "#fff", fontSize: "3rem" }}
+                    >
+                      📰
+                    </div>
+                  )}
+                  <div className="card-body">
+                    <span className="badge bg-info mb-2">{comunicado.categoria}</span>
+                    <h5 className="card-title">{comunicado.titulo}</h5>
+                    <p className="card-text">
+                      {comunicado.contenido.substring(0, 300)}
+                      {comunicado.contenido.length > 300 ? "..." : ""}
+                    </p>
+                    <p className="card-text">
+                      <small className="text-muted">
+                        {new Date(comunicado.fecha_publicacion).toLocaleDateString("es-CO", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </small>
+                    </p>
+                    {comunicado.url_referencia && (
+                      <a
+                        href={comunicado.url_referencia}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-outline-primary btn-sm"
+                      >
+                        Más información
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
-
-        <div className="col mb-4">
-          <div className="card h-100 text-center">
-            <img
-              src={Publicacion2}
-              className="card-img-top"
-              alt="Imagen de publicación"
-            />
-            <div className="card-body">
-              <h5 className="card-title">
-                Jornada de Salud y Bienestar Integral
-              </h5>
-              <p className="card-text">
-                Comunicación oficial del Centro Textil y de Gestión Industrial
-                destinada a instructores y aprendices, en la que se resalta la
-                importancia de consultar y diligenciar el Formato de Paz y Salvo
-                de finalización de Etapa Productiva. La pieza se complementa con
-                la invitación a la Jornada de Salud y Bienestar Integral.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="col mb-4">
-          <div className="card h-100 text-center">
-            <img
-              src={Publicacion3}
-              className="card-img-top"
-              alt="Imagen de publicación"
-            />
-            <div className="card-body">
-              <h5 className="card-title">Necesidades para aprendices.</h5>
-              <p className="card-text">
-                Material informativo del programa Bienestar al Aprendiz que
-                invita a los estudiantes a participar en la encuesta
-                institucional de necesidades. La campaña promueve la
-                colaboración y el apoyo mutuo entre los aprendices.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="col mb-4">
-          <div className="card h-100 text-center">
-            <img
-              src={Publicacion4}
-              className="card-img-top"
-              alt="Imagen de publicación"
-            />
-            <div className="card-body">
-              <h5 className="card-title">Nueva oferta presencial SENA</h5>
-              <p className="card-text">
-                Anuncio institucional del SENA que comunica la disponibilidad de
-                una nueva oferta formativa presencial e invita a los interesados
-                a realizar su inscripción a través de la plataforma oficial
-                Sofiaplus.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   );
 };

@@ -68,6 +68,7 @@ function App() {
           </ProtectedRoute>
         }>
           <Route path="/Agregar_novedad" element={<Agregar_novedad />} />
+          <Route path="/Agregar_novedad/:id" element={<Agregar_novedad />} />
           <Route path="/Eliminar_novedad" element={<Eliminar_novedad />} />
           <Route path="/Tabla_gestion_usuarios" element={<Tabla_gestion_usuarios />} />
           <Route path="/Exportar_finanzas" element={<Exportar_finanzas />} />

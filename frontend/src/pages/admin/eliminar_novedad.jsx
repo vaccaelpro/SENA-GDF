@@ -1,80 +1,155 @@
-import "../../css/eliminar_novedad.css"
-import Publicacion1 from "../../assets/img/publicacion1.jpg";
-import Publicacion2 from "../../assets/img/publicacion2.jpg";
-import Publicacion3 from "../../assets/img/publicacion3.jpg";
-import Publicacion4 from "../../assets/img/publicacion4.jpg";
+import { useState, useEffect } from "react";
+import { listarAdmin, eliminar } from "../../services/comunicados.service";
+import Modificar_novedad_modal from "./Modificar_novedad_modal";
+import Swal from "sweetalert2";
+import "../../css/eliminar_novedad.css";
 
-const Eliminar_novedad = () =>{
-    return(
-        <div className="container mt-5">
-  <h3 className="mb-4">Publicaciones</h3>
-  <div className="row row-cols-1 row-cols-md-2 row-cols-lg-2 g-4">
-    <div className="col mb-4">
-      <div className="card h-100 text-center">
-        <img src={Publicacion1} className="card-img-top" alt="Imagen de publicación" />
-        <div className="card-body">
-          <h5 className="card-title">Convocatoria de Apoyo de Sostenimiento 2024</h5>
-          <p className="card-text">
-            Material institucional del Centro Textil y de Gestión Industrial que acompaña la difusión de la Convocatoria de Apoyo de Sostenimiento 2024. La pieza promueve la participación de los aprendices en el proceso de postulación, destacando la disponibilidad de apoyos económicos destinados a facilitar su permanencia y continuidad en la formación. La imagen refuerza el mensaje institucional mediante elementos visuales alusivos a la identidad del SENA.
-          </p>
-          <div className="d-flex justify-content-center gap-2">
-            <button className="btn btn-success">Modificar</button>
-            <button className="btn btn-danger">Borrar</button>
-          </div>
+const Eliminar_novedad = () => {
+  const [comunicados, setComunicados] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [editando, setEditando] = useState(null);
+
+  // Obtener usuario de la sesión actual
+  const usuarioStorage = localStorage.getItem("usuario");
+  const usuarioActual = usuarioStorage ? JSON.parse(usuarioStorage) : null;
+
+  const cargar = async () => {
+    try {
+      setLoading(true);
+      const data = await listarAdmin();
+      setComunicados(data);
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Error", "No se pudieron cargar las novedades", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    cargar();
+  }, []);
+
+  const handleEliminar = async (comunicado) => {
+    const result = await Swal.fire({
+      title: "¿Eliminar novedad?",
+      html: `
+        <p><strong>${comunicado.titulo}</strong></p>
+        <p style="font-size:0.9rem;color:#666;">${comunicado.contenido.substring(0, 150)}${comunicado.contenido.length > 150 ? "..." : ""}</p>
+      `,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc3545",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await eliminar(comunicado.id_comunicado);
+      Swal.fire("Eliminado", "La novedad se eliminó correctamente", "success");
+      cargar();
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Error", "No se pudo eliminar la novedad", "error");
+    }
+  };
+
+  const getImagenUrl = (comunicado) => {
+    if (comunicado.imagen_url) {
+      return `http://localhost:3001/uploads/${comunicado.imagen_url}`;
+    }
+    return null;
+  };
+
+  if (loading) {
+    return (
+      <div className="container mt-5 text-center">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Cargando...</span>
         </div>
       </div>
-    </div>
-
-    <div className="col mb-4">
-      <div className="card h-100 text-center">
-        <img src={Publicacion2} className="card-img-top" alt="Imagen de publicación" />
-        <div className="card-body">
-          <h5 className="card-title">Jornada de Salud y Bienestar Integral</h5>
-          <p className="card-text">
-            Comunicación oficial del Centro Textil y de Gestión Industrial destinada a instructores y aprendices, en la que se resalta la importancia de consultar y diligenciar el Formato de Paz y Salvo de finalización de Etapa Productiva. La pieza se complementa con la invitación a la Jornada de Salud y Bienestar Integral, un evento orientado a promover el cuidado personal mediante servicios de atención médica, asesoría nutricional, actividades deportivas y espacios de orientación para el bienestar emocional.
-          </p>
-          <div className="d-flex justify-content-center gap-2">
-            <button className="btn btn-success">Modificar</button>
-            <button className="btn btn-danger">Borrar</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div className="col mb-4">
-      <div className="card h-100 text-center">
-        <img src={Publicacion3} className="card-img-top" alt="Imagen de publicación" />
-        <div className="card-body">
-          <h5 className="card-title">Necesidades para aprendices.</h5>
-          <p className="card-text">
-            Material informativo del programa Bienestar al Aprendiz que invita a los estudiantes a participar en la encuesta institucional de necesidades. La campaña promueve la colaboración y el apoyo mutuo entre los aprendices con el fin de fortalecer los servicios y estrategias de acompañamiento
-          </p>
-          <div className="d-flex justify-content-center gap-2">
-            <button className="btn btn-success">Modificar</button>
-            <button className="btn btn-danger">Borrar</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div className="col mb-4">
-      <div className="card h-100 text-center">
-        <img src={Publicacion4} className="card-img-top" alt="Imagen de publicación" />
-        <div className="card-body">
-          <h5 className="card-title">Nueva oferta presencial SENA</h5>
-          <p className="card-text">
-            Anuncio institucional del SENA que comunica la disponibilidad de una nueva oferta formativa presencial e invita a los interesados a realizar su inscripción a través de la plataforma oficial Sofiaplus. La pieza destaca el compromiso de la entidad con brindar oportunidades educativas de alta calidad
-          </p>
-          <div className="d-flex justify-content-center gap-2">
-            <button className="btn btn-success">Modificar</button>
-            <button className="btn btn-danger">Borrar</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
     );
+  }
+
+  return (
+    <div className="container mt-5">
+      <h3 className="mb-4">Publicaciones</h3>
+
+      {comunicados.length === 0 ? (
+        <div className="alert alert-info">No hay novedades publicadas aún.</div>
+      ) : (
+        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-2 g-4">
+          {comunicados.map((comunicado) => {
+            const imgUrl = getImagenUrl(comunicado);
+            return (
+              <div className="col mb-4" key={comunicado.id_comunicado}>
+                <div className="card h-100 text-center">
+                  {imgUrl ? (
+                    <img
+                      src={imgUrl}
+                      className="card-img-top"
+                      alt={comunicado.titulo}
+                      style={{ height: "200px", objectFit: "cover" }}
+                    />
+                  ) : (
+                    <div
+                      className="card-img-top bg-secondary d-flex align-items-center justify-content-center"
+                      style={{ height: "200px", color: "#fff", fontSize: "3rem" }}
+                    >
+                      📰
+                    </div>
+                  )}
+                  <div className="card-body">
+                    <span className="badge bg-info mb-2">{comunicado.categoria}</span>
+                    <h5 className="card-title">{comunicado.titulo}</h5>
+                    <p className="card-text text-muted">
+                      {comunicado.contenido.substring(0, 200)}
+                      {comunicado.contenido.length > 200 ? "..." : ""}
+                    </p>
+                    <p className="card-text">
+                      <small className="text-muted">
+                        {new Date(comunicado.fecha_publicacion).toLocaleDateString("es-CO", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                        {usuarioActual && ` — Por: ${usuarioActual.primer_nombre} ${usuarioActual.primer_apellido}`}
+                      </small>
+                    </p>
+                    <div className="d-flex justify-content-center gap-2">
+                      <button
+                        className="btn btn-success"
+                        onClick={() => setEditando(comunicado)}
+                      >
+                        Modificar
+                      </button>
+                      <button
+                        className="btn btn-danger"
+                        onClick={() => handleEliminar(comunicado)}
+                      >
+                        Borrar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {editando && (
+        <Modificar_novedad_modal
+          comunicado={editando}
+          onClose={() => setEditando(null)}
+          onActualizado={cargar}
+        />
+      )}
+    </div>
+  );
 };
 
 export default Eliminar_novedad;
