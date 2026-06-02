@@ -1,7 +1,48 @@
-#contenido-principal{
-    margin-top: 40px;
-    background-color: #2d3436;
-    border: none;
-    border-radius: 10px;
-    color: white;
+.img-preview {
+  max-width: 220px;
+  max-height: 160px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  object-fit: cover;
+  border: 3px solid #28a745;
+}
+
+.card {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 18px 24px;
+  border-bottom: none;
+}
+
+.card-body {
+  background: #fff;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #28a745;
+  box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.1);
+}
+
+.form-label svg {
+  font-size: 1rem;
+}
+
+.btn-success,
+.btn-secondary {
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
 }
