@@ -59,6 +59,26 @@ exports.actualizarUsuario = async (id, data) => {
                 id
             ]
         );
+
+        // ACTUALIZAR RELACIÓN EN GRUPOS_USUARIOS
+        // Primero eliminamos cualquier relación previa en grupos_usuarios para este usuario
+        await db.query("DELETE FROM grupos_usuarios WHERE usuario_id = ?", [id]);
+
+        // Si el usuario es un Aprendiz (USUARIO), lo asignamos al grupo que coincida con su nuevo tipo_apoyo
+        if (rol === 'USUARIO' && tipo_apoyo) {
+            const [grupos] = await db.query(
+                "SELECT id_grupo FROM grupos WHERE tipo_apoyo = ? LIMIT 1",
+                [tipo_apoyo]
+            );
+
+            if (grupos.length > 0) {
+                await db.query(
+                    "INSERT INTO grupos_usuarios (grupo_id, usuario_id) VALUES (?, ?)",
+                    [grupos[0].id_grupo, id]
+                );
+            }
+        }
+
         return { success: true };
     } catch (error) {
         console.error("Error en actualizarUsuario:", error);
@@ -254,6 +274,7 @@ exports.obtenerMiembrosGrupo = async (grupoId) => {
         throw error;
     }
 };
+
 
 // =================== COMUNICADOS / NOVEDADES ===================
 

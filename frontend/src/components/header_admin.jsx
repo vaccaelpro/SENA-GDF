@@ -13,7 +13,7 @@ const Header_admin = ({ nombre }) => {
     };
 
     const interval = setInterval(updateClock, 1000);
-    updateClock(); 
+    updateClock();
 
     const usuarioStorage = localStorage.getItem("usuario");
     if (usuarioStorage) {
@@ -25,7 +25,7 @@ const Header_admin = ({ nombre }) => {
       }
     }
 
-    return () => clearInterval(interval); 
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -35,7 +35,7 @@ const Header_admin = ({ nombre }) => {
         id="header"
       >
         <div>
-          <h5 className="titulo">Bienvenida, {nombreUsuario || "Admin"}</h5>
+          <h5 className="titulo">Bienvenid@, {nombreUsuario || "Admin"}</h5>
           <p>Mantente al día en la administración de tus ingresos</p>
         </div>
 

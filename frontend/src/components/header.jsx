@@ -27,7 +27,7 @@ const Header = () => {
   return (
     <div className="text-white p-4 d-flex justify-content-between align-items-center header-fixed">
       <div>
-        <h5 className="titulo">Bienvenido, {nombreUsuario || "Aprendiz"}</h5>
+        <h5 className="titulo">Bienvenid@, {nombreUsuario || "Aprendiz"}</h5>
         <p>Mantente al día en la administración de tus ingresos</p>
       </div>
 

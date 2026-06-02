@@ -131,6 +131,5 @@ scratch/
 
 # Reporte de errores de compilación
 tsconfig.tsbuildinfo
-
 # OpenCode / Gentle AI — configuracion local del asistente
 .atl/

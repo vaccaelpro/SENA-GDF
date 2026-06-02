@@ -1,21 +1,20 @@
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import Swal from "sweetalert2";
 import "../../css/recuperarpass2.css";
-import logoSena from "../../assets/img/logosena2.png";
+import logoSena from "../../assets/img/logosena.png";
 
 const RestablecerPassword = () => {
     const { token } = useParams();
     const navigate = useNavigate();
 
     const [password, setPassword] = useState("");
-    const [mensaje, setMensaje] = useState("");
+    const [verPass, setVerPass] = useState(false);
     const [cargando, setCargando] = useState(false);
-    const [esExitoso, setEsExitoso] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setCargando(true);
-        setMensaje("");
 
         try {
             const res = await fetch("http://localhost:3001/api/auth/restablecer", {
@@ -31,65 +30,69 @@ const RestablecerPassword = () => {
 
             if (!res.ok) throw new Error(data.message);
 
-            setEsExitoso(true);
-            setMensaje("¡Contraseña actualizada correctamente!");
+            Swal.fire({
+                icon: "success",
+                title: "¡Contraseña Actualizada!",
+                text: "Tu contraseña ha sido restablecida correctamente. Ahora serás redirigido al inicio de sesión.",
+                confirmButtonColor: "#28a745"
+            });
             setTimeout(() => navigate("/"), 2500);
 
         } catch (error) {
-            setEsExitoso(false);
-            setMensaje(error.message || "Token inválido o expirado");
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: error.message || "Token inválido o expirado",
+                confirmButtonColor: "#28a745"
+            });
         } finally {
             setCargando(false);
         }
     };
 
     return (
-        <>
-           <div className="vh-100 d-flex justify-content-center align-items-center">
-                <div className="rp-container">
-                    <div className="rp-left">
-                        <img src={logoSena} alt="SENA" className="rp-logo" />
-                        <h5 className="rp-title">SENA GDF</h5>
-                        <p className="rp-text">
-                            Crea una nueva contraseña segura para tu cuenta
-                        </p>
-                    </div>
-
-                    <div className="rp-right">
-                        <div className="rp-form-title">RESTABLECER</div>
-                        <p className="rp-form-subtitle">
-                            Ingresa tu nueva contraseña para continuar
-                        </p>
-
-                        <form className="w-100" onSubmit={handleSubmit}>
-                            <div className="mb-3">
-                                <input
-                                    type="password"
-                                    className="form-control rp-input"
-                                    placeholder="Nueva contraseña (min. 8 caracteres)"
-                                    minLength={8}
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    required
-                                />
-                            </div>
-
-                            <button className="rp-btn" disabled={cargando}>
-                                {cargando ? "PROCESANDO..." : "CAMBIAR CONTRASEÑA"}
-                            </button>
-                        </form>
-
-                        {mensaje && (
-                            <p className={`rp-message ${esExitoso ? "success" : "error"}`}>
-                                {mensaje}
-                            </p>
-                        )}
-                    </div>
+        <div className="restablecer-wrapper">
+            <div className="rp-container">
+                
+                {/* LEFT COLUMN - OVERLAY STYLE */}
+                <div className="rp-left">
+                    <img src={logoSena} alt="SENA" className="logosena-auth mb-3" />
+                    <h1>SENA GDF</h1>
+                    <p>Crea una nueva contraseña segura para recuperar el acceso a tu cuenta.</p>
                 </div>
-            </div>
 
-        </>
+                {/* RIGHT COLUMN - FORM STYLE */}
+                <div className="rp-right text-center">
+                    <h1>RESTABLECER CONTRASEÑA</h1>
+                    <p>Ingresa tu nueva contraseña para continuar.</p>
+
+                    <form className="w-100 px-3" onSubmit={handleSubmit}>
+                        <div className="input-group-auth">
+                            <ion-icon name="lock-closed-outline"></ion-icon>
+                            <input
+                                type={verPass ? "text" : "password"}
+                                className="auth-input"
+                                placeholder="Nueva contraseña (mín. 8 caracteres)"
+                                minLength={8}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
+                            <span className="password-toggle" onClick={() => setVerPass(!verPass)}>
+                                <ion-icon name={verPass ? "eye-off-outline" : "eye-outline"}></ion-icon>
+                            </span>
+                        </div>
+
+                        <button className="auth-btn mt-3" disabled={cargando}>
+                            {cargando ? "Procesando..." : "Cambiar Contraseña"}
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
     );
 };
 
 export default RestablecerPassword;
+
