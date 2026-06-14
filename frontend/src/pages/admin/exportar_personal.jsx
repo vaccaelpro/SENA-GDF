@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import "../../css/exportar_personal.css";
 import { FaDownload } from "react-icons/fa";
-import axios from "axios";
+import { listarUsuarios } from "../../services/admin/usuarios.service";
+import { registrarExportacion } from "../../services/admin/exportaciones.service";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import Swal from "sweetalert2";
@@ -16,8 +17,8 @@ const Exportar_personal = () => {
 
   const fetchUsuarios = async () => {
     try {
-      const response = await axios.get("http://localhost:3001/api/admin/usuarios");
-      const usuariosSinAdmin = response.data.filter(usuario => usuario.rol !== 'ADMIN');
+      const data = await listarUsuarios();
+      const usuariosSinAdmin = data.filter(usuario => usuario.rol !== 'ADMIN');
       setUsuarios(usuariosSinAdmin);
       setCargando(false);
     } catch (error) {
@@ -104,11 +105,7 @@ const Exportar_personal = () => {
       const usuarioSession = JSON.parse(localStorage.getItem("usuario"));
       if (usuarioSession && usuarioSession.id_usuario) {
         try {
-          await axios.post("http://localhost:3001/api/admin/exportaciones", {
-            nombre_archivo: fileName,
-            usuario_id_usuario: usuarioSession.id_usuario,
-            tipo_exportacion: "Personal"
-          });
+          await registrarExportacion(fileName, usuarioSession.id_usuario, "Personal");
           Swal.fire("Éxito", "La exportación se ha completado y registrado correctamente", "success");
         } catch (recordingError) {
           console.error("Error al registrar la exportación en la base de datos:", recordingError);

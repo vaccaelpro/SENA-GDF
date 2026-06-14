@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import { obtenerMiGrupo, obtenerMiembrosGrupo } from "../../services/aprendiz/grupo.service";
 import {
   BsPeople,
   BsCalendar3,
@@ -30,11 +30,11 @@ const Mi_grupo = () => {
       }
 
       try {
-        const resGrupo = await axios.get(`http://localhost:3001/api/aprendiz/mi-grupo/${usuarioActual.id_usuario}`);
-        setGrupo(resGrupo.data);
+        const dataGrupo = await obtenerMiGrupo(usuarioActual.id_usuario);
+        setGrupo(dataGrupo);
 
-        const resMiembros = await axios.get(`http://localhost:3001/api/aprendiz/mi-grupo/${usuarioActual.id_usuario}/miembros`);
-        setMiembros(resMiembros.data);
+        const dataMiembros = await obtenerMiembrosGrupo(usuarioActual.id_usuario);
+        setMiembros(dataMiembros);
       } catch (err) {
         console.error("Error al cargar datos del grupo:", err);
         setError(err.response?.data?.error || "Aún no tienes un grupo asignado.");

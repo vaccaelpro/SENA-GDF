@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "../../css/chat_grupo_admin.css";
-import axios from "axios";
+import { obtenerMiGrupo, obtenerMensajesGrupo } from "../../services/aprendiz/grupo.service";
 import {
   FaComments,
   FaCircle,
@@ -31,13 +31,13 @@ const Chat_aprendiz = () => {
 
       try {
         // Ejecutamos ambas peticiones
-        const [resGrupo, resMensajes] = await Promise.all([
-          axios.get(`http://localhost:3001/api/aprendiz/mi-grupo/${usuarioActual.id_usuario}`),
-          axios.get(`http://localhost:3001/api/aprendiz/mi-grupo/${usuarioActual.id_usuario}/mensajes`)
+        const [dataGrupo, dataMensajes] = await Promise.all([
+          obtenerMiGrupo(usuarioActual.id_usuario),
+          obtenerMensajesGrupo(usuarioActual.id_usuario)
         ]);
 
-        setGrupo(resGrupo.data);
-        setMensajes(resMensajes.data);
+        setGrupo(dataGrupo);
+        setMensajes(dataMensajes);
       } catch (err) {
         console.error("Error al cargar el chat:", err);
         setError(err.response?.data?.error || "No se pudo cargar la información del grupo.");

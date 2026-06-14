@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { crear, actualizar, obtenerPorId } from "../../services/comunicados.service";
+import { crear, actualizar, obtenerPorId } from "../../services/admin/comunicados.service";
 import Swal from "sweetalert2";
 import "../../css/agregar_novedad.css";
 

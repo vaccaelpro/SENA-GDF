@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { actualizar } from "../../services/comunicados.service";
+import { actualizar } from "../../services/admin/comunicados.service";
 import Swal from "sweetalert2";
 
 const Modificar_novedad_modal = ({ comunicado, onClose, onActualizado }) => {

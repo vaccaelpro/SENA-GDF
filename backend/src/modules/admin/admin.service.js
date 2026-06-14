@@ -1,4 +1,5 @@
-const db = require('../../config/database')
+const db = require('../../config/database');
+const { saveBase64Image, deleteImage } = require('../../utils/uploadHelper');
 
 exports.listarUsuarios = async () => {
     try {
@@ -114,7 +115,6 @@ exports.registrarExportacion = async (data) => {
         throw error;
     }
 };
-
 exports.crearGrupo = async (data) => {
     try {
         const { nombre, descripcion, tipo_apoyo } = data;
@@ -274,3 +274,143 @@ exports.obtenerMiembrosGrupo = async (grupoId) => {
         throw error;
     }
 };
+
+
+// =================== COMUNICADOS / NOVEDADES ===================
+
+exports.listarComunicadosPublicos = async () => {
+    try {
+        const [rows] = await db.query(
+            `SELECT id_comunicado, titulo, contenido, categoria, imagen_url, url_referencia, fecha_publicacion
+             FROM comunicados
+             ORDER BY fecha_publicacion DESC`
+        );
+        return rows;
+    } catch (error) {
+        console.error('Error en listarComunicadosPublicos:', error);
+        throw error;
+    }
+};
+
+exports.listarComunicadosAdmin = async () => {
+    try {
+        const [rows] = await db.query(
+            `SELECT c.*, u.primer_nombre, u.primer_apellido
+             FROM comunicados c
+             JOIN usuario u ON c.usuario_id_usuario = u.id_usuario
+             ORDER BY c.fecha_publicacion DESC`
+        );
+        return rows;
+    } catch (error) {
+        console.error('Error en listarComunicadosAdmin:', error);
+        throw error;
+    }
+};
+
+exports.obtenerComunicadoPorId = async (id) => {
+    try {
+        const [rows] = await db.query(
+            `SELECT c.*, u.primer_nombre, u.primer_apellido
+             FROM comunicados c
+             JOIN usuario u ON c.usuario_id_usuario = u.id_usuario
+             WHERE c.id_comunicado = ?`,
+            [id]
+        );
+        return rows[0] || null;
+    } catch (error) {
+        console.error('Error en obtenerComunicadoPorId:', error);
+        throw error;
+    }
+};
+
+exports.crearComunicado = async (data, usuarioId) => {
+    try {
+        const { titulo, contenido, categoria, imagen_base64, url_referencia } = data;
+
+        let imagen_url = null;
+        if (imagen_base64) {
+            imagen_url = saveBase64Image(imagen_base64);
+        }
+
+        const [result] = await db.query(
+            `INSERT INTO comunicados (titulo, contenido, categoria, imagen_url, url_referencia, fecha_publicacion, ultima_actualizacion, usuario_id_usuario)
+             VALUES (?, ?, ?, ?, ?, NOW(), NOW(), ?)`,
+            [titulo, contenido, categoria || 'Noticias', imagen_url, url_referencia || null, usuarioId]
+        );
+
+        return { success: true, id_comunicado: result.insertId, imagen_url };
+    } catch (error) {
+        console.error('Error en crearComunicado:', error);
+        throw error;
+    }
+};
+
+exports.actualizarComunicado = async (id, data) => {
+    try {
+        const { titulo, contenido, categoria, imagen_base64, url_referencia, mantener_imagen } = data;
+
+        let imagen_url = null;
+        if (imagen_base64) {
+            const actual = await this.obtenerComunicadoPorId(id);
+            if (actual && actual.imagen_url) {
+                deleteImage(actual.imagen_url);
+            }
+            imagen_url = saveBase64Image(imagen_base64);
+        } else if (mantener_imagen) {
+            const actual = await this.obtenerComunicadoPorId(id);
+            imagen_url = actual ? actual.imagen_url : null;
+        }
+
+        await db.query(
+            `UPDATE comunicados SET
+                titulo = ?, contenido = ?, categoria = ?,
+                imagen_url = ?, url_referencia = ?,
+                ultima_actualizacion = NOW()
+             WHERE id_comunicado = ?`,
+            [titulo, contenido, categoria, imagen_url, url_referencia || null, id]
+        );
+
+        return { success: true, imagen_url };
+    } catch (error) {
+        console.error('Error en actualizarComunicado:', error);
+        throw error;
+    }
+};
+
+exports.eliminarComunicado = async (id) => {
+    try {
+        const actual = await this.obtenerComunicadoPorId(id);
+        if (actual && actual.imagen_url) {
+            deleteImage(actual.imagen_url);
+        }
+
+        await db.query('DELETE FROM comunicados WHERE id_comunicado = ?', [id]);
+        return { success: true };
+    } catch (error) {
+        console.error('Error en eliminarComunicado:', error);
+        throw error;
+    }
+};
+
+// ============= FINANZAS GENERALES =============
+exports.listarFinanzas = async () => {
+    try {
+        const [rows] = await db.query(
+            `SELECT 
+                u.id_usuario,
+                u.primer_nombre, 
+                u.primer_apellido, 
+                u.documento,
+                IFNULL((SELECT SUM(i.monto) FROM ingresos i WHERE i.usuario_id_usuario = u.id_usuario), 0) as total_ingresos,
+                IFNULL((SELECT SUM(g.monto) FROM gastos g WHERE g.usuario_id_usuario = u.id_usuario), 0) as total_gastos
+            FROM usuario u
+            WHERE u.rol = 'USUARIO'
+            ORDER BY u.primer_nombre, u.primer_apellido`
+        );
+        return rows;
+    } catch (error) {
+        console.error("Error en listarFinanzas:", error);
+        throw error;
+    }
+};
+

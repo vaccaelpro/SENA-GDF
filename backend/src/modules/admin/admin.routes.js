@@ -21,4 +21,16 @@ router.delete("/mensajes/:id", controller.eliminarMensajeGrupo);
 router.get("/grupos/:id", controller.obtenerDetalleGrupo);
 router.get("/grupos/:id/miembros", controller.obtenerMiembrosGrupo);
 
+// Comunicados / Novedades
+router.get("/comunicados", controller.listarComunicadosPublicos);
+router.get("/comunicados/admin", controller.listarComunicadosAdmin);
+router.get("/comunicados/admin/:id", controller.obtenerComunicadoPorId);
+router.post("/comunicados/admin", controller.crearComunicado);
+router.put("/comunicados/admin/:id", controller.actualizarComunicado);
+router.delete("/comunicados/admin/:id", controller.eliminarComunicado);
+
+// Finanzas generales de usuarios
+router.get("/finanzas", controller.listarFinanzas);
+
 module.exports = router;
+

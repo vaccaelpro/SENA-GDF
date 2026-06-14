@@ -52,7 +52,6 @@ exports.registrarExportacion = async (req, res) => {
         res.status(500).json({ error: 'Error al registrar la exportación' });
     }
 }
-
 exports.crearGrupo = async (req, res) => {
     try {
         const { nombre, descripcion, tipo_apoyo } = req.body;
@@ -176,3 +175,95 @@ exports.obtenerMiembrosGrupo = async (req, res) => {
         res.status(500).json({ error: 'Error al obtener miembros del grupo' });
     }
 }
+
+// =================== COMUNICADOS / NOVEDADES ===================
+
+exports.listarComunicadosPublicos = async (req, res) => {
+    try {
+        const comunicados = await service.listarComunicadosPublicos();
+        res.json(comunicados);
+    } catch (error) {
+        console.error('ERROR LISTAR COMUNICADOS PUBLICOS:', error);
+        res.status(500).json({ error: 'Error al obtener comunicados' });
+    }
+};
+
+exports.listarComunicadosAdmin = async (req, res) => {
+    try {
+        const comunicados = await service.listarComunicadosAdmin();
+        res.json(comunicados);
+    } catch (error) {
+        console.error('ERROR LISTAR COMUNICADOS ADMIN:', error);
+        res.status(500).json({ error: 'Error al obtener comunicados' });
+    }
+};
+
+exports.obtenerComunicadoPorId = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const comunicado = await service.obtenerComunicadoPorId(id);
+        if (!comunicado) {
+            return res.status(404).json({ error: 'Comunicado no encontrado' });
+        }
+        res.json(comunicado);
+    } catch (error) {
+        console.error('ERROR OBTENER COMUNICADO:', error);
+        res.status(500).json({ error: 'Error al obtener comunicado' });
+    }
+};
+
+exports.crearComunicado = async (req, res) => {
+    try {
+        const { titulo, contenido, categoria, imagen_base64, url_referencia } = req.body;
+        if (!titulo || !contenido) {
+            return res.status(400).json({ error: 'Faltan campos obligatorios (titulo, contenido)' });
+        }
+
+        const usuarioId = req.body.usuario_id || req.usuarioId || 5;
+
+        const result = await service.crearComunicado(req.body, usuarioId);
+        res.status(201).json(result);
+    } catch (error) {
+        console.error('ERROR CREAR COMUNICADO:', error);
+        res.status(500).json({ error: 'Error al crear comunicado' });
+    }
+};
+
+exports.actualizarComunicado = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { titulo, contenido } = req.body;
+        if (!titulo || !contenido) {
+            return res.status(400).json({ error: 'Faltan campos obligatorios (titulo, contenido)' });
+        }
+
+        const result = await service.actualizarComunicado(id, req.body);
+        res.json(result);
+    } catch (error) {
+        console.error('ERROR ACTUALIZAR COMUNICADO:', error);
+        res.status(500).json({ error: 'Error al actualizar comunicado' });
+    }
+};
+
+exports.eliminarComunicado = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await service.eliminarComunicado(id);
+        res.json(result);
+    } catch (error) {
+        console.error('ERROR ELIMINAR COMUNICADO:', error);
+        res.status(500).json({ error: 'Error al eliminar comunicado' });
+    }
+};
+
+// ============= FINANZAS GENERALES =============
+exports.listarFinanzas = async (req, res) => {
+    try {
+        const finanzas = await service.listarFinanzas();
+        res.json(finanzas);
+    } catch (error) {
+        console.error("ERROR LISTAR FINANZAS:", error);
+        res.status(500).json({ error: 'Error al obtener resumen de finanzas' });
+    }
+};
+
