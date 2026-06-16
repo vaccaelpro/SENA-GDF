@@ -8,7 +8,7 @@ import {
   FaArrowLeft,
 } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { crearGrupo } from "../../services/admin/grupos.service";
 
 const Crear_grupo = () => {
   const [nombre, setNombre] = useState("");
@@ -25,13 +25,13 @@ const Crear_grupo = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:3001/api/admin/grupos", {
+      const data = await crearGrupo({
         nombre,
         descripcion,
         tipo_apoyo: tipoApoyo,
       });
 
-      if (response.data.success) {
+      if (data.success) {
         setMensaje({ texto: "Grupo creado exitosamente", tipo: "success" });
         setTimeout(() => {
           navigate("/Lista_grupos");

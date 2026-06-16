@@ -391,3 +391,4 @@ exports.eliminarComunicado = async (id) => {
         throw error;
     }
 };
+

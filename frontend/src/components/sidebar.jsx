@@ -10,13 +10,19 @@ import {
   FaFileAlt,
   FaUsers,
   FaCog,
-  FaSignOutAlt
+  FaSignOutAlt,
+  FaTimes
 } from "react-icons/fa";
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
   return (
-    <div className="sidebar d-flex flex-column p-3">
-      <div className="text-center mb-4">
+    <div className={`sidebar d-flex flex-column p-3 ${isOpen ? "open" : ""}`}>
+      {/* Mobile close button */}
+      <button className="sidebar-close-btn d-lg-none" onClick={onClose}>
+        <FaTimes />
+      </button>
+
+      <div className="text-center mb-4 mt-2">
         <img
           src={logoSena}
           alt="SENA"
@@ -24,43 +30,43 @@ const Sidebar = () => {
           id="logosena2"
         />
         <h5 className="titulo">SENA GDF</h5>
-        <p>Aprendiz</p>
+        <p className="text-white-50 mb-0">Aprendiz</p>
       </div>
 
       <hr />
 
       <div className="menu-container flex-grow-1 d-flex flex-column justify-content-center">
-        <div className="menu-item">
+        <div className="menu-item" onClick={onClose}>
           <Link to="/Novedades_aprendiz">
             <FaNewspaper className="menu-icon" /> Novedades
           </Link>
         </div>
 
-        <div className="menu-item">
+        <div className="menu-item" onClick={onClose}>
           <Link to="/Satisfaccion encuestas">
             <FaClipboardCheck className="menu-icon" /> Satisfacción Encuestas
           </Link>
         </div>
 
-        <div className="menu-item">
+        <div className="menu-item" onClick={onClose}>
           <Link to="/IAFinance">
             <FaRobot className="menu-icon" /> IA Finance
           </Link>
         </div>
 
-        <div className="menu-item">
+        <div className="menu-item" onClick={onClose}>
           <Link to="/Metas_de_ahorro">
             <FaPiggyBank className="menu-icon" /> Metas de Ahorro
           </Link>
         </div>
 
-        <div className="menu-item">
+        <div className="menu-item" onClick={onClose}>
           <Link to="/IADocument">
             <FaFileAlt className="menu-icon" /> IA Guía Formularios
           </Link>
         </div>
 
-        <div className="menu-item">
+        <div className="menu-item" onClick={onClose}>
           <Link to="/Mi_grupo">
             <FaUsers className="menu-icon" /> Mi Grupo
           </Link>
@@ -70,17 +76,20 @@ const Sidebar = () => {
       <div className="bottom-links mt-auto">
         <hr />
 
-        <Link to="/ajustes">
-          <FaCog className="menu-icon" /> Ajustes
-        </Link>
+        <div onClick={onClose}>
+          <Link to="/ajustes">
+            <FaCog className="menu-icon" /> Ajustes
+          </Link>
+        </div>
 
-        <Link to="/" className="cerrar">
-          <FaSignOutAlt className="menu-icon" /> Cerrar Sesión
-        </Link>
+        <div onClick={onClose}>
+          <Link to="/" className="cerrar">
+            <FaSignOutAlt className="menu-icon" /> Cerrar Sesión
+          </Link>
+        </div>
       </div>
     </div>
   );
 };
 
 export default Sidebar;
-

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "../../css/gestion_usuarios.css";
 import { BsSearch, BsPencilSquare, BsTrashFill, BsX } from "react-icons/bs";
-import axios from "axios";
+import { listarUsuarios, actualizarUsuario, eliminarUsuario } from "../../services/admin/usuarios.service";
 import Swal from "sweetalert2";
 
 const Tabla_gestion_usuarios = () => {
@@ -31,8 +31,8 @@ const Tabla_gestion_usuarios = () => {
 
   const fetchUsuarios = async () => {
     try {
-      const response = await axios.get("http://localhost:3001/api/admin/usuarios");
-      setUsuarios(response.data);
+      const data = await listarUsuarios();
+      setUsuarios(data);
       setCargando(false);
     } catch (error) {
       console.error("Error al obtener usuarios:", error);
@@ -55,7 +55,7 @@ const Tabla_gestion_usuarios = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:3001/api/admin/usuarios/${id}`);
+        await eliminarUsuario(id);
         Swal.fire('Eliminado', 'El usuario ha sido eliminado correctamente.', 'success');
         fetchUsuarios();
       } catch (error) {
@@ -98,7 +98,7 @@ const Tabla_gestion_usuarios = () => {
   const handleSubmitUpdate = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:3001/api/admin/usuarios/${usuarioSeleccionado}`, formData);
+      await actualizarUsuario(usuarioSeleccionado, formData);
       Swal.fire('Actualizado', 'Los datos del usuario han sido actualizados.', 'success');
       handleCloseModal();
       fetchUsuarios();

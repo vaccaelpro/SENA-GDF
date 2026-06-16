@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { login, registrar } from "../../services/auth/auth.service";
 import Swal from "sweetalert2";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import "../../css/auth.css";
@@ -57,8 +57,7 @@ const Auth = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:3001/api/auth/login", loginForm);
-      const data = response.data;
+      const data = await login(loginForm);
 
       if (data.success) {
         localStorage.setItem("usuario", JSON.stringify(data.usuario));
@@ -131,7 +130,7 @@ const Auth = () => {
     }
 
     try {
-      await axios.post("http://localhost:3001/api/auth/register", registerForm);
+      await registrar(registerForm);
       
       Swal.fire({
         icon: "success",

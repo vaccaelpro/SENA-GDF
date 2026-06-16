@@ -13,10 +13,6 @@ import Metas_de_ahorro from "./pages/aprendiz/metas_de_ahorro";
 import IADocument from "./pages/aprendiz/IADocument";
 import Mi_grupo from "./pages/aprendiz/mi_grupo";
 import Chat_aprendiz from "./pages/aprendiz/chat_aprendiz";
-import Agregar_meta from "./pages/aprendiz/agregar_meta";
-import Agregar_monto from "./pages/aprendiz/agregar_monto";
-import Editar_meta from "./pages/aprendiz/editar_meta";
-
 import Agregar_novedad from "./pages/admin/Agregar_novedad";
 import Eliminar_novedad from "./pages/admin/eliminar_novedad";
 import Tabla_gestion_usuarios from "./pages/admin/gestion_usuarios";
@@ -55,9 +51,6 @@ function App() {
           <Route path="/IADocument" element={<IADocument />} />
           <Route path="/Mi_grupo" element={<Mi_grupo />} />
           <Route path="/Chat_aprenidiz" element={<Chat_aprendiz />} />
-          <Route path="/Agregar_meta" element={<Agregar_meta />} />
-          <Route path="/Agregar_monto" element={<Agregar_monto />} />
-          <Route path="/Editar_meta" element={<Editar_meta />} />
         </Route>
 
         {/*Vistas del administrador*/}

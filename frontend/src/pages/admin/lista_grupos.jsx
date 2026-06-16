@@ -11,7 +11,7 @@ import {
   FaTimes
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import { listarGrupos, eliminarGrupo, actualizarGrupo } from "../../services/admin/grupos.service";
 
 const Lista_grupos = () => {
   const [grupos, setGrupos] = useState([]);
@@ -24,8 +24,8 @@ const Lista_grupos = () => {
 
   const fetchGrupos = async () => {
     try {
-      const response = await axios.get("http://localhost:3001/api/admin/grupos");
-      setGrupos(response.data);
+      const data = await listarGrupos();
+      setGrupos(data);
     } catch (error) {
       console.error("Error fetching grupos:", error);
     } finally {
@@ -42,7 +42,7 @@ const Lista_grupos = () => {
       return;
     }
     try {
-      await axios.delete(`http://localhost:3001/api/admin/grupos/${id}`);
+      await eliminarGrupo(id);
       fetchGrupos();
     } catch (error) {
       console.error("Error eliminando el grupo:", error);
@@ -62,7 +62,7 @@ const Lista_grupos = () => {
 
   const handleSaveGrupo = async (id) => {
     try {
-      await axios.put(`http://localhost:3001/api/admin/grupos/${id}`, editForm);
+      await actualizarGrupo(id, editForm);
       setEditingGroupId(null);
       fetchGrupos();
     } catch (error) {

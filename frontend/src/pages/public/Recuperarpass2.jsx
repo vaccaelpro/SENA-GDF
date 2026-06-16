@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { restablecerPassword } from "../../services/auth/auth.service";
 import "../../css/recuperarpass2.css";
 import logoSena from "../../assets/img/logosena.png";
 
@@ -17,18 +18,7 @@ const RestablecerPassword = () => {
         setCargando(true);
 
         try {
-            const res = await fetch("http://localhost:3001/api/auth/restablecer", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    token,
-                    nuevaContrasena: password,
-                }),
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) throw new Error(data.message);
+            await restablecerPassword(token, password);
 
             Swal.fire({
                 icon: "success",
@@ -39,10 +29,11 @@ const RestablecerPassword = () => {
             setTimeout(() => navigate("/"), 2500);
 
         } catch (error) {
+            const errorMsg = error.response?.data?.message || "Token inválido o expirado";
             Swal.fire({
                 icon: "error",
                 title: "Error",
-                text: error.message || "Token inválido o expirado",
+                text: errorMsg,
                 confirmButtonColor: "#28a745"
             });
         } finally {

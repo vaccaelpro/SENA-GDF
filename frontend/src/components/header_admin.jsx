@@ -1,8 +1,8 @@
 import "../css/header_admin.css"
 import React, { useState, useEffect } from "react";
-import { BsPersonCircle, BsCaretDownFill } from "react-icons/bs";
+import { BsPersonCircle, BsCaretDownFill, BsList } from "react-icons/bs";
 
-const Header_admin = ({ nombre }) => {
+const Header_admin = ({ onToggleSidebar }) => {
   const [time, setTime] = useState("");
   const [nombreUsuario, setNombreUsuario] = useState("");
 
@@ -29,22 +29,27 @@ const Header_admin = ({ nombre }) => {
   }, []);
 
   return (
-    <div className="main-content">
-      <div
-        className="text-white p-4 d-flex justify-content-between align-items-center header-fixed"
-        id="header"
-      >
-        <div>
-          <h5 className="titulo">Bienvenid@, {nombreUsuario || "Admin"}</h5>
-          <p>Mantente al día en la administración de tus ingresos</p>
-        </div>
+    <div className="header-fixed text-white p-3 d-flex justify-content-between align-items-center" id="header">
+      <div className="d-flex align-items-center">
+        {/* Toggle Sidebar Button - Visible on Mobile/Tablet */}
+        <button className="menu-toggle-btn d-lg-none me-3" onClick={onToggleSidebar}>
+          <BsList />
+        </button>
 
-        <div className="d-flex align-items-center">
-          <BsPersonCircle style={{ fontSize: "1.5rem" }} className="me-2" />
-          <span>{nombreUsuario || "Admin"}</span>&nbsp;
-          <BsCaretDownFill />
-          <span className="ms-3">{time}</span>
+        <div className="header-greeting">
+          <h5 className="titulo mb-0">Bienvenid@, {nombreUsuario || "Admin"}</h5>
+          <p className="subtitulo mb-0 d-none d-md-block">Mantente al día en la administración de tus ingresos</p>
         </div>
+      </div>
+
+      <div className="d-flex align-items-center header-user-clock">
+        <div className="d-flex align-items-center header-profile-badge">
+          <BsPersonCircle style={{ fontSize: "1.3rem" }} className="me-2" />
+          <span className="profile-name d-none d-sm-inline">{nombreUsuario || "Admin"}</span>&nbsp;
+          <BsCaretDownFill className="d-none d-sm-inline" />
+        </div>
+        <div className="header-divider d-none d-sm-block"></div>
+        <span className="clock-span font-monospace">{time}</span>
       </div>
     </div>
   );

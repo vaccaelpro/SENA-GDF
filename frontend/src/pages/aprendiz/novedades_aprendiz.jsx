@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { listarPublicos } from "../../services/comunicados.service";
+import { listarPublicos } from "../../services/admin/comunicados.service";
 import "../../css/novedades_aprendiz.css";
 
 const Novedades_aprendiz = () => {

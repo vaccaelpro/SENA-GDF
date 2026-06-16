@@ -1,7 +1,14 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
 import "../../css/chat_grupo_admin.css";
-import axios from "axios";
+import {
+  obtenerMensajesGrupo,
+  obtenerMiembrosGrupo,
+  obtenerDetalleGrupo,
+  enviarMensajeGrupo,
+  actualizarMensaje,
+  eliminarMensaje
+} from "../../services/admin/grupos.service";
 import {
   FaComments,
   FaCircle,
@@ -38,8 +45,8 @@ const Chat_admin = () => {
 
   const fetchMensajes = useCallback(async () => {
     try {
-      const response = await axios.get(`http://localhost:3001/api/admin/grupos/${id}/mensajes`);
-      setMensajes(response.data);
+      const data = await obtenerMensajesGrupo(id);
+      setMensajes(data);
     } catch (error) {
       console.error("Error al obtener los mensajes:", error);
     } finally {
@@ -49,8 +56,8 @@ const Chat_admin = () => {
 
   const fetchMiembros = useCallback(async () => {
     try {
-      const response = await axios.get(`http://localhost:3001/api/admin/grupos/${id}/miembros`);
-      setMiembros(response.data);
+      const data = await obtenerMiembrosGrupo(id);
+      setMiembros(data);
     } catch (error) {
       console.error("Error al obtener miembros:", error);
     }
@@ -58,8 +65,8 @@ const Chat_admin = () => {
 
   const fetchGrupo = useCallback(async () => {
     try {
-      const response = await axios.get(`http://localhost:3001/api/admin/grupos/${id}`);
-      setGrupo(response.data);
+      const data = await obtenerDetalleGrupo(id);
+      setGrupo(data);
     } catch (error) {
       console.error("Error al obtener detalle del grupo:", error);
     }
@@ -83,7 +90,7 @@ const Chat_admin = () => {
     }
 
     try {
-      await axios.post(`http://localhost:3001/api/admin/grupos/${id}/mensajes`, {
+      await enviarMensajeGrupo(id, {
         usuario_id: usuarioActual.id_usuario,
         mensaje: nuevoMensaje
       });
@@ -108,9 +115,7 @@ const Chat_admin = () => {
   const handleSaveMessage = async (msgId) => {
     if (!editMessageText.trim()) return;
     try {
-      await axios.put(`http://localhost:3001/api/admin/mensajes/${msgId}`, {
-        mensaje: editMessageText
-      });
+      await actualizarMensaje(msgId, editMessageText);
       setEditingMessageId(null);
       fetchMensajes();
     } catch (error) {
@@ -122,7 +127,7 @@ const Chat_admin = () => {
   const handleDeleteMessage = async (msgId) => {
     if (!window.confirm("¿Estás seguro de que quieres eliminar este mensaje?")) return;
     try {
-      await axios.delete(`http://localhost:3001/api/admin/mensajes/${msgId}`);
+      await eliminarMensaje(msgId);
       fetchMensajes();
     } catch (error) {
       console.error("Error al eliminar mensaje:", error);

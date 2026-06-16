@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { listarAdmin, eliminar } from "../../services/comunicados.service";
+import { listarAdmin, eliminar } from "../../services/admin/comunicados.service";
 import Modificar_novedad_modal from "./Modificar_novedad_modal";
 import Swal from "sweetalert2";
 import { FaNewspaper, FaEdit, FaTrashAlt, FaCalendarAlt, FaPlusCircle } from "react-icons/fa";

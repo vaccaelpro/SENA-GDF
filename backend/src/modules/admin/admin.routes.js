@@ -29,4 +29,6 @@ router.post("/comunicados/admin", controller.crearComunicado);
 router.put("/comunicados/admin/:id", controller.actualizarComunicado);
 router.delete("/comunicados/admin/:id", controller.eliminarComunicado);
 
+
 module.exports = router;
+

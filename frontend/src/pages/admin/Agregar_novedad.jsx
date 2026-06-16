@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { crear, actualizar, obtenerPorId } from "../../services/comunicados.service";
+import { crear, actualizar, obtenerPorId } from "../../services/admin/comunicados.service";
 import Swal from "sweetalert2";
 import { FaNewspaper, FaTag, FaImage, FaLink, FaSave, FaArrowLeft, FaEdit } from "react-icons/fa";
 import { Link } from "react-router-dom";

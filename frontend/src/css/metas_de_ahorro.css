@@ -440,6 +440,8 @@
   text-decoration: none;
   transition: all 0.25s ease;
   font-family: inherit;
+  border: none;
+  cursor: pointer;
 }
 
 .add-btn.primary {
@@ -460,8 +462,405 @@
   border: 1px solid rgba(255,255,255,0.12);
 }
 
-.add-btn.secondary:hover {
+.add-btn.secondary:hover:not(:disabled) {
   background: rgba(255,255,255,0.15);
   color: #fff;
   transform: translateY(-2px);
+}
+
+.add-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Botón añadir monto en card ── */
+.meta-btn-add-monto {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 30px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(135deg, #1abc9c, #28a745);
+  color: #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  font-family: inherit;
+}
+
+.meta-btn-add-monto:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 14px rgba(26, 188, 156, 0.45);
+}
+
+/* ========== LOADING ========== */
+.metas-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 60px 0;
+  color: #636e72;
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #dfe6e9;
+  border-top-color: #28a745;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ========== MODAL OVERLAY ========== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  animation: overlayIn 0.25s ease both;
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ========== MODAL CARD ========== */
+.modal-card {
+  background: #fff;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 560px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25), 0 8px 30px rgba(40, 167, 69, 0.12);
+  overflow: hidden;
+  animation: modalIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.modal-card.modal-sm {
+  max-width: 440px;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(40px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Modal Header ── */
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, #2d3436 0%, #1e272e 100%);
+  padding: 22px 24px;
+  position: relative;
+}
+
+.modal-header-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(40, 167, 69, 0.2);
+  border: 1px solid rgba(40, 167, 69, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  color: #28a745;
+  flex-shrink: 0;
+}
+
+.modal-header-icon.green {
+  background: rgba(26, 188, 156, 0.2);
+  border-color: rgba(26, 188, 156, 0.35);
+  color: #1abc9c;
+}
+
+.modal-header-icon.yellow {
+  background: rgba(243, 156, 18, 0.2);
+  border-color: rgba(243, 156, 18, 0.35);
+  color: #f39c12;
+}
+
+.modal-header h2 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 3px;
+}
+
+.modal-header p {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.5);
+  margin: 0;
+}
+
+.modal-close {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.6);
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+  background: rgba(231, 76, 60, 0.25);
+  border-color: #e74c3c;
+  color: #e74c3c;
+}
+
+/* ── Modal Form ── */
+.modal-form {
+  padding: 28px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.form-group label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #636e72;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  padding: 11px 14px;
+  border: 2px solid #dfe6e9;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-family: 'Inter', sans-serif;
+  color: #2d3436;
+  background: #f8f9fa;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  outline: none;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: #28a745;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.1);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* ── Emoji Picker ── */
+.emoji-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.emoji-btn {
+  font-size: 1.4rem;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background: #f0f2f5;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.emoji-btn:hover {
+  background: #e8f5e9;
+  transform: scale(1.12);
+}
+
+.emoji-btn.selected {
+  border-color: #28a745;
+  background: #e8f5e9;
+  box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.15);
+}
+
+/* ── Color Picker ── */
+.color-picker {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.color-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.color-btn:hover {
+  transform: scale(1.2);
+}
+
+.color-btn.selected {
+  border-color: #2d3436;
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.8), 0 0 0 5px #2d3436;
+  transform: scale(1.15);
+}
+
+/* ── Meta preview en modal monto ── */
+.meta-preview {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 12px 14px;
+  border: 1px solid #dfe6e9;
+}
+
+.meta-preview-bar-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.meta-preview-bar-wrap span {
+  font-size: 0.82rem;
+  color: #636e72;
+  font-weight: 500;
+}
+
+.meta-preview-bar {
+  height: 8px;
+  background: #dfe6e9;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.meta-preview-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #28a745, #1abc9c);
+  border-radius: 99px;
+  transition: width 0.8s ease;
+}
+
+/* ── Modal Error ── */
+.modal-error {
+  background: #fff5f5;
+  border: 1px solid #fab0b0;
+  color: #c0392b;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.84rem;
+  font-weight: 500;
+}
+
+/* ── Modal Actions ── */
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.btn-modal-cancel {
+  flex: 1;
+  padding: 12px;
+  border-radius: 14px;
+  border: 2px solid #dfe6e9;
+  background: transparent;
+  color: #636e72;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.btn-modal-cancel:hover {
+  border-color: #b2bec3;
+  color: #2d3436;
+  background: #f8f9fa;
+}
+
+.btn-modal-submit {
+  flex: 2;
+  padding: 12px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, #28a745, #1abc9c);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 14px rgba(40, 167, 69, 0.35);
+}
+
+.btn-modal-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(40, 167, 69, 0.5);
+}
+
+.btn-modal-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-modal-submit.yellow-btn {
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+  box-shadow: 0 4px 14px rgba(243, 156, 18, 0.35);
+}
+
+.btn-modal-submit.yellow-btn:hover:not(:disabled) {
+  box-shadow: 0 8px 22px rgba(243, 156, 18, 0.5);
+}
+
+/* ── Responsivo ── */
+@media (max-width: 480px) {
+  .form-row { grid-template-columns: 1fr; }
+  .modal-card { border-radius: 18px; }
+  .modal-form { padding: 20px 18px 18px; }
+  .modal-header { padding: 18px 18px; }
+  .modal-actions { flex-direction: column; }
+  .btn-modal-submit, .btn-modal-cancel { flex: unset; width: 100%; }
 }

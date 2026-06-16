@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
+import { recuperarPassword } from "../../services/auth/auth.service";
 import "../../css/recuperarpass1.css";
 import logoSena from "../../assets/img/logosena.png";
 
@@ -25,32 +26,21 @@ const RecuperarPassword = () => {
     setCargando(true);
 
     try {
-      const res = await fetch("http://localhost:3001/api/auth/recuperar", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ correo }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Error al enviar el correo");
-      }
+      const data = await recuperarPassword(correo);
 
       Swal.fire({
         icon: "success",
         title: "¡Correo Enviado!",
-        text: "Revisa tu bandeja de entrada. El enlace de recuperación es válido por 15 minutos.",
+        text: data.message || "Revisa tu bandeja de entrada. El enlace de recuperación es válido por 15 minutos.",
         confirmButtonColor: "#28a745"
       });
       setCorreo("");
     } catch (error) {
+      const errorMsg = error.response?.data?.message || "No se pudo procesar la solicitud";
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: error.message || "No se pudo procesar la solicitud",
+        text: errorMsg,
         confirmButtonColor: "#28a745"
       });
     } finally {
