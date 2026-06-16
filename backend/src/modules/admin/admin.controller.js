@@ -256,14 +256,3 @@ exports.eliminarComunicado = async (req, res) => {
     }
 };
 
-// ============= FINANZAS GENERALES =============
-exports.listarFinanzas = async (req, res) => {
-    try {
-        const finanzas = await service.listarFinanzas();
-        res.json(finanzas);
-    } catch (error) {
-        console.error("ERROR LISTAR FINANZAS:", error);
-        res.status(500).json({ error: 'Error al obtener resumen de finanzas' });
-    }
-};
-

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { actualizar } from "../../services/admin/comunicados.service";
 import Swal from "sweetalert2";
+import { FaEdit, FaNewspaper, FaTag, FaImage, FaLink, FaSave, FaTimes } from "react-icons/fa";
 
 const Modificar_novedad_modal = ({ comunicado, onClose, onActualizado }) => {
   const [form, setForm] = useState({
@@ -106,89 +107,122 @@ const Modificar_novedad_modal = ({ comunicado, onClose, onActualizado }) => {
       style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
       onClick={onClose}
     >
-      <div className="modal-dialog modal-lg" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-dialog modal-lg modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="modal-title">Modificar Publicación</h5>
-            <button type="button" className="btn-close" onClick={onClose}></button>
+            <h5 className="modal-title d-flex align-items-center gap-2">
+              <FaEdit /> Modificar Publicación
+            </h5>
+            <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
           </div>
+
           <form onSubmit={handleSubmit}>
             <div className="modal-body">
-              <div className="mb-3">
-                <label className="form-label">Título</label>
+              <div className="form-group-premium">
+                <label className="form-label-premium d-flex align-items-center gap-2">
+                  <FaNewspaper /> Título
+                </label>
                 <input
                   type="text"
-                  className="form-control"
+                  className="form-control form-control-premium"
                   name="titulo"
                   value={form.titulo}
                   onChange={handleChange}
+                  placeholder="Título de la publicación"
                   required
                 />
               </div>
 
-              <div className="mb-3">
-                <label className="form-label">Contenido</label>
+              <div className="form-group-premium">
+                <label className="form-label-premium d-flex align-items-center gap-2">
+                  <FaNewspaper /> Contenido
+                </label>
                 <textarea
-                  className="form-control"
+                  className="form-control form-control-premium"
                   name="contenido"
-                  rows="4"
+                  rows="5"
                   value={form.contenido}
                   onChange={handleChange}
+                  placeholder="Contenido de la publicación"
                   required
                 ></textarea>
               </div>
 
-              <div className="mb-3">
-                <label className="form-label">Categoría</label>
-                <select
-                  className="form-select"
-                  name="categoria"
-                  value={form.categoria}
-                  onChange={handleChange}
-                >
-                  <option value="">Seleccione una categoría</option>
-                  <option value="Noticias">Noticias</option>
-                  <option value="Eventos">Eventos</option>
-                  <option value="Anuncios">Anuncios</option>
-                </select>
+              <div className="row">
+                <div className="col-md-6">
+                  <div className="form-group-premium">
+                    <label className="form-label-premium d-flex align-items-center gap-2">
+                      <FaTag /> Categoría
+                    </label>
+                    <select
+                      className="form-control form-control-premium"
+                      name="categoria"
+                      value={form.categoria}
+                      onChange={handleChange}
+                    >
+                      <option value="">Seleccione una categoría</option>
+                      <option value="Noticias">Noticias</option>
+                      <option value="Eventos">Eventos</option>
+                      <option value="Anuncios">Anuncios</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="col-md-6">
+                  <div className="form-group-premium">
+                    <label className="form-label-premium d-flex align-items-center gap-2">
+                      <FaLink /> URL de referencia
+                    </label>
+                    <input
+                      className="form-control form-control-premium"
+                      type="url"
+                      name="url_referencia"
+                      value={form.url_referencia}
+                      onChange={handleChange}
+                      placeholder="https://ejemplo.com"
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className="mb-3">
-                <label className="form-label">Imagen</label>
+              <div className="form-group-premium">
+                <label className="form-label-premium d-flex align-items-center gap-2">
+                  <FaImage /> Imagen
+                </label>
                 <input
-                  className="form-control"
+                  className="form-control form-control-premium"
                   type="file"
                   accept="image/*"
                   onChange={handleImagen}
                 />
+                <small className="text-muted d-block mt-1">Formatos: PNG, JPG, GIF, WebP — Máx 5MB</small>
                 {imagenPreview && (
-                  <div className="mt-2">
+                  <div className="mt-2 position-relative d-inline-block">
                     <img
                       src={imagenPreview}
                       alt="Vista previa"
-                      style={{ maxWidth: "200px", maxHeight: "150px", borderRadius: "8px" }}
+                      style={{ maxWidth: "200px", maxHeight: "150px", borderRadius: "8px", border: "2px solid #28a745" }}
                     />
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-danger position-absolute top-0 end-0 m-1"
+                      onClick={() => { setImagen(null); setImagenPreview(null); }}
+                      style={{ borderRadius: "50%", width: "24px", height: "24px", padding: 0, lineHeight: "16px" }}
+                      title="Quitar imagen"
+                    >
+                      &times;
+                    </button>
                   </div>
                 )}
               </div>
-
-              <div className="mb-3">
-                <label className="form-label">URL de referencia</label>
-                <input
-                  className="form-control"
-                  type="url"
-                  name="url_referencia"
-                  value={form.url_referencia}
-                  onChange={handleChange}
-                  placeholder="https://example.com"
-                />
-              </div>
             </div>
-            <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" onClick={onClose}>
-                Cancelar
+
+            <div className="modal-footer d-flex justify-content-between">
+              <button type="button" className="btn btn-secondary d-flex align-items-center gap-2" onClick={onClose}>
+                <FaTimes /> Cancelar
               </button>
-              <button type="submit" className="btn btn-primary" disabled={loading}>
+              <button type="submit" className="btn-save-premium d-flex align-items-center gap-2" disabled={loading}>
+                <FaSave />
                 {loading ? "Guardando..." : "Guardar cambios"}
               </button>
             </div>

@@ -2,10 +2,12 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { crear, actualizar, obtenerPorId } from "../../services/admin/comunicados.service";
 import Swal from "sweetalert2";
+import { FaNewspaper, FaTag, FaImage, FaLink, FaSave, FaArrowLeft, FaEdit } from "react-icons/fa";
+import { Link } from "react-router-dom";
 import "../../css/agregar_novedad.css";
 
 const Agregar_novedad = () => {
-  const { id } = useParams(); // Si hay id, estamos en modo edición
+  const { id } = useParams();
   const navigate = useNavigate();
   const isEditing = Boolean(id);
 
@@ -19,7 +21,6 @@ const Agregar_novedad = () => {
   const [imagenPreview, setImagenPreview] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Cargar datos si es edición
   useState(() => {
     if (id) {
       (async () => {
@@ -50,14 +51,12 @@ const Agregar_novedad = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validar tamaño (máx 5MB)
     if (file.size > 5 * 1024 * 1024) {
       Swal.fire("Error", "La imagen no puede superar los 5MB", "error");
       e.target.value = "";
       return;
     }
 
-    // Validar tipo
     if (!file.type.startsWith("image/")) {
       Swal.fire("Error", "Solo se permiten imágenes", "error");
       e.target.value = "";
@@ -65,8 +64,6 @@ const Agregar_novedad = () => {
     }
 
     setImagen(file);
-
-    // Vista previa
     const reader = new FileReader();
     reader.onload = () => setImagenPreview(reader.result);
     reader.readAsDataURL(file);
@@ -100,18 +97,16 @@ const Agregar_novedad = () => {
       };
 
       if (imagen) {
-      payload.imagen_base64 = await convertirABase64(imagen);
-    }
+        payload.imagen_base64 = await convertirABase64(imagen);
+      }
 
-    // Agregar usuario_id desde la sesión actual
-    const usuarioStorage = localStorage.getItem("usuario");
-    if (usuarioStorage) {
-      const usuario = JSON.parse(usuarioStorage);
-      payload.usuario_id = usuario.id_usuario;
-    }
+      const usuarioStorage = localStorage.getItem("usuario");
+      if (usuarioStorage) {
+        const usuario = JSON.parse(usuarioStorage);
+        payload.usuario_id = usuario.id_usuario;
+      }
 
-    if (isEditing && imagenPreview && !imagenPreview.startsWith("data:")) {
-        // En edición, si la preview es una URL (imagen existente), mantenerla
+      if (isEditing && imagenPreview && !imagenPreview.startsWith("data:")) {
         payload.mantener_imagen = true;
       }
 
@@ -133,90 +128,136 @@ const Agregar_novedad = () => {
   };
 
   return (
-    <div className="p-4" id="contenido-principal">
-      <h2 className="mb-4">{isEditing ? "Editar Publicación" : "Nueva Publicación"}</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label htmlFor="titulo" className="form-label">Título</label>
-          <input
-            type="text"
-            className="form-control"
-            id="titulo"
-            name="titulo"
-            value={form.titulo}
-            onChange={handleChange}
-            placeholder="Ingrese el título de la publicación"
-            required
-          />
+    <div className="p-4">
+      <div className="card shadow-sm border-0">
+        <div
+          className="card-header text-white d-flex align-items-center gap-2"
+          style={{ background: "linear-gradient(135deg, #28a745, #218838)" }}
+        >
+          {isEditing ? <FaEdit size={20} /> : <FaNewspaper size={20} />}
+          <h4 className="mb-0">{isEditing ? "Editar Publicación" : "Nueva Publicación"}</h4>
         </div>
 
-        <div className="mb-3">
-          <label htmlFor="contenido" className="form-label">Contenido</label>
-          <textarea
-            className="form-control"
-            id="contenido"
-            name="contenido"
-            rows="5"
-            value={form.contenido}
-            onChange={handleChange}
-            placeholder="Escriba el contenido de la publicación"
-            required
-          ></textarea>
-        </div>
-
-        <div className="mb-3">
-          <label htmlFor="categoria" className="form-label">Categoría</label>
-          <select
-            className="form-select"
-            id="categoria"
-            name="categoria"
-            value={form.categoria}
-            onChange={handleChange}
-          >
-            <option value="">Seleccione una categoría</option>
-            <option value="Noticias">Noticias</option>
-            <option value="Eventos">Eventos</option>
-            <option value="Anuncios">Anuncios</option>
-          </select>
-        </div>
-
-        <div className="mb-3">
-          <label htmlFor="imagen" className="form-label">Imagen</label>
-          <input
-            className="form-control"
-            type="file"
-            id="imagen"
-            accept="image/*"
-            onChange={handleImagen}
-          />
-          {imagenPreview && (
-            <div className="mt-2">
-              <img
-                src={imagenPreview}
-                alt="Vista previa"
-                style={{ maxWidth: "200px", maxHeight: "150px", borderRadius: "8px" }}
+        <div className="card-body p-4">
+          <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <label className="form-label fw-bold d-flex align-items-center gap-2">
+                <FaNewspaper className="text-success" /> Título
+              </label>
+              <input
+                type="text"
+                className="form-control form-control-lg"
+                id="titulo"
+                name="titulo"
+                value={form.titulo}
+                onChange={handleChange}
+                placeholder="Ingrese el título de la publicación"
+                required
               />
             </div>
-          )}
-        </div>
 
-        <div className="mb-3">
-          <label htmlFor="url_referencia" className="form-label">URL de referencia</label>
-          <input
-            className="form-control"
-            type="url"
-            id="url_referencia"
-            name="url_referencia"
-            value={form.url_referencia}
-            onChange={handleChange}
-            placeholder="https://example.com"
-          />
-        </div>
+            <div className="mb-4">
+              <label className="form-label fw-bold d-flex align-items-center gap-2">
+                <FaNewspaper className="text-success" /> Contenido
+              </label>
+              <textarea
+                className="form-control"
+                id="contenido"
+                name="contenido"
+                rows="6"
+                value={form.contenido}
+                onChange={handleChange}
+                placeholder="Escriba el contenido de la publicación"
+                required
+              ></textarea>
+            </div>
 
-        <button type="submit" className="btn btn-primary" disabled={loading}>
-          {loading ? "Guardando..." : isEditing ? "Actualizar" : "Publicar"}
-        </button>
-      </form>
+            <div className="row mb-4">
+              <div className="col-md-6 mb-3 mb-md-0">
+                <label className="form-label fw-bold d-flex align-items-center gap-2">
+                  <FaTag className="text-success" /> Categoría
+                </label>
+                <select
+                  className="form-select"
+                  id="categoria"
+                  name="categoria"
+                  value={form.categoria}
+                  onChange={handleChange}
+                >
+                  <option value="">Seleccione una categoría</option>
+                  <option value="Noticias">Noticias</option>
+                  <option value="Eventos">Eventos</option>
+                  <option value="Anuncios">Anuncios</option>
+                </select>
+              </div>
+
+              <div className="col-md-6">
+                <label className="form-label fw-bold d-flex align-items-center gap-2">
+                  <FaLink className="text-success" /> URL de referencia
+                </label>
+                <input
+                  className="form-control"
+                  type="url"
+                  id="url_referencia"
+                  name="url_referencia"
+                  value={form.url_referencia}
+                  onChange={handleChange}
+                  placeholder="https://ejemplo.com"
+                />
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <label className="form-label fw-bold d-flex align-items-center gap-2">
+                <FaImage className="text-success" /> Imagen
+              </label>
+              <input
+                className="form-control"
+                type="file"
+                id="imagen"
+                accept="image/*"
+                onChange={handleImagen}
+              />
+              <small className="text-muted d-block mt-1">Formatos: PNG, JPG, GIF, WebP — Máx 5MB</small>
+              {imagenPreview && (
+                <div className="mt-3 position-relative d-inline-block">
+                  <img
+                    src={imagenPreview}
+                    alt="Vista previa"
+                    className="img-preview"
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-danger position-absolute top-0 end-0 m-1"
+                    onClick={() => { setImagen(null); setImagenPreview(null); }}
+                    title="Quitar imagen"
+                  >
+                    &times;
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="d-flex gap-2 pt-2">
+              <button
+                type="submit"
+                className="btn btn-success btn-lg d-flex align-items-center gap-2"
+                disabled={loading}
+              >
+                <FaSave />
+                {loading ? "Guardando..." : isEditing ? "Actualizar" : "Publicar"}
+              </button>
+
+              <Link
+                to="/Eliminar_novedad"
+                className="btn btn-secondary btn-lg d-flex align-items-center gap-2"
+              >
+                <FaArrowLeft /> Cancelar
+              </Link>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 };

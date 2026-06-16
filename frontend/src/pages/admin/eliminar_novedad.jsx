@@ -2,16 +2,14 @@ import { useState, useEffect } from "react";
 import { listarAdmin, eliminar } from "../../services/admin/comunicados.service";
 import Modificar_novedad_modal from "./Modificar_novedad_modal";
 import Swal from "sweetalert2";
+import { FaNewspaper, FaEdit, FaTrashAlt, FaCalendarAlt, FaPlusCircle } from "react-icons/fa";
+import { Link } from "react-router-dom";
 import "../../css/eliminar_novedad.css";
 
 const Eliminar_novedad = () => {
   const [comunicados, setComunicados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editando, setEditando] = useState(null);
-
-  // Obtener usuario de la sesión actual
-  const usuarioStorage = localStorage.getItem("usuario");
-  const usuarioActual = usuarioStorage ? JSON.parse(usuarioStorage) : null;
 
   const cargar = async () => {
     try {
@@ -36,6 +34,7 @@ const Eliminar_novedad = () => {
       html: `
         <p><strong>${comunicado.titulo}</strong></p>
         <p style="font-size:0.9rem;color:#666;">${comunicado.contenido.substring(0, 150)}${comunicado.contenido.length > 150 ? "..." : ""}</p>
+        <p style="font-size:1.1rem;color:#666;"> <strong>¡ESTA ACCIÓN NO PUEDE REVERTIRSE!</strong> </p>
       `,
       icon: "warning",
       showCancelButton: true,
@@ -66,71 +65,92 @@ const Eliminar_novedad = () => {
 
   if (loading) {
     return (
-      <div className="container mt-5 text-center">
-        <div className="spinner-border text-primary" role="status">
+      <div className="p-4 text-center">
+        <div className="spinner-border text-success" role="status" style={{ width: "3rem", height: "3rem" }}>
           <span className="visually-hidden">Cargando...</span>
         </div>
+        <p className="mt-2 text-muted">Cargando publicaciones...</p>
       </div>
     );
   }
 
   return (
-    <div className="container mt-5">
-      <h3 className="mb-4">Publicaciones</h3>
+    <div className="p-4">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h3 className="d-flex align-items-center gap-2">
+          <FaNewspaper className="text-success" />
+          Publicaciones
+        </h3>
+
+        <Link to="/Agregar_novedad" className="btn btn-success d-flex align-items-center gap-2">
+          <FaPlusCircle />
+          Nueva Publicación
+        </Link>
+      </div>
 
       {comunicados.length === 0 ? (
-        <div className="alert alert-info">No hay novedades publicadas aún.</div>
+        <div className="text-center py-5">
+          <FaNewspaper size={60} className="text-muted mb-3" />
+          <h5 className="text-muted">No hay novedades publicadas aún</h5>
+          <Link to="/Agregar_novedad" className="btn btn-success mt-3">
+            Crear la primera publicación
+          </Link>
+        </div>
       ) : (
-        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-2 g-4">
+        <div className="row g-4">
           {comunicados.map((comunicado) => {
             const imgUrl = getImagenUrl(comunicado);
             return (
-              <div className="col mb-4" key={comunicado.id_comunicado}>
-                <div className="card h-100 text-center">
-                  {imgUrl ? (
+              <div className="col-md-6 col-lg-6" key={comunicado.id_comunicado}>
+                <div className="card shadow-sm border-0 h-100">
+                  <div
+                    className="card-header text-white d-flex align-items-center justify-content-between"
+                    style={{ background: "linear-gradient(135deg, #28a745, #218838)" }}
+                  >
+                    <h5 className="mb-0 text-truncate">{comunicado.titulo}</h5>
+                    <span className="badge bg-light text-success ms-2 flex-shrink-0">
+                      {comunicado.categoria}
+                    </span>
+                  </div>
+
+                  {imgUrl && (
                     <img
                       src={imgUrl}
                       className="card-img-top"
                       alt={comunicado.titulo}
                       style={{ height: "200px", objectFit: "cover" }}
                     />
-                  ) : (
-                    <div
-                      className="card-img-top bg-secondary d-flex align-items-center justify-content-center"
-                      style={{ height: "200px", color: "#fff", fontSize: "3rem" }}
-                    >
-                      📰
-                    </div>
                   )}
-                  <div className="card-body">
-                    <span className="badge bg-info mb-2">{comunicado.categoria}</span>
-                    <h5 className="card-title">{comunicado.titulo}</h5>
-                    <p className="card-text text-muted">
-                      {comunicado.contenido.substring(0, 200)}
-                      {comunicado.contenido.length > 200 ? "..." : ""}
+
+                  <div className="card-body d-flex flex-column">
+                    <p className="card-text text-muted flex-grow-1">
+                      {comunicado.contenido.substring(0, 250)}
+                      {comunicado.contenido.length > 250 ? "..." : ""}
                     </p>
-                    <p className="card-text">
-                      <small className="text-muted">
+
+                    <div className="d-flex align-items-center text-muted mb-3">
+                      <FaCalendarAlt className="me-2 text-success" size={13} />
+                      <small>
                         {new Date(comunicado.fecha_publicacion).toLocaleDateString("es-CO", {
                           year: "numeric",
                           month: "long",
                           day: "numeric",
                         })}
-                        {usuarioActual && ` — Por: ${usuarioActual.primer_nombre} ${usuarioActual.primer_apellido}`}
                       </small>
-                    </p>
-                    <div className="d-flex justify-content-center gap-2">
+                    </div>
+
+                    <div className="d-flex gap-2">
                       <button
-                        className="btn btn-success"
+                        className="btn btn-outline-success btn-sm d-flex align-items-center gap-1 flex-fill"
                         onClick={() => setEditando(comunicado)}
                       >
-                        Modificar
+                        <FaEdit /> Modificar
                       </button>
                       <button
-                        className="btn btn-danger"
+                        className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 flex-fill"
                         onClick={() => handleEliminar(comunicado)}
                       >
-                        Borrar
+                        <FaTrashAlt /> Borrar
                       </button>
                     </div>
                   </div>

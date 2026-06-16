@@ -392,25 +392,3 @@ exports.eliminarComunicado = async (id) => {
     }
 };
 
-// ============= FINANZAS GENERALES =============
-exports.listarFinanzas = async () => {
-    try {
-        const [rows] = await db.query(
-            `SELECT 
-                u.id_usuario,
-                u.primer_nombre, 
-                u.primer_apellido, 
-                u.documento,
-                IFNULL((SELECT SUM(i.monto) FROM ingresos i WHERE i.usuario_id_usuario = u.id_usuario), 0) as total_ingresos,
-                IFNULL((SELECT SUM(g.monto) FROM gastos g WHERE g.usuario_id_usuario = u.id_usuario), 0) as total_gastos
-            FROM usuario u
-            WHERE u.rol = 'USUARIO'
-            ORDER BY u.primer_nombre, u.primer_apellido`
-        );
-        return rows;
-    } catch (error) {
-        console.error("Error en listarFinanzas:", error);
-        throw error;
-    }
-};
-

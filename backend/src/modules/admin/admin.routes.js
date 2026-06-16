@@ -29,8 +29,6 @@ router.post("/comunicados/admin", controller.crearComunicado);
 router.put("/comunicados/admin/:id", controller.actualizarComunicado);
 router.delete("/comunicados/admin/:id", controller.eliminarComunicado);
 
-// Finanzas generales de usuarios
-router.get("/finanzas", controller.listarFinanzas);
 
 module.exports = router;
 
