@@ -192,3 +192,46 @@
   }
 }
 
+@media (max-width: 768px) {
+  .rp-container {
+    flex-direction: column;
+    width: 100% !important;
+    max-width: 480px;
+    min-height: auto;
+    border-radius: 15px;
+    margin: 20px 10px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .rp-left {
+    order: 1;
+    flex: none;
+    padding: 30px 20px;
+    border-bottom: 2px dashed rgba(255, 255, 255, 0.1);
+  }
+
+  .rp-right {
+    order: 2;
+    flex: none;
+    padding: 40px 20px;
+  }
+
+  .restablecer-wrapper h1,
+  .rp-left h1,
+  .rp-right h1 {
+    font-size: 1.5rem;
+  }
+
+  .rp-left p,
+  .rp-right p {
+    font-size: 13px;
+    line-height: 18px;
+    margin: 5px 0 15px;
+  }
+
+  .auth-btn {
+    padding: 10px 25px;
+    font-size: 13px;
+  }
+}
+

@@ -250,6 +250,9 @@ const Auth = () => {
             </div>
 
             <button type="submit" className="auth-btn mt-3">Registrarse</button>
+            <div className="mobile-toggle-wrapper">
+              <p>¿Ya tienes cuenta? <span className="mobile-toggle-btn" onClick={() => setIsSignUp(false)}>Inicia sesión aquí</span></p>
+            </div>
           </form>
         </div>
 
@@ -288,6 +291,9 @@ const Auth = () => {
             <Link to="/Repecuperar_contraseña">¿Olvidaste tu contraseña?</Link>
             
             <button type="submit" className="auth-btn">Ingresar</button>
+            <div className="mobile-toggle-wrapper">
+              <p>¿No tienes cuenta? <span className="mobile-toggle-btn" onClick={() => setIsSignUp(true)}>Regístrate aquí</span></p>
+            </div>
           </form>
         </div>
 
