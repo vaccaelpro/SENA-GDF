@@ -52,6 +52,16 @@ exports.registrarExportacion = async (req, res) => {
         res.status(500).json({ error: 'Error al registrar la exportación' });
     }
 }
+exports.obtenerFinanzasGenerales = async (req, res) => {
+    try {
+        const data = await service.obtenerFinanzasGenerales();
+        res.json(data);
+    } catch (error) {
+        console.error('ERROR FINANZAS GENERALES:', error);
+        res.status(500).json({ error: 'Error al obtener finanzas generales' });
+    }
+};
+
 exports.crearGrupo = async (req, res) => {
     try {
         const { nombre, descripcion, tipo_apoyo } = req.body;
@@ -256,3 +266,91 @@ exports.eliminarComunicado = async (req, res) => {
     }
 };
 
+// =================== ENCUESTAS ===================
+
+exports.crearEncuesta = async (req, res) => {
+    try {
+        const { titulo, descripcion, preguntas, admin_id } = req.body;
+        if (!titulo || !preguntas || preguntas.length === 0) {
+            return res.status(400).json({ error: 'Faltan campos obligatorios' });
+        }
+        const result = await service.crearEncuesta({ titulo, descripcion, preguntas, admin_id: admin_id || 5 });
+        res.status(201).json(result);
+    } catch (error) {
+        console.error('ERROR CREAR ENCUESTA:', error);
+        res.status(500).json({ error: 'Error al crear encuesta' });
+    }
+};
+
+exports.listarEncuestas = async (req, res) => {
+    try {
+        const encuestas = await service.listarEncuestas();
+        res.json(encuestas);
+    } catch (error) {
+        console.error('ERROR LISTAR ENCUESTAS:', error);
+        res.status(500).json({ error: 'Error al listar encuestas' });
+    }
+};
+
+exports.obtenerEncuesta = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const encuesta = await service.obtenerEncuestaConPreguntas(id);
+        if (!encuesta) return res.status(404).json({ error: 'Encuesta no encontrada' });
+        res.json(encuesta);
+    } catch (error) {
+        console.error('ERROR OBTENER ENCUESTA:', error);
+        res.status(500).json({ error: 'Error al obtener encuesta' });
+    }
+};
+
+exports.eliminarEncuesta = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await service.eliminarEncuesta(id);
+        res.json({ success: true });
+    } catch (error) {
+        console.error('ERROR ELIMINAR ENCUESTA:', error);
+        res.status(500).json({ error: 'Error al eliminar encuesta' });
+    }
+};
+
+exports.registrarRespuestas = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { usuario_id, respuestas } = req.body;
+        if (!usuario_id || !respuestas || respuestas.length === 0) {
+            return res.status(400).json({ error: 'Faltan campos obligatorios' });
+        }
+        const result = await service.registrarRespuestas({ encuesta_id: id, usuario_id, respuestas });
+        res.json(result);
+    } catch (error) {
+        console.error('ERROR REGISTRAR RESPUESTAS:', error);
+        if (error.message === 'El usuario ya respondió esta encuesta') {
+            return res.status(409).json({ error: error.message });
+        }
+        res.status(500).json({ error: 'Error al registrar respuestas' });
+    }
+};
+
+exports.obtenerAnalisisEncuesta = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const analisis = await service.obtenerAnalisisEncuesta(id);
+        if (!analisis) return res.status(404).json({ error: 'Encuesta no encontrada' });
+        res.json(analisis);
+    } catch (error) {
+        console.error('ERROR ANALISIS ENCUESTA:', error);
+        res.status(500).json({ error: 'Error al obtener análisis' });
+    }
+};
+
+exports.verificarRespuestaUsuario = async (req, res) => {
+    try {
+        const { id, usuario_id } = req.params;
+        const yaRespondio = await service.verificarRespuestaUsuario(id, usuario_id);
+        res.json({ yaRespondio });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al verificar' });
+    }
+};

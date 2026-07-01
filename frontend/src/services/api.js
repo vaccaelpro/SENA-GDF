@@ -27,12 +27,15 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Token expirado - limpiar sesión
+    const url = error.config?.url || "";
+    const esRutaDeAuth = url.includes("/auth/login") || url.includes("/auth/register") || url.includes("/auth/recuperar") || url.includes("/auth/restablecer");
+
+    if (error.response?.status === 401 && !esRutaDeAuth) {
       localStorage.removeItem("usuario");
       localStorage.removeItem("rol");
       window.location.href = "/";
     }
+
     return Promise.reject(error);
   }
 );

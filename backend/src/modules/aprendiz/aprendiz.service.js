@@ -124,27 +124,38 @@ exports.agregarMonto = async (idAhorro, monto) => {
         const ahora = new Date();
         // 1. Obtener el usuario_id_usuario de esta meta de ahorro
         const [rows] = await db.query(
-            `SELECT usuario_id_usuario FROM metas_ahorro WHERE id_ahorro = ?`,
+            `SELECT usuario_id_usuario, meta FROM metas_ahorro WHERE id_ahorro = ?`,
             [idAhorro]
         );
         if (rows.length === 0) {
             throw new Error("Meta no encontrada");
         }
         const idUsuario = rows[0].usuario_id_usuario;
+        const nombreMeta = rows[0].meta;
 
-        // 2. Actualizar el monto ahorrado en la meta de ahorro
+        // 2. Actualizar el monto ahorrado en la meta (SUM acumulativo)
         await db.query(
             `UPDATE metas_ahorro SET monto_ahorrado = monto_ahorrado + ?, ultima_actualizacion = ?
              WHERE id_ahorro = ?`,
             [monto, ahora, idAhorro]
         );
 
-        // 3. Registrar este incremento también en la tabla ingresos
-        await db.query(
-            `INSERT INTO ingresos (monto, fecha_registro, ultima_actualizacion, usuario_id_usuario)
-             VALUES (?, ?, ?, ?)`,
-            [monto, ahora.toISOString().split('T')[0], ahora, idUsuario]
-        );
+        // 3. Registrar este incremento en la tabla ingresos
+        // Intentamos con descripcion, si el campo no existe usamos INSERT básico
+        try {
+            await db.query(
+                `INSERT INTO ingresos (monto, fecha_registro, ultima_actualizacion, usuario_id_usuario, descripcion)
+                 VALUES (?, ?, ?, ?, ?)`,
+                [monto, ahora.toISOString().split('T')[0], ahora, idUsuario, `Ahorro: ${nombreMeta}`]
+            );
+        } catch (insertErr) {
+            // Si falla con descripcion, intentar sin ella
+            await db.query(
+                `INSERT INTO ingresos (monto, fecha_registro, ultima_actualizacion, usuario_id_usuario)
+                 VALUES (?, ?, ?, ?)`,
+                [monto, ahora.toISOString().split('T')[0], ahora, idUsuario]
+            );
+        }
 
         return { success: true };
     } catch (error) {

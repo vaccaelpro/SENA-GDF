@@ -100,6 +100,216 @@ exports.getTestMessage = async () => {
     return { message: "Módulo de administrador funcionando correctamente (Desde Servicio)" };
 }
 
+exports.obtenerFinanzasGenerales = async () => {
+    try {
+        const [rows] = await db.query(
+            `SELECT
+                u.id_usuario,
+                u.primer_nombre,
+                u.primer_apellido,
+                u.documento,
+                COALESCE((SELECT SUM(monto) FROM ingresos WHERE usuario_id_usuario = u.id_usuario), 0) AS total_ingresos,
+                COALESCE((SELECT SUM(monto) FROM gastos WHERE usuario_id_usuario = u.id_usuario), 0) AS total_gastos
+             FROM usuario u
+             WHERE u.rol = 'USUARIO'
+             ORDER BY u.primer_nombre ASC`
+        );
+        return rows;
+    } catch (error) {
+        console.error('Error en obtenerFinanzasGenerales:', error);
+        throw error;
+    }
+};
+
+// =================== ENCUESTAS ===================
+
+exports.crearEncuesta = async ({ titulo, descripcion, preguntas, admin_id }) => {
+    try {
+        const ahora = new Date();
+        let finalAdminId = Number(admin_id);
+
+        if (isNaN(finalAdminId) || finalAdminId <= 0) {
+            const [admins] = await db.query(`SELECT id_usuario FROM usuario WHERE rol = 'ADMIN' LIMIT 1`);
+            if (admins.length > 0) {
+                finalAdminId = admins[0].id_usuario;
+            } else {
+                finalAdminId = 5; // Default fallback
+            }
+        }
+
+        const [result] = await db.query(
+            `INSERT INTO formularios (nombre_formulario, descripcion, fecha_creacion, ultima_actualizacion, usuario_id_usuario)
+             VALUES (?, ?, ?, ?, ?)`,
+            [titulo, descripcion || '', ahora, ahora, finalAdminId]
+        );
+        const formularioId = result.insertId;
+
+        if (preguntas && preguntas.length > 0) {
+            for (let i = 0; i < preguntas.length; i++) {
+                const p = preguntas[i];
+                await db.query(
+                    `INSERT INTO preguntas_encuesta (pregunta, ultima_actualizacion, usuario_id_usuario, formulario_id_formulario)
+                     VALUES (?, ?, ?, ?)`,
+                    [p.pregunta, ahora, finalAdminId, formularioId]
+                );
+            }
+        }
+
+        return { success: true, id_formulario: formularioId };
+    } catch (error) {
+        console.error('Error en crearEncuesta:', error);
+        throw error;
+    }
+};
+
+exports.listarEncuestas = async () => {
+    try {
+        const [encuestas] = await db.query(
+            `SELECT f.id_formulario, f.nombre_formulario as titulo, f.descripcion, f.fecha_creacion,
+                    COUNT(DISTINCT pe.id_pregunta) as total_preguntas,
+                    COUNT(DISTINCT re.id_respuesta) as total_respuestas
+             FROM formularios f
+             LEFT JOIN preguntas_encuesta pe ON pe.formulario_id_formulario = f.id_formulario
+             LEFT JOIN respuestas_encuesta re ON re.formulario_id_formulario = f.id_formulario
+             GROUP BY f.id_formulario
+             ORDER BY f.fecha_creacion DESC`
+        );
+        return encuestas;
+    } catch (error) {
+        console.error('Error en listarEncuestas:', error);
+        throw error;
+    }
+};
+
+exports.obtenerEncuestaConPreguntas = async (id) => {
+    try {
+        const [encuestas] = await db.query(
+            `SELECT id_formulario, nombre_formulario as titulo, descripcion, fecha_creacion FROM formularios WHERE id_formulario = ?`, [id]
+        );
+        if (encuestas.length === 0) return null;
+
+        const [preguntas] = await db.query(
+            `SELECT id_pregunta, pregunta, formulario_id_formulario FROM preguntas_encuesta WHERE formulario_id_formulario = ? ORDER BY id_pregunta ASC`, [id]
+        );
+
+        return { ...encuestas[0], preguntas };
+    } catch (error) {
+        console.error('Error en obtenerEncuestaConPreguntas:', error);
+        throw error;
+    }
+};
+
+exports.eliminarEncuesta = async (id) => {
+    try {
+        await db.query(`DELETE FROM respuestas_encuesta WHERE formulario_id_formulario = ?`, [id]);
+        await db.query(`DELETE FROM preguntas_encuesta WHERE formulario_id_formulario = ?`, [id]);
+        await db.query(`DELETE FROM formularios WHERE id_formulario = ?`, [id]);
+        return { success: true };
+    } catch (error) {
+        console.error('Error en eliminarEncuesta:', error);
+        throw error;
+    }
+};
+
+exports.registrarRespuestas = async ({ encuesta_id, usuario_id, respuestas }) => {
+    try {
+        const ahora = new Date();
+        const fechaSolo = ahora.toISOString().split('T')[0];
+        
+        // Verificar si ya respondió
+        const [existing] = await db.query(
+            `SELECT id_respuesta FROM respuestas_encuesta WHERE formulario_id_formulario = ? AND usuario_id_usuario = ? LIMIT 1`,
+            [encuesta_id, usuario_id]
+        );
+        if (existing.length > 0) {
+            throw new Error('El usuario ya respondió esta encuesta');
+        }
+
+        for (const r of respuestas) {
+            await db.query(
+                `INSERT INTO respuestas_encuesta (respuesta, fecha_respuesta, ultima_actualizacion, usuario_id_usuario, formulario_id_formulario, pregunta_encuesta_id_pregunta)
+                 VALUES (?, ?, ?, ?, ?, ?)`,
+                [String(r.respuesta), fechaSolo, ahora, usuario_id, encuesta_id, r.pregunta_id]
+            );
+        }
+        return { success: true };
+    } catch (error) {
+        console.error('Error en registrarRespuestas:', error);
+        throw error;
+    }
+};
+
+exports.obtenerAnalisisEncuesta = async (id) => {
+    try {
+        const [encuesta] = await db.query(`SELECT id_formulario, nombre_formulario as titulo, descripcion FROM formularios WHERE id_formulario = ?`, [id]);
+        if (encuesta.length === 0) return null;
+
+        const [preguntas] = await db.query(
+            `SELECT id_pregunta, pregunta FROM preguntas_encuesta WHERE formulario_id_formulario = ? ORDER BY id_pregunta ASC`, [id]
+        );
+
+        const [respuestas] = await db.query(
+            `SELECT re.pregunta_encuesta_id_pregunta as pregunta_id, re.respuesta, re.usuario_id_usuario as usuario_id,
+                    u.primer_nombre, u.primer_apellido
+             FROM respuestas_encuesta re
+             JOIN usuario u ON u.id_usuario = re.usuario_id_usuario
+             WHERE re.formulario_id_formulario = ?`,
+            [id]
+        );
+
+        const totalUsuarios = new Set(respuestas.map(r => r.usuario_id)).size;
+
+        const preguntasConAnalisis = preguntas.map(p => {
+            const resps = respuestas.filter(r => r.pregunta_id === p.id_pregunta);
+            
+            // Tratamos todas las respuestas de números (1 a 10) para el análisis promedio
+            const valores = resps.map(r => Number(r.respuesta)).filter(v => !isNaN(v) && v >= 1 && v <= 10);
+            const promedio = valores.length > 0
+                ? (valores.reduce((a, b) => a + b, 0) / valores.length).toFixed(1)
+                : 0;
+            
+            const distribucion = {};
+            valores.forEach(v => { distribucion[v] = (distribucion[v] || 0) + 1; });
+            
+            // También devolvemos los comentarios que no son simplemente números del 1 al 10
+            const comentarios = resps.filter(r => isNaN(Number(r.respuesta)) || Number(r.respuesta) < 1 || Number(r.respuesta) > 10).map(r => ({
+                usuario: `${r.primer_nombre} ${r.primer_apellido}`,
+                texto: r.respuesta
+            }));
+
+            return { 
+                ...p, 
+                promedio: Number(promedio), 
+                distribucion, 
+                comentarios,
+                total_respuestas: resps.length 
+            };
+        });
+
+        return {
+            encuesta: encuesta[0],
+            total_participantes: totalUsuarios,
+            preguntas: preguntasConAnalisis
+        };
+    } catch (error) {
+        console.error('Error en obtenerAnalisisEncuesta:', error);
+        throw error;
+    }
+};
+
+exports.verificarRespuestaUsuario = async (encuesta_id, usuario_id) => {
+    try {
+        const [rows] = await db.query(
+            `SELECT id_respuesta FROM respuestas_encuesta WHERE formulario_id_formulario = ? AND usuario_id_usuario = ? LIMIT 1`,
+            [encuesta_id, usuario_id]
+        );
+        return rows.length > 0;
+    } catch (error) {
+        throw error;
+    }
+};
+
+
 exports.registrarExportacion = async (data) => {
     try {
         console.log("INSERTANDO EXPORTACION EN DB:", data);
