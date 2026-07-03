@@ -28,11 +28,23 @@ const ModalAgregarMeta = ({ onClose, onSuccess, idUsuario }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.meta.trim()) return setError("El nombre es obligatorio.");
-    if (!form.valor_objetivo || Number(form.valor_objetivo) <= 0)
-      return setError("El valor objetivo debe ser mayor a 0.");
+    if (!form.meta.trim()) {
+      Swal.fire({ icon: "warning", title: "Campo requerido", text: "El nombre de la meta es obligatorio.", confirmButtonColor: "#28a745" });
+      return;
+    }
+    if (!form.valor_objetivo || Number(form.valor_objetivo) <= 0) {
+      Swal.fire({ icon: "warning", title: "Monto inválido", text: "El valor objetivo debe ser mayor a $0.", confirmButtonColor: "#28a745" });
+      return;
+    }
+    if (Number(form.monto_ahorrado) < 0) {
+      Swal.fire({ icon: "warning", title: "Monto inválido", text: "El monto inicial no puede ser negativo.", confirmButtonColor: "#28a745" });
+      return;
+    }
+    if (!form.fecha_objetivo) {
+      Swal.fire({ icon: "warning", title: "Fecha requerida", text: "Debes seleccionar una fecha objetivo.", confirmButtonColor: "#28a745" });
+      return;
+    }
     setLoading(true);
-    setError("");
     try {
       await crearMeta({
         meta: form.meta.trim(),
@@ -44,7 +56,7 @@ const ModalAgregarMeta = ({ onClose, onSuccess, idUsuario }) => {
       });
       onSuccess();
     } catch {
-      setError("Error al crear la meta. Intenta de nuevo.");
+      Swal.fire({ icon: "error", title: "Error", text: "No se pudo crear la meta. Intenta de nuevo.", confirmButtonColor: "#28a745" });
     } finally {
       setLoading(false);
     }
@@ -64,7 +76,7 @@ const ModalAgregarMeta = ({ onClose, onSuccess, idUsuario }) => {
           <button className="modal-close" onClick={onClose}><FaTimes /></button>
         </div>
 
-        <form className="modal-form" onSubmit={handleSubmit}>
+        <form className="modal-form" onSubmit={handleSubmit} noValidate>
           {error && <div className="modal-error">{error}</div>}
 
           <div className="form-group">
@@ -85,11 +97,9 @@ const ModalAgregarMeta = ({ onClose, onSuccess, idUsuario }) => {
               <input
                 name="valor_objetivo"
                 type="number"
-                min="1"
                 value={form.valor_objetivo}
                 onChange={handleChange}
                 placeholder="Ej: 1000000"
-                required
               />
             </div>
             <div className="form-group">
@@ -97,7 +107,6 @@ const ModalAgregarMeta = ({ onClose, onSuccess, idUsuario }) => {
               <input
                 name="monto_ahorrado"
                 type="number"
-                min="0"
                 value={form.monto_ahorrado}
                 onChange={handleChange}
                 placeholder="0"
@@ -112,8 +121,6 @@ const ModalAgregarMeta = ({ onClose, onSuccess, idUsuario }) => {
               type="date"
               value={form.fecha_objetivo}
               onChange={handleChange}
-              min={hoy()}
-              required
             />
           </div>
 
@@ -157,15 +164,20 @@ const ModalAgregarMonto = ({ onClose, onSuccess, metas }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.id_ahorro) return setError("Selecciona una meta.");
-    if (!form.monto || Number(form.monto) <= 0) return setError("El monto debe ser mayor a 0.");
+    if (!form.id_ahorro) {
+      Swal.fire({ icon: "warning", title: "Meta requerida", text: "Selecciona una meta de ahorro.", confirmButtonColor: "#28a745" });
+      return;
+    }
+    if (!form.monto || Number(form.monto) <= 0) {
+      Swal.fire({ icon: "warning", title: "Monto inválido", text: "El monto a añadir debe ser mayor a $0.", confirmButtonColor: "#28a745" });
+      return;
+    }
     setLoading(true);
-    setError("");
     try {
       await agregarMonto(form.id_ahorro, Number(form.monto));
       onSuccess();
     } catch {
-      setError("Error al agregar el monto. Intenta de nuevo.");
+      Swal.fire({ icon: "error", title: "Error", text: "No se pudo agregar el monto. Intenta de nuevo.", confirmButtonColor: "#28a745" });
     } finally {
       setLoading(false);
     }
@@ -187,12 +199,12 @@ const ModalAgregarMonto = ({ onClose, onSuccess, metas }) => {
           <button className="modal-close" onClick={onClose}><FaTimes /></button>
         </div>
 
-        <form className="modal-form" onSubmit={handleSubmit}>
-          {error && <div className="modal-error">{error}</div>}
+        <form className="modal-form" onSubmit={handleSubmit} noValidate>
+          {/* los errores ahora los maneja SweetAlert2 */}
 
           <div className="form-group">
             <label>Selecciona la meta</label>
-            <select name="id_ahorro" value={form.id_ahorro} onChange={handleChange} required>
+            <select name="id_ahorro" value={form.id_ahorro} onChange={handleChange}>
               <option value="">-- Seleccionar --</option>
               {metas.map((m) => (
                 <option key={m.id_ahorro} value={m.id_ahorro}>
@@ -225,11 +237,9 @@ const ModalAgregarMonto = ({ onClose, onSuccess, metas }) => {
             <input
               name="monto"
               type="number"
-              min="1"
               value={form.monto}
               onChange={handleChange}
               placeholder="Ej: 50000"
-              required
             />
           </div>
 
@@ -262,11 +272,19 @@ const ModalEditarMeta = ({ onClose, onSuccess, meta }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.meta.trim()) return setError("El nombre es obligatorio.");
-    if (!form.valor_objetivo || Number(form.valor_objetivo) <= 0)
-      return setError("El valor objetivo debe ser mayor a 0.");
+    if (!form.meta.trim()) {
+      Swal.fire({ icon: "warning", title: "Campo requerido", text: "El nombre de la meta es obligatorio.", confirmButtonColor: "#28a745" });
+      return;
+    }
+    if (!form.valor_objetivo || Number(form.valor_objetivo) <= 0) {
+      Swal.fire({ icon: "warning", title: "Monto inválido", text: "El valor objetivo debe ser mayor a $0.", confirmButtonColor: "#28a745" });
+      return;
+    }
+    if (!form.fecha_objetivo) {
+      Swal.fire({ icon: "warning", title: "Fecha requerida", text: "Debes seleccionar una fecha objetivo.", confirmButtonColor: "#28a745" });
+      return;
+    }
     setLoading(true);
-    setError("");
     try {
       await editarMeta(meta.id_ahorro, {
         meta: form.meta.trim(),
@@ -276,7 +294,7 @@ const ModalEditarMeta = ({ onClose, onSuccess, meta }) => {
       });
       onSuccess();
     } catch {
-      setError("Error al actualizar la meta. Intenta de nuevo.");
+      Swal.fire({ icon: "error", title: "Error", text: "No se pudo actualizar la meta. Intenta de nuevo.", confirmButtonColor: "#28a745" });
     } finally {
       setLoading(false);
     }
@@ -296,7 +314,7 @@ const ModalEditarMeta = ({ onClose, onSuccess, meta }) => {
           <button className="modal-close" onClick={onClose}><FaTimes /></button>
         </div>
 
-        <form className="modal-form" onSubmit={handleSubmit}>
+        <form className="modal-form" onSubmit={handleSubmit} noValidate>
           {error && <div className="modal-error">{error}</div>}
 
           <div className="form-group">
@@ -316,10 +334,8 @@ const ModalEditarMeta = ({ onClose, onSuccess, meta }) => {
             <input
               name="valor_objetivo"
               type="number"
-              min="1"
               value={form.valor_objetivo}
               onChange={handleChange}
-              required
             />
           </div>
 
@@ -330,7 +346,6 @@ const ModalEditarMeta = ({ onClose, onSuccess, meta }) => {
               type="date"
               value={form.fecha_objetivo}
               onChange={handleChange}
-              required
             />
           </div>
 
@@ -445,8 +460,17 @@ const MetasDeAhorro = () => {
 
   const handleGastoSubmit = async (e) => {
     e.preventDefault();
-    if (!gastoForm.monto || Number(gastoForm.monto) <= 0) {
-      return Swal.fire("Monto inválido", "Por favor ingresa un monto válido.", "warning");
+    if (!gastoForm.monto) {
+      Swal.fire({ icon: "warning", title: "Campo requerido", text: "Debes ingresar un monto para el egreso.", confirmButtonColor: "#28a745" });
+      return;
+    }
+    if (Number(gastoForm.monto) <= 0) {
+      Swal.fire({ icon: "warning", title: "Monto inválido", text: "El monto del egreso debe ser mayor a $0. No se permiten valores negativos o en cero.", confirmButtonColor: "#28a745" });
+      return;
+    }
+    if (!gastoForm.fecha_registro) {
+      Swal.fire({ icon: "warning", title: "Fecha requerida", text: "Selecciona una fecha para el egreso.", confirmButtonColor: "#28a745" });
+      return;
     }
 
     setGastoLoading(true);
@@ -463,7 +487,8 @@ const MetasDeAhorro = () => {
         title: "¡Egreso Registrado!",
         text: "Tu gasto se guardó correctamente.",
         timer: 1500,
-        showConfirmButton: false
+        showConfirmButton: false,
+        confirmButtonColor: "#28a745"
       });
 
       setGastoForm({
@@ -474,7 +499,7 @@ const MetasDeAhorro = () => {
       cargarGastos();
     } catch (err) {
       console.error(err);
-      Swal.fire("Error", "No se pudo registrar el gasto.", "error");
+      Swal.fire({ icon: "error", title: "Error", text: "No se pudo registrar el egreso. Intenta de nuevo.", confirmButtonColor: "#28a745" });
     } finally {
       setGastoLoading(false);
     }
@@ -703,14 +728,13 @@ const MetasDeAhorro = () => {
           <div className="col-md-5 mb-4">
             <div className="card shadow-sm border-0 p-4" style={{ borderRadius: "15px" }}>
               <h4 className="fw-bold mb-3 text-success">Registrar Nuevo Egreso</h4>
-              <form onSubmit={handleGastoSubmit}>
+              <form onSubmit={handleGastoSubmit} noValidate>
                 <div className="mb-3">
                   <label className="form-label fw-bold text-secondary">Categoría del Gasto *</label>
                   <select
                     className="form-select custom-input py-2"
                     value={gastoForm.categoria}
                     onChange={(e) => setGastoForm({ ...gastoForm, categoria: e.target.value })}
-                    required
                   >
                     {categoriasMedellin.map((cat, idx) => (
                       <option key={idx} value={cat.value}>{cat.label}</option>
@@ -726,7 +750,6 @@ const MetasDeAhorro = () => {
                     placeholder="Ej: 5000"
                     value={gastoForm.monto}
                     onChange={(e) => setGastoForm({ ...gastoForm, monto: e.target.value })}
-                    required
                   />
                 </div>
 
@@ -737,7 +760,6 @@ const MetasDeAhorro = () => {
                     className="form-control custom-input py-2"
                     value={gastoForm.fecha_registro}
                     onChange={(e) => setGastoForm({ ...gastoForm, fecha_registro: e.target.value })}
-                    required
                   />
                 </div>
 
