@@ -124,10 +124,13 @@ scratch/
 *.tar.gz
 *.zip
 
-# Certificados SSL locales
-*.pem
+# Certificados SSL locales (claves privadas nunca al repo)
 *.key
 *.crt
+# *.pem — NO ignorar: el ca.pem de Aiven es un certificado público
+# necesario para que Render se conecte a la base de datos con SSL.
+# Excepción explícita:
+!backend/certs/ca.pem
 
 # Reporte de errores de compilación
 tsconfig.tsbuildinfo
