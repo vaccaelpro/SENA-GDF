@@ -1,6 +1,7 @@
 const mysql = require('mysql2');
 const fs = require('fs');
 const path = require('path');
+const logger = require('../utils/logger');
 
 
 let sslConfig = undefined;
@@ -8,8 +9,12 @@ const caPath = path.join(__dirname, '../../certs/ca.pem');
 
 if (fs.existsSync(caPath)) {
   sslConfig = { ca: fs.readFileSync(caPath).toString() };
+  logger.info('DB', 'Certificado SSL cargado desde archivo local (ca.pem)');
 } else if (process.env.DB_SSL_CA) {
   sslConfig = { ca: Buffer.from(process.env.DB_SSL_CA, 'base64').toString('utf8') };
+  logger.info('DB', 'Certificado SSL cargado desde variable de entorno DB_SSL_CA');
+} else {
+  logger.warn('DB', 'SSL no configurado. Conexion sin cifrado.');
 }
 
 
@@ -35,13 +40,18 @@ const pool = mysql.createPool(poolConfig);
 
 pool.getConnection((err, connection) => {
   if (err) {
-    console.error('❌ Error al conectar a la base de datos:', err.message);
-    console.error('   Código:', err.code);
+    logger.error('DB', 'Error al conectar a la base de datos', {
+      code: err.code,
+      message: err.message,
+      host: process.env.DB_HOST || 'localhost',
+    });
     return;
   }
-  console.log('✅ Conectado a la base de datos:', process.env.DB_NAME || 'sena');
-  console.log('   Host:', process.env.DB_HOST || 'localhost');
-  console.log('   SSL:', sslConfig ? 'habilitado' : 'deshabilitado');
+  logger.info('DB', 'Conexion establecida correctamente', {
+    database: process.env.DB_NAME || 'sena',
+    host: process.env.DB_HOST || 'localhost',
+    ssl: sslConfig ? 'habilitado' : 'deshabilitado',
+  });
   connection.release();
 });
 

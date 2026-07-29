@@ -1,4 +1,6 @@
-const db = require('../../config/database')
+const db = require('../../config/database');
+const logger = require('../../utils/logger');
+
 
 exports.getTestMessage = async () => {
     return { message: "Módulo de aprendiz funcionando correctamente (Desde Servicio)" };
@@ -20,9 +22,10 @@ exports.obtenerMiGrupo = async (usuarioId) => {
 
         return grupo[0];
     } catch (error) {
-        console.error("Error en obtenerMiGrupo:", error);
+        logger.error('APRENDIZ_SVC', 'Error en obtenerMiGrupo', { error: error.message });
         throw error;
     }
+
 };
 
 exports.obtenerMiembrosMiGrupo = async (usuarioId) => {
@@ -38,9 +41,10 @@ exports.obtenerMiembrosMiGrupo = async (usuarioId) => {
         );
         return rows;
     } catch (error) {
-        console.error("Error en obtenerMiembrosMiGrupo:", error);
+        logger.error('APRENDIZ_SVC', 'Error en obtenerMiembrosMiGrupo', { error: error.message });
         throw error;
     }
+
 };
 
 exports.obtenerMensajesMiGrupo = async (usuarioId) => {
@@ -65,9 +69,10 @@ exports.obtenerMensajesMiGrupo = async (usuarioId) => {
         );
         return rows;
     } catch (error) {
-        console.error("Error en obtenerMensajesMiGrupo:", error);
+        logger.error('APRENDIZ_SVC', 'Error en obtenerMensajesMiGrupo', { error: error.message });
         throw error;
     }
+
 };
 
 // ============= METAS DE AHORRO =============
@@ -84,9 +89,10 @@ exports.listarMetas = async (idUsuario) => {
         );
         return rows;
     } catch (error) {
-        console.error("Error en listarMetas:", error);
+        logger.error('APRENDIZ_SVC', 'Error en listarMetas', { error: error.message });
         throw error;
     }
+
 };
 
 exports.crearMeta = async ({ meta, valor_objetivo, monto_ahorrado = 0, fecha_objetivo, color = '#28a745', usuario_id_usuario }) => {
@@ -99,9 +105,10 @@ exports.crearMeta = async ({ meta, valor_objetivo, monto_ahorrado = 0, fecha_obj
         );
         return { id_ahorro: result.insertId, meta, valor_objetivo, monto_ahorrado, fecha_objetivo, color, ultima_actualizacion: ahora, usuario_id_usuario };
     } catch (error) {
-        console.error("Error en crearMeta:", error);
+        logger.error('APRENDIZ_SVC', 'Error en crearMeta', { error: error.message });
         throw error;
     }
+
 };
 
 exports.editarMeta = async (idAhorro, { meta, valor_objetivo, fecha_objetivo, color }) => {
@@ -114,9 +121,10 @@ exports.editarMeta = async (idAhorro, { meta, valor_objetivo, fecha_objetivo, co
         );
         return { id_ahorro: idAhorro, meta, valor_objetivo, fecha_objetivo, color, ultima_actualizacion: ahora };
     } catch (error) {
-        console.error("Error en editarMeta:", error);
+        logger.error('APRENDIZ_SVC', 'Error en editarMeta', { error: error.message });
         throw error;
     }
+
 };
 
 exports.agregarMonto = async (idAhorro, monto) => {
@@ -159,9 +167,10 @@ exports.agregarMonto = async (idAhorro, monto) => {
 
         return { success: true };
     } catch (error) {
-        console.error("Error en agregarMonto:", error);
+        logger.error('APRENDIZ_SVC', 'Error en agregarMonto', { error: error.message });
         throw error;
     }
+
 };
 
 exports.eliminarMeta = async (idAhorro) => {
@@ -169,9 +178,10 @@ exports.eliminarMeta = async (idAhorro) => {
         await db.query(`DELETE FROM metas_ahorro WHERE id_ahorro = ?`, [idAhorro]);
         return { success: true };
     } catch (error) {
-        console.error("Error en eliminarMeta:", error);
+        logger.error('APRENDIZ_SVC', 'Error en eliminarMeta', { error: error.message });
         throw error;
     }
+
 };
 
 // ============= INGRESOS =============
@@ -187,9 +197,10 @@ exports.listarIngresos = async (idUsuario) => {
         );
         return rows;
     } catch (error) {
-        console.error("Error en listarIngresos:", error);
+        logger.error('APRENDIZ_SVC', 'Error en listarIngresos', { error: error.message });
         throw error;
     }
+
 };
 
 exports.crearIngreso = async ({ monto, fecha_registro, usuario_id_usuario }) => {
@@ -202,9 +213,10 @@ exports.crearIngreso = async ({ monto, fecha_registro, usuario_id_usuario }) => 
         );
         return { id_ingreso: result.insertId, monto, fecha_registro, ultima_actualizacion: ahora, usuario_id_usuario };
     } catch (error) {
-        console.error("Error en crearIngreso:", error);
+        logger.error('APRENDIZ_SVC', 'Error en crearIngreso', { error: error.message });
         throw error;
     }
+
 };
 
 exports.eliminarIngreso = async (idIngreso) => {
@@ -212,9 +224,10 @@ exports.eliminarIngreso = async (idIngreso) => {
         await db.query(`DELETE FROM ingresos WHERE id_ingreso = ?`, [idIngreso]);
         return { success: true };
     } catch (error) {
-        console.error("Error en eliminarIngreso:", error);
+        logger.error('APRENDIZ_SVC', 'Error en eliminarIngreso', { error: error.message });
         throw error;
     }
+
 };
 
 // ============= GASTOS =============
@@ -230,9 +243,10 @@ exports.listarGastos = async (idUsuario) => {
         );
         return rows;
     } catch (error) {
-        console.error("Error en listarGastos:", error);
+        logger.error('APRENDIZ_SVC', 'Error en listarGastos', { error: error.message });
         throw error;
     }
+
 };
 
 exports.crearGasto = async ({ categoria, monto, fecha_registro, usuario_id_usuario }) => {
@@ -245,9 +259,10 @@ exports.crearGasto = async ({ categoria, monto, fecha_registro, usuario_id_usuar
         );
         return { id_gasto: result.insertId, categoria, monto, fecha_registro, ultima_actualizacion: ahora, usuario_id_usuario };
     } catch (error) {
-        console.error("Error en crearGasto:", error);
+        logger.error('APRENDIZ_SVC', 'Error en crearGasto', { error: error.message });
         throw error;
     }
+
 };
 
 exports.eliminarGasto = async (idGasto) => {
@@ -255,8 +270,9 @@ exports.eliminarGasto = async (idGasto) => {
         await db.query(`DELETE FROM gastos WHERE id_gasto = ?`, [idGasto]);
         return { success: true };
     } catch (error) {
-        console.error("Error en eliminarGasto:", error);
+        logger.error('APRENDIZ_SVC', 'Error en eliminarGasto', { error: error.message });
         throw error;
     }
+
 };
 

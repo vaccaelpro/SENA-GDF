@@ -2,6 +2,8 @@ const db = require("../../config/database");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
+const logger = require("../../utils/logger");
+
 
 exports.validarLogin = async (tipo_documento, documento, contrasena) => {
     try {
@@ -35,9 +37,10 @@ exports.validarLogin = async (tipo_documento, documento, contrasena) => {
             },
         };
     } catch (error) {
-        console.error("Error en validarLogin:", error);
+        logger.error('AUTH_SVC', 'Error en validarLogin', { error: error.message });
         throw error;
     }
+
 };
 
 exports.registrarUsuario = async (data) => {
@@ -101,9 +104,10 @@ exports.registrarUsuario = async (data) => {
 
         return { success: true };
     } catch (error) {
-        console.error("Error en registrarUsuario:", error);
+        logger.error('AUTH_SVC', 'Error en registrarUsuario', { error: error.message });
         throw error;
     }
+
 };
 
 
@@ -177,7 +181,9 @@ exports.generarTokenRecuperacion = async (correo) => {
         `,
     });
 
+    logger.info('AUTH_SVC', 'Email de recuperacion enviado exitosamente');
     return { success: true };
+
 };
 
 exports.validarTokenRecuperacion = async (tokenPlano) => {
@@ -243,7 +249,8 @@ exports.cambiarPassword = async (tokenPlano, nuevaContrasena) => {
         return { success: true };
 
     } catch (error) {
-        console.error("Error en cambiarPassword:", error);
+        logger.error('AUTH_SVC', 'Error en cambiarPassword', { error: error.message });
         throw error;
     }
+
 };

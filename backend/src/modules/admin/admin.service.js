@@ -1,5 +1,7 @@
 const db = require('../../config/database');
 const { saveBase64Image, deleteImage } = require('../../utils/uploadHelper');
+const logger = require('../../utils/logger');
+
 
 exports.listarUsuarios = async () => {
     try {
@@ -8,9 +10,10 @@ exports.listarUsuarios = async () => {
         );
         return rows;
     } catch (error) {
-        console.error("Error en listarUsuarios:", error);
+        logger.error('ADMIN_SVC', 'Error en listarUsuarios', { error: error.message });
         throw error;
     }
+
 };
 
 exports.actualizarUsuario = async (id, data) => {
@@ -81,9 +84,10 @@ exports.actualizarUsuario = async (id, data) => {
 
         return { success: true };
     } catch (error) {
-        console.error("Error en actualizarUsuario:", error);
+        logger.error('ADMIN_SVC', 'Error en actualizarUsuario', { id, error: error.message });
         throw error;
     }
+
 };
 
 exports.eliminarUsuario = async (id) => {
@@ -91,9 +95,10 @@ exports.eliminarUsuario = async (id) => {
         await db.query("DELETE FROM usuario WHERE id_usuario = ?", [id]);
         return { success: true };
     } catch (error) {
-        console.error("Error en eliminarUsuario:", error);
+        logger.error('ADMIN_SVC', 'Error en eliminarUsuario', { id, error: error.message });
         throw error;
     }
+
 };
 
 exports.getTestMessage = async () => {
@@ -116,9 +121,10 @@ exports.obtenerFinanzasGenerales = async () => {
         );
         return rows;
     } catch (error) {
-        console.error('Error en obtenerFinanzasGenerales:', error);
+        logger.error('ADMIN_SVC', 'Error en obtenerFinanzasGenerales', { error: error.message });
         throw error;
     }
+
 };
 
 // =================== ENCUESTAS ===================
@@ -157,9 +163,10 @@ exports.crearEncuesta = async ({ titulo, descripcion, preguntas, admin_id }) => 
 
         return { success: true, id_formulario: formularioId };
     } catch (error) {
-        console.error('Error en crearEncuesta:', error);
+        logger.error('ADMIN_SVC', 'Error en crearEncuesta', { error: error.message });
         throw error;
     }
+
 };
 
 exports.listarEncuestas = async () => {
@@ -176,9 +183,10 @@ exports.listarEncuestas = async () => {
         );
         return encuestas;
     } catch (error) {
-        console.error('Error en listarEncuestas:', error);
+        logger.error('ADMIN_SVC', 'Error en listarEncuestas', { error: error.message });
         throw error;
     }
+
 };
 
 exports.obtenerEncuestaConPreguntas = async (id) => {
@@ -194,9 +202,10 @@ exports.obtenerEncuestaConPreguntas = async (id) => {
 
         return { ...encuestas[0], preguntas };
     } catch (error) {
-        console.error('Error en obtenerEncuestaConPreguntas:', error);
+        logger.error('ADMIN_SVC', 'Error en obtenerEncuestaConPreguntas', { error: error.message });
         throw error;
     }
+
 };
 
 exports.eliminarEncuesta = async (id) => {
@@ -206,9 +215,10 @@ exports.eliminarEncuesta = async (id) => {
         await db.query(`DELETE FROM formularios WHERE id_formulario = ?`, [id]);
         return { success: true };
     } catch (error) {
-        console.error('Error en eliminarEncuesta:', error);
+        logger.error('ADMIN_SVC', 'Error en eliminarEncuesta', { error: error.message });
         throw error;
     }
+
 };
 
 exports.registrarRespuestas = async ({ encuesta_id, usuario_id, respuestas }) => {
@@ -234,9 +244,10 @@ exports.registrarRespuestas = async ({ encuesta_id, usuario_id, respuestas }) =>
         }
         return { success: true };
     } catch (error) {
-        console.error('Error en registrarRespuestas:', error);
+        logger.error('ADMIN_SVC', 'Error en registrarRespuestas', { error: error.message });
         throw error;
     }
+
 };
 
 exports.obtenerAnalisisEncuesta = async (id) => {
@@ -292,9 +303,10 @@ exports.obtenerAnalisisEncuesta = async (id) => {
             preguntas: preguntasConAnalisis
         };
     } catch (error) {
-        console.error('Error en obtenerAnalisisEncuesta:', error);
+        logger.error('ADMIN_SVC', 'Error en obtenerAnalisisEncuesta', { error: error.message });
         throw error;
     }
+
 };
 
 exports.verificarRespuestaUsuario = async (encuesta_id, usuario_id) => {
@@ -312,18 +324,17 @@ exports.verificarRespuestaUsuario = async (encuesta_id, usuario_id) => {
 
 exports.registrarExportacion = async (data) => {
     try {
-        console.log("INSERTANDO EXPORTACION EN DB:", data);
         const { nombre_archivo, usuario_id_usuario, tipo_exportacion } = data;
         const [result] = await db.query(
             "INSERT INTO exportaciones (nombre_archivo, fecha_exportacion, ultima_actualizacion, usuario_id_usuario, tipo_exportacion) VALUES (?, NOW(), NOW(), ?, ?)",
             [nombre_archivo, usuario_id_usuario, tipo_exportacion]
         );
-        console.log("RESULTADO DB:", result);
         return { success: true, id: result.insertId };
     } catch (error) {
-        console.error("Error en registrarExportacion (SERVICE):", error);
+        logger.error('ADMIN_SVC', 'Error en registrarExportacion', { error: error.message });
         throw error;
     }
+
 };
 exports.crearGrupo = async (data) => {
     try {
@@ -349,9 +360,10 @@ exports.crearGrupo = async (data) => {
 
         return { success: true, id_grupo: grupoId, usuarios_agregados: usuarios.length };
     } catch (error) {
-        console.error("Error en crearGrupo:", error);
+        logger.error('ADMIN_SVC', 'Error en crearGrupo', { error: error.message });
         throw error;
     }
+
 };
 
 exports.listarGrupos = async () => {
@@ -366,9 +378,10 @@ exports.listarGrupos = async () => {
         );
         return rows;
     } catch (error) {
-        console.error("Error en listarGrupos:", error);
+        logger.error('ADMIN_SVC', 'Error en listarGrupos', { error: error.message });
         throw error;
     }
+
 };
 
 exports.obtenerMensajesGrupo = async (grupoId) => {
@@ -383,9 +396,10 @@ exports.obtenerMensajesGrupo = async (grupoId) => {
         );
         return rows;
     } catch (error) {
-        console.error("Error en obtenerMensajesGrupo:", error);
+        logger.error('ADMIN_SVC', 'Error en obtenerMensajesGrupo', { error: error.message });
         throw error;
     }
+
 };
 
 exports.enviarMensajeGrupo = async (grupoId, usuarioId, mensaje) => {
@@ -396,9 +410,10 @@ exports.enviarMensajeGrupo = async (grupoId, usuarioId, mensaje) => {
         );
         return { success: true, id_mensaje: result.insertId };
     } catch (error) {
-        console.error("Error en enviarMensajeGrupo:", error);
+        logger.error('ADMIN_SVC', 'Error en enviarMensajeGrupo', { error: error.message });
         throw error;
     }
+
 };
 
 exports.actualizarGrupo = async (id, nombre, descripcion) => {
@@ -409,9 +424,10 @@ exports.actualizarGrupo = async (id, nombre, descripcion) => {
         );
         return { success: true };
     } catch (error) {
-        console.error("Error en actualizarGrupo:", error);
+        logger.error('ADMIN_SVC', 'Error en actualizarGrupo', { error: error.message });
         throw error;
     }
+
 };
 
 exports.eliminarGrupo = async (id) => {
@@ -421,9 +437,10 @@ exports.eliminarGrupo = async (id) => {
         await db.query("DELETE FROM grupos WHERE id_grupo = ?", [id]);
         return { success: true };
     } catch (error) {
-        console.error("Error en eliminarGrupo:", error);
+        logger.error('ADMIN_SVC', 'Error en eliminarGrupo', { error: error.message });
         throw error;
     }
+
 };
 
 exports.actualizarMensajeGrupo = async (id, mensaje) => {
@@ -434,9 +451,10 @@ exports.actualizarMensajeGrupo = async (id, mensaje) => {
         );
         return { success: true };
     } catch (error) {
-        console.error("Error en actualizarMensajeGrupo:", error);
+        logger.error('ADMIN_SVC', 'Error en actualizarMensajeGrupo', { error: error.message });
         throw error;
     }
+
 };
 
 exports.eliminarMensajeGrupo = async (id) => {
@@ -444,9 +462,10 @@ exports.eliminarMensajeGrupo = async (id) => {
         await db.query("DELETE FROM chat_grupo WHERE id_mensaje = ?", [id]);
         return { success: true };
     } catch (error) {
-        console.error("Error en eliminarMensajeGrupo:", error);
+        logger.error('ADMIN_SVC', 'Error en eliminarMensajeGrupo', { error: error.message });
         throw error;
     }
+
 };
 
 exports.obtenerDetalleGrupo = async (id) => {
@@ -460,9 +479,10 @@ exports.obtenerDetalleGrupo = async (id) => {
         );
         return rows[0];
     } catch (error) {
-        console.error("Error en obtenerDetalleGrupo:", error);
+        logger.error('ADMIN_SVC', 'Error en obtenerDetalleGrupo', { error: error.message });
         throw error;
     }
+
 };
 
 exports.obtenerMiembrosGrupo = async (grupoId) => {
@@ -480,9 +500,10 @@ exports.obtenerMiembrosGrupo = async (grupoId) => {
         );
         return rows;
     } catch (error) {
-        console.error("Error en obtenerMiembrosGrupo:", error);
+        logger.error('ADMIN_SVC', 'Error en obtenerMiembrosGrupo', { error: error.message });
         throw error;
     }
+
 };
 
 
@@ -497,9 +518,10 @@ exports.listarComunicadosPublicos = async () => {
         );
         return rows;
     } catch (error) {
-        console.error('Error en listarComunicadosPublicos:', error);
+        logger.error('ADMIN_SVC', 'Error en listarComunicadosPublicos', { error: error.message });
         throw error;
     }
+
 };
 
 exports.listarComunicadosAdmin = async () => {
@@ -512,9 +534,10 @@ exports.listarComunicadosAdmin = async () => {
         );
         return rows;
     } catch (error) {
-        console.error('Error en listarComunicadosAdmin:', error);
+        logger.error('ADMIN_SVC', 'Error en listarComunicadosAdmin', { error: error.message });
         throw error;
     }
+
 };
 
 exports.obtenerComunicadoPorId = async (id) => {
@@ -528,9 +551,10 @@ exports.obtenerComunicadoPorId = async (id) => {
         );
         return rows[0] || null;
     } catch (error) {
-        console.error('Error en obtenerComunicadoPorId:', error);
+        logger.error('ADMIN_SVC', 'Error en obtenerComunicadoPorId', { error: error.message });
         throw error;
     }
+
 };
 
 exports.crearComunicado = async (data, usuarioId) => {
@@ -550,9 +574,10 @@ exports.crearComunicado = async (data, usuarioId) => {
 
         return { success: true, id_comunicado: result.insertId, imagen_url };
     } catch (error) {
-        console.error('Error en crearComunicado:', error);
+        logger.error('ADMIN_SVC', 'Error en crearComunicado', { error: error.message });
         throw error;
     }
+
 };
 
 exports.actualizarComunicado = async (id, data) => {
@@ -582,9 +607,10 @@ exports.actualizarComunicado = async (id, data) => {
 
         return { success: true, imagen_url };
     } catch (error) {
-        console.error('Error en actualizarComunicado:', error);
+        logger.error('ADMIN_SVC', 'Error en actualizarComunicado', { error: error.message });
         throw error;
     }
+
 };
 
 exports.eliminarComunicado = async (id) => {
@@ -597,8 +623,9 @@ exports.eliminarComunicado = async (id) => {
         await db.query('DELETE FROM comunicados WHERE id_comunicado = ?', [id]);
         return { success: true };
     } catch (error) {
-        console.error('Error en eliminarComunicado:', error);
+        logger.error('ADMIN_SVC', 'Error en eliminarComunicado', { error: error.message });
         throw error;
     }
+
 };
 

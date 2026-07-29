@@ -1,4 +1,6 @@
-const service = require('./aprendiz.service')
+const service = require('./aprendiz.service');
+const logger = require('../../utils/logger');
+
 
 exports.test = async (req, res) => {
     try {
@@ -18,10 +20,11 @@ exports.obtenerMiGrupo = async (req, res) => {
         }
         res.json(grupo);
     } catch (error) {
-        console.error("ERROR MI GRUPO:", error);
+        logger.error('APRENDIZ', 'Error al obtener mi grupo', { error: error.message });
         res.status(500).json({ error: 'Error al obtener mi grupo' });
     }
 }
+
 
 exports.obtenerMiembrosMiGrupo = async (req, res) => {
     try {
@@ -29,10 +32,11 @@ exports.obtenerMiembrosMiGrupo = async (req, res) => {
         const miembros = await service.obtenerMiembrosMiGrupo(id_usuario);
         res.json(miembros);
     } catch (error) {
-        console.error("ERROR MIEMBROS MI GRUPO:", error);
+        logger.error('APRENDIZ', 'Error al obtener miembros de mi grupo', { error: error.message });
         res.status(500).json({ error: 'Error al obtener miembros' });
     }
 }
+
 
 exports.obtenerMensajesMiGrupo = async (req, res) => {
     try {
@@ -40,10 +44,11 @@ exports.obtenerMensajesMiGrupo = async (req, res) => {
         const mensajes = await service.obtenerMensajesMiGrupo(id_usuario);
         res.json(mensajes);
     } catch (error) {
-        console.error("ERROR MENSAJES MI GRUPO:", error);
+        logger.error('APRENDIZ', 'Error al obtener mensajes de mi grupo', { error: error.message });
         res.status(500).json({ error: 'Error al obtener mensajes' });
     }
 }
+
 
 // ============= METAS DE AHORRO =============
 
@@ -53,20 +58,23 @@ exports.listarMetas = async (req, res) => {
         const metas = await service.listarMetas(id_usuario);
         res.json(metas);
     } catch (error) {
-        console.error("ERROR LISTAR METAS:", error);
+        logger.error('APRENDIZ', 'Error al listar metas', { error: error.message });
         res.status(500).json({ error: 'Error al listar metas' });
     }
 };
 
+
 exports.crearMeta = async (req, res) => {
     try {
         const nueva = await service.crearMeta(req.body);
+        logger.info('APRENDIZ', 'Meta de ahorro creada', { usuario_id: req.body.usuario_id_usuario });
         res.status(201).json(nueva);
     } catch (error) {
-        console.error("ERROR CREAR META:", error);
+        logger.error('APRENDIZ', 'Error al crear meta', { error: error.message });
         res.status(500).json({ error: 'Error al crear meta' });
     }
 };
+
 
 exports.editarMeta = async (req, res) => {
     try {
@@ -74,10 +82,11 @@ exports.editarMeta = async (req, res) => {
         const actualizada = await service.editarMeta(id_ahorro, req.body);
         res.json(actualizada);
     } catch (error) {
-        console.error("ERROR EDITAR META:", error);
+        logger.error('APRENDIZ', 'Error al editar meta', { error: error.message });
         res.status(500).json({ error: 'Error al editar meta' });
     }
 };
+
 
 exports.agregarMonto = async (req, res) => {
     try {
@@ -86,10 +95,11 @@ exports.agregarMonto = async (req, res) => {
         const result = await service.agregarMonto(id_ahorro, monto);
         res.json(result);
     } catch (error) {
-        console.error("ERROR AGREGAR MONTO:", error);
+        logger.error('APRENDIZ', 'Error al agregar monto a meta', { error: error.message });
         res.status(500).json({ error: 'Error al agregar monto' });
     }
 };
+
 
 exports.eliminarMeta = async (req, res) => {
     try {
@@ -97,10 +107,11 @@ exports.eliminarMeta = async (req, res) => {
         const result = await service.eliminarMeta(id_ahorro);
         res.json(result);
     } catch (error) {
-        console.error("ERROR ELIMINAR META:", error);
+        logger.error('APRENDIZ', 'Error al eliminar meta', { error: error.message });
         res.status(500).json({ error: 'Error al eliminar meta' });
     }
 };
+
 
 // ============= INGRESOS =============
 
@@ -110,20 +121,23 @@ exports.listarIngresos = async (req, res) => {
         const ingresos = await service.listarIngresos(id_usuario);
         res.json(ingresos);
     } catch (error) {
-        console.error("ERROR LISTAR INGRESOS:", error);
+        logger.error('APRENDIZ', 'Error al listar ingresos', { error: error.message });
         res.status(500).json({ error: 'Error al listar ingresos' });
     }
 };
 
+
 exports.crearIngreso = async (req, res) => {
     try {
         const nuevo = await service.crearIngreso(req.body);
+        logger.info('APRENDIZ', 'Ingreso registrado', { usuario_id: req.body.usuario_id_usuario });
         res.status(201).json(nuevo);
     } catch (error) {
-        console.error("ERROR CREAR INGRESO:", error);
+        logger.error('APRENDIZ', 'Error al crear ingreso', { error: error.message });
         res.status(500).json({ error: 'Error al crear ingreso' });
     }
 };
+
 
 exports.eliminarIngreso = async (req, res) => {
     try {
@@ -131,10 +145,11 @@ exports.eliminarIngreso = async (req, res) => {
         const result = await service.eliminarIngreso(id_ingreso);
         res.json(result);
     } catch (error) {
-        console.error("ERROR ELIMINAR INGRESO:", error);
+        logger.error('APRENDIZ', 'Error al eliminar ingreso', { error: error.message });
         res.status(500).json({ error: 'Error al eliminar ingreso' });
     }
 };
+
 
 // ============= GASTOS =============
 
@@ -144,20 +159,23 @@ exports.listarGastos = async (req, res) => {
         const gastos = await service.listarGastos(id_usuario);
         res.json(gastos);
     } catch (error) {
-        console.error("ERROR LISTAR GASTOS:", error);
+        logger.error('APRENDIZ', 'Error al listar gastos', { error: error.message });
         res.status(500).json({ error: 'Error al listar gastos' });
     }
 };
 
+
 exports.crearGasto = async (req, res) => {
     try {
         const nuevo = await service.crearGasto(req.body);
+        logger.info('APRENDIZ', 'Gasto registrado', { usuario_id: req.body.usuario_id_usuario, categoria: req.body.categoria });
         res.status(201).json(nuevo);
     } catch (error) {
-        console.error("ERROR CREAR GASTO:", error);
+        logger.error('APRENDIZ', 'Error al crear gasto', { error: error.message });
         res.status(500).json({ error: 'Error al crear gasto' });
     }
 };
+
 
 exports.eliminarGasto = async (req, res) => {
     try {
@@ -165,8 +183,9 @@ exports.eliminarGasto = async (req, res) => {
         const result = await service.eliminarGasto(id_gasto);
         res.json(result);
     } catch (error) {
-        console.error("ERROR ELIMINAR GASTO:", error);
+        logger.error('APRENDIZ', 'Error al eliminar gasto', { error: error.message });
         res.status(500).json({ error: 'Error al eliminar gasto' });
     }
 };
+
 

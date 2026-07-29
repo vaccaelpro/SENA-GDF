@@ -1,4 +1,6 @@
 const service = require("./auth.service");
+const logger = require("../../utils/logger");
+
 
 exports.login = async (req, res) => {
     try {
@@ -14,12 +16,14 @@ exports.login = async (req, res) => {
         const resultado = await service.validarLogin(tipo_documento, documento, contrasena);
 
         if (resultado.error) {
+            logger.warn('AUTH', 'Intento de login fallido', { tipo_documento, motivo: resultado.message });
             return res.status(401).json({
                 success: false,
                 message: resultado.message,
             });
         }
 
+        logger.info('AUTH', 'Login exitoso', { id_usuario: resultado.usuario.id_usuario, rol: resultado.usuario.rol });
         res.json({
             success: true,
             message: "Login exitoso",
@@ -28,7 +32,7 @@ exports.login = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("ERROR LOGIN:", error);
+        logger.error('AUTH', 'Error inesperado en login', { error: error.message });
         res.status(500).json({
             success: false,
             message: "Error del servidor al intentar iniciar sesión",
@@ -66,19 +70,21 @@ exports.register = async (req, res) => {
         const resultado = await service.registrarUsuario(req.body);
 
         if (resultado.error) {
+            logger.warn('AUTH', 'Registro rechazado: documento o correo ya existe', { tipo_documento });
             return res.status(400).json({
                 success: false,
                 message: resultado.message,
             });
         }
 
+        logger.info('AUTH', 'Nuevo usuario registrado correctamente', { tipo_documento, grupo_formacion });
         res.status(201).json({
             success: true,
             message: "Usuario registrado correctamente",
         });
 
     } catch (error) {
-        console.error("ERROR REGISTER:", error);
+        logger.error('AUTH', 'Error inesperado en registro de usuario', { error: error.message });
         res.status(500).json({
             success: false,
             message: "Error al procesar el registro del usuario",
@@ -96,9 +102,10 @@ exports.recuperarPassword = async (req, res) => {
 
         await service.generarTokenRecuperacion(correo);
 
+        logger.info('AUTH', 'Correo de recuperacion de password enviado');
         res.json({ message: "Correo de recuperación enviado" });
     } catch (error) {
-        console.error(error);
+        logger.error('AUTH', 'Error al generar token de recuperacion', { error: error.message });
         res.status(500).json({ message: error.message || "Error al recuperar contraseña" });
     }
 };
@@ -109,10 +116,11 @@ exports.restablecerPassword = async (req, res) => {
 
         await service.cambiarPassword(token, nuevaContrasena);
 
+        logger.info('AUTH', 'Password restablecida exitosamente');
         res.json({ message: "Contraseña actualizada" });
 
     } catch (error) {
-        console.error(error.message);
+        logger.warn('AUTH', 'Intento de restablecimiento con token invalido o expirado');
         res.status(400).json({ message: "Token inválido o expirado" });
     }
 };
