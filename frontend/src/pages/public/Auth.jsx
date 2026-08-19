@@ -4,11 +4,15 @@ import Swal from "sweetalert2";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import "../../css/auth.css";
 import logoSena from "../../assets/img/logosena.png";
+import {
+  validateOnlyLetters,
+  validateOptionalLetters,
+  validateOnlyNumbers,
+  validateEmail,
+  validatePassword
+} from "../../utils/validators";
 
 // ─── Helpers de alertas ──────────────────────────────────────────────────────
-// Se montan directamente sobre el body para evitar conflictos
-// con el stacking context del contenedor animado de auth.
-
 const showToast = (icon, title) =>
   Swal.mixin({
     toast: true,
@@ -46,16 +50,32 @@ const Auth = () => {
     documento: "",
     contrasena: "",
   });
+  const [loginErrors, setLoginErrors] = useState({});
 
-  const handleLoginChange = (e) =>
-    setLoginForm({ ...loginForm, [e.target.name]: e.target.value });
+  const validateLoginField = (name, value) => {
+    let err = "";
+    if (name === "tipo_documento" && !value) err = "Selecciona tu tipo de documento.";
+    if (name === "documento") err = validateOnlyNumbers(value, "El documento", 6, 11);
+    if (name === "contrasena" && !value) err = "La contraseña es obligatoria.";
+    setLoginErrors((prev) => ({ ...prev, [name]: err }));
+    return err;
+  };
+
+  const handleLoginChange = (e) => {
+    const { name, value } = e.target;
+    setLoginForm({ ...loginForm, [name]: value });
+    validateLoginField(name, value);
+  };
 
   const handleLoginSubmit = async (e) => {
-    e.preventDefault(); // evita el refresco nativo del navegador
+    e.preventDefault();
 
-    const { tipo_documento, documento, contrasena } = loginForm;
-    if (!tipo_documento || !documento || !contrasena) {
-      showToast("warning", "Por favor, completa todos los campos.");
+    const errDoc = validateLoginField("documento", loginForm.documento);
+    const errTipo = validateLoginField("tipo_documento", loginForm.tipo_documento);
+    const errPass = validateLoginField("contrasena", loginForm.contrasena);
+
+    if (errDoc || errTipo || errPass) {
+      showToast("warning", "Corrige los errores antes de continuar.");
       return;
     }
 
@@ -94,21 +114,55 @@ const Auth = () => {
     contrasena: "",
     grupo_formacion: "",
   });
+  const [registerErrors, setRegisterErrors] = useState({});
 
-  const handleRegisterChange = (e) =>
-    setRegisterForm({ ...registerForm, [e.target.name]: e.target.value });
+  const validateRegisterField = (name, value) => {
+    let err = "";
+    if (name === "primer_nombre") err = validateOnlyLetters(value, "El primer nombre");
+    if (name === "segundo_nombre") err = validateOptionalLetters(value);
+    if (name === "primer_apellido") err = validateOnlyLetters(value, "El primer apellido");
+    if (name === "segundo_apellido") err = validateOptionalLetters(value);
+    if (name === "tipo_documento" && !value) err = "Selecciona un tipo de documento.";
+    if (name === "documento") err = validateOnlyNumbers(value, "El documento", 6, 11);
+    if (name === "celular") err = validateOnlyNumbers(value, "El celular", 10, 10);
+    if (name === "correo_electronico") err = validateEmail(value);
+    if (name === "contrasena") err = validatePassword(value);
+    if (name === "grupo_formacion") err = validateOnlyNumbers(value, "La ficha (grupo)", 4, 10);
+
+    setRegisterErrors((prev) => ({ ...prev, [name]: err }));
+    return err;
+  };
+
+  const handleRegisterChange = (e) => {
+    const { name, value } = e.target;
+    setRegisterForm({ ...registerForm, [name]: value });
+    validateRegisterField(name, value);
+  };
 
   const handleRegisterSubmit = async (e) => {
-    e.preventDefault(); // evita el refresco nativo del navegador
+    e.preventDefault();
 
-    // Contraseña segura: min 8 chars, 1 mayúscula, 1 minúscula, 1 número
-    const regexPass = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-    if (!regexPass.test(registerForm.contrasena)) {
-      showAlert(
-        "warning",
-        "Contraseña no segura",
-        "Debe tener mínimo 8 caracteres, una mayúscula, una minúscula y un número."
-      );
+    const fieldsToValidate = [
+      "primer_nombre",
+      "segundo_nombre",
+      "primer_apellido",
+      "segundo_apellido",
+      "tipo_documento",
+      "documento",
+      "celular",
+      "correo_electronico",
+      "contrasena",
+      "grupo_formacion"
+    ];
+
+    let hasError = false;
+    fieldsToValidate.forEach((field) => {
+      const err = validateRegisterField(field, registerForm[field]);
+      if (err) hasError = true;
+    });
+
+    if (hasError) {
+      showAlert("warning", "Datos inválidos", "Revisa los campos señalados en rojo antes de registrarte.");
       return;
     }
 
@@ -121,6 +175,7 @@ const Auth = () => {
         tipo_documento: "", documento: "", celular: "", correo_electronico: "",
         contrasena: "", grupo_formacion: "",
       });
+      setRegisterErrors({});
     } catch (err) {
       const msg = err.response?.data?.message || "Error al registrar usuario.";
       showAlert("error", "Error en el registro", msg);
@@ -143,16 +198,35 @@ const Auth = () => {
                 <div className="col-md-6">
                   <div className="input-group-auth">
                     <ion-icon name="person-outline"></ion-icon>
-                    <input type="text" name="primer_nombre" value={registerForm.primer_nombre}
-                      onChange={handleRegisterChange} className="auth-input" placeholder="Primer Nombre" required />
+                    <input
+                      type="text"
+                      name="primer_nombre"
+                      value={registerForm.primer_nombre}
+                      onChange={handleRegisterChange}
+                      className={`auth-input ${registerErrors.primer_nombre ? "input-error" : ""}`}
+                      placeholder="Primer Nombre"
+                      required
+                    />
                   </div>
+                  {registerErrors.primer_nombre && (
+                    <div className="field-error-msg">⚠️ {registerErrors.primer_nombre}</div>
+                  )}
                 </div>
                 <div className="col-md-6">
                   <div className="input-group-auth">
                     <ion-icon name="person-outline"></ion-icon>
-                    <input type="text" name="segundo_nombre" value={registerForm.segundo_nombre}
-                      onChange={handleRegisterChange} className="auth-input" placeholder="Segundo Nombre" />
+                    <input
+                      type="text"
+                      name="segundo_nombre"
+                      value={registerForm.segundo_nombre}
+                      onChange={handleRegisterChange}
+                      className={`auth-input ${registerErrors.segundo_nombre ? "input-error" : ""}`}
+                      placeholder="Segundo Nombre (Opcional)"
+                    />
                   </div>
+                  {registerErrors.segundo_nombre && (
+                    <div className="field-error-msg">⚠️ {registerErrors.segundo_nombre}</div>
+                  )}
                 </div>
               </div>
 
@@ -160,16 +234,35 @@ const Auth = () => {
                 <div className="col-md-6">
                   <div className="input-group-auth">
                     <ion-icon name="people-outline"></ion-icon>
-                    <input type="text" name="primer_apellido" value={registerForm.primer_apellido}
-                      onChange={handleRegisterChange} className="auth-input" placeholder="Primer Apellido" required />
+                    <input
+                      type="text"
+                      name="primer_apellido"
+                      value={registerForm.primer_apellido}
+                      onChange={handleRegisterChange}
+                      className={`auth-input ${registerErrors.primer_apellido ? "input-error" : ""}`}
+                      placeholder="Primer Apellido"
+                      required
+                    />
                   </div>
+                  {registerErrors.primer_apellido && (
+                    <div className="field-error-msg">⚠️ {registerErrors.primer_apellido}</div>
+                  )}
                 </div>
                 <div className="col-md-6">
                   <div className="input-group-auth">
                     <ion-icon name="people-outline"></ion-icon>
-                    <input type="text" name="segundo_apellido" value={registerForm.segundo_apellido}
-                      onChange={handleRegisterChange} className="auth-input" placeholder="Segundo Apellido" />
+                    <input
+                      type="text"
+                      name="segundo_apellido"
+                      value={registerForm.segundo_apellido}
+                      onChange={handleRegisterChange}
+                      className={`auth-input ${registerErrors.segundo_apellido ? "input-error" : ""}`}
+                      placeholder="Segundo Apellido (Opcional)"
+                    />
                   </div>
+                  {registerErrors.segundo_apellido && (
+                    <div className="field-error-msg">⚠️ {registerErrors.segundo_apellido}</div>
+                  )}
                 </div>
               </div>
 
@@ -177,20 +270,38 @@ const Auth = () => {
                 <div className="col-md-6">
                   <div className="input-group-auth">
                     <ion-icon name="card-outline"></ion-icon>
-                    <select name="tipo_documento" value={registerForm.tipo_documento}
-                      onChange={handleRegisterChange} className="auth-select with-icon" required>
+                    <select
+                      name="tipo_documento"
+                      value={registerForm.tipo_documento}
+                      onChange={handleRegisterChange}
+                      className={`auth-select with-icon ${registerErrors.tipo_documento ? "input-error" : ""}`}
+                      required
+                    >
                       <option value="" disabled>Tipo de Doc.</option>
                       <option value="CC">Cédula</option>
                       <option value="TI">Tarjeta de Ident.</option>
                     </select>
                   </div>
+                  {registerErrors.tipo_documento && (
+                    <div className="field-error-msg">⚠️ {registerErrors.tipo_documento}</div>
+                  )}
                 </div>
                 <div className="col-md-6">
                   <div className="input-group-auth">
                     <ion-icon name="id-card-outline"></ion-icon>
-                    <input type="text" name="documento" value={registerForm.documento}
-                      onChange={handleRegisterChange} className="auth-input" placeholder="N° Documento" required />
+                    <input
+                      type="text"
+                      name="documento"
+                      value={registerForm.documento}
+                      onChange={handleRegisterChange}
+                      className={`auth-input ${registerErrors.documento ? "input-error" : ""}`}
+                      placeholder="N° Documento"
+                      required
+                    />
                   </div>
+                  {registerErrors.documento && (
+                    <div className="field-error-msg">⚠️ {registerErrors.documento}</div>
+                  )}
                 </div>
               </div>
 
@@ -198,16 +309,36 @@ const Auth = () => {
                 <div className="col-md-6">
                   <div className="input-group-auth">
                     <ion-icon name="call-outline"></ion-icon>
-                    <input type="text" name="celular" value={registerForm.celular}
-                      onChange={handleRegisterChange} className="auth-input" placeholder="Número de Celular" required />
+                    <input
+                      type="text"
+                      name="celular"
+                      value={registerForm.celular}
+                      onChange={handleRegisterChange}
+                      className={`auth-input ${registerErrors.celular ? "input-error" : ""}`}
+                      placeholder="Número de Celular"
+                      required
+                    />
                   </div>
+                  {registerErrors.celular && (
+                    <div className="field-error-msg">⚠️ {registerErrors.celular}</div>
+                  )}
                 </div>
                 <div className="col-md-6">
                   <div className="input-group-auth">
                     <ion-icon name="mail-outline"></ion-icon>
-                    <input type="email" name="correo_electronico" value={registerForm.correo_electronico}
-                      onChange={handleRegisterChange} className="auth-input" placeholder="Correo Electrónico" required />
+                    <input
+                      type="email"
+                      name="correo_electronico"
+                      value={registerForm.correo_electronico}
+                      onChange={handleRegisterChange}
+                      className={`auth-input ${registerErrors.correo_electronico ? "input-error" : ""}`}
+                      placeholder="Correo Electrónico"
+                      required
+                    />
                   </div>
+                  {registerErrors.correo_electronico && (
+                    <div className="field-error-msg">⚠️ {registerErrors.correo_electronico}</div>
+                  )}
                 </div>
               </div>
 
@@ -220,7 +351,7 @@ const Auth = () => {
                       name="contrasena"
                       value={registerForm.contrasena}
                       onChange={handleRegisterChange}
-                      className="auth-input"
+                      className={`auth-input ${registerErrors.contrasena ? "input-error" : ""}`}
                       placeholder="Contraseña (mín 8 car.)"
                       required
                     />
@@ -228,13 +359,26 @@ const Auth = () => {
                       <ion-icon name={verPass ? "eye-off-outline" : "eye-outline"}></ion-icon>
                     </span>
                   </div>
+                  {registerErrors.contrasena && (
+                    <div className="field-error-msg">⚠️ {registerErrors.contrasena}</div>
+                  )}
                 </div>
                 <div className="col-md-6">
                   <div className="input-group-auth">
                     <ion-icon name="school-outline"></ion-icon>
-                    <input type="text" name="grupo_formacion" value={registerForm.grupo_formacion}
-                      onChange={handleRegisterChange} className="auth-input" placeholder="N° Ficha (Grupo)" required />
+                    <input
+                      type="text"
+                      name="grupo_formacion"
+                      value={registerForm.grupo_formacion}
+                      onChange={handleRegisterChange}
+                      className={`auth-input ${registerErrors.grupo_formacion ? "input-error" : ""}`}
+                      placeholder="N° Ficha (Grupo)"
+                      required
+                    />
                   </div>
+                  {registerErrors.grupo_formacion && (
+                    <div className="field-error-msg">⚠️ {registerErrors.grupo_formacion}</div>
+                  )}
                 </div>
               </div>
             </div>
@@ -255,25 +399,53 @@ const Auth = () => {
 
             <div className="input-group-auth">
               <ion-icon name="card-outline"></ion-icon>
-              <select name="tipo_documento" value={loginForm.tipo_documento}
-                onChange={handleLoginChange} className="auth-select with-icon" required>
+              <select
+                name="tipo_documento"
+                value={loginForm.tipo_documento}
+                onChange={handleLoginChange}
+                className={`auth-select with-icon ${loginErrors.tipo_documento ? "input-error" : ""}`}
+                required
+              >
                 <option value="" disabled hidden>Selecciona tu documento</option>
                 <option value="CC">Cédula de Ciudadanía</option>
                 <option value="TI">Tarjeta de Identidad</option>
               </select>
             </div>
+            {loginErrors.tipo_documento && (
+              <div className="field-error-msg">⚠️ {loginErrors.tipo_documento}</div>
+            )}
 
             <div className="input-group-auth">
               <ion-icon name="person-circle-outline"></ion-icon>
-              <input type="text" name="documento" value={loginForm.documento}
-                onChange={handleLoginChange} className="auth-input" placeholder="Número de documento" required />
+              <input
+                type="text"
+                name="documento"
+                value={loginForm.documento}
+                onChange={handleLoginChange}
+                className={`auth-input ${loginErrors.documento ? "input-error" : ""}`}
+                placeholder="Número de documento"
+                required
+              />
             </div>
+            {loginErrors.documento && (
+              <div className="field-error-msg">⚠️ {loginErrors.documento}</div>
+            )}
 
             <div className="input-group-auth">
               <ion-icon name="lock-closed-outline"></ion-icon>
-              <input type="password" name="contrasena" value={loginForm.contrasena}
-                onChange={handleLoginChange} className="auth-input" placeholder="Contraseña" required />
+              <input
+                type="password"
+                name="contrasena"
+                value={loginForm.contrasena}
+                onChange={handleLoginChange}
+                className={`auth-input ${loginErrors.contrasena ? "input-error" : ""}`}
+                placeholder="Contraseña"
+                required
+              />
             </div>
+            {loginErrors.contrasena && (
+              <div className="field-error-msg">⚠️ {loginErrors.contrasena}</div>
+            )}
 
             <Link to="/Repecuperar_contraseña">¿Olvidaste tu contraseña?</Link>
 

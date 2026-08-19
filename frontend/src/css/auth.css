@@ -251,6 +251,27 @@
   box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.25);
 }
 
+.auth-input.input-error,
+.auth-select.input-error {
+  border-color: #ff4d4f !important;
+  background-color: #fff2f0 !important;
+  box-shadow: 0 0 0 3px rgba(255, 77, 79, 0.25) !important;
+}
+
+.field-error-msg {
+  color: #ff4d4f;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: left;
+  margin-top: -8px;
+  margin-bottom: 10px;
+  padding-left: 5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+
 .scroll-form {
   overflow-y: auto;
   max-height: 480px;

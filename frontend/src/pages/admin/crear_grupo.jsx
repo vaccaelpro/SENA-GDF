@@ -14,20 +14,38 @@ const Crear_grupo = () => {
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [tipoApoyo, setTipoApoyo] = useState("");
+  const [errors, setErrors] = useState({});
   const [mensaje, setMensaje] = useState({ texto: "", tipo: "" });
   const navigate = useNavigate();
 
+  const validateNombre = (val) => {
+    let err = "";
+    if (!val || !val.trim()) err = "El nombre del grupo es obligatorio.";
+    setErrors(prev => ({ ...prev, nombre: err }));
+    return err;
+  };
+
+  const validateTipoApoyo = (val) => {
+    let err = "";
+    if (!val) err = "Debes seleccionar un tipo de apoyo.";
+    setErrors(prev => ({ ...prev, tipoApoyo: err }));
+    return err;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!nombre || !tipoApoyo) {
-      setMensaje({ texto: "El nombre y tipo de apoyo son obligatorios", tipo: "danger" });
+    const errNombre = validateNombre(nombre);
+    const errTipo = validateTipoApoyo(tipoApoyo);
+
+    if (errNombre || errTipo) {
+      setMensaje({ texto: "Corrige los errores del formulario antes de continuar.", tipo: "danger" });
       return;
     }
 
     try {
       const data = await crearGrupo({
-        nombre,
-        descripcion,
+        nombre: nombre.trim(),
+        descripcion: descripcion.trim(),
         tipo_apoyo: tipoApoyo,
       });
 
@@ -68,13 +86,17 @@ const Crear_grupo = () => {
               </label>
               <input
                 type="text"
-                className="form-control form-control-lg"
+                className={`form-control form-control-lg ${errors.nombre ? 'border-danger' : ''}`}
                 placeholder="Ej: Apoyo regular 2025"
                 maxLength={100}
                 value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
+                onChange={(e) => {
+                  setNombre(e.target.value);
+                  validateNombre(e.target.value);
+                }}
                 required
               />
+              {errors.nombre && <small className="text-danger fw-bold d-block mt-1">⚠️ {errors.nombre}</small>}
             </div>
 
             <div className="mb-4">

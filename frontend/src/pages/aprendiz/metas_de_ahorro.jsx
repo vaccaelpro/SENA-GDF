@@ -4,6 +4,7 @@ import "../../css/metas_de_ahorro.css";
 import { listarMetas, crearMeta, editarMeta, agregarMonto, eliminarMeta } from "../../services/aprendiz/metas.service";
 import { listarGastos, crearGasto, eliminarGasto } from "../../services/aprendiz/presupuesto.service";
 import Swal from "sweetalert2";
+import { validateAmount } from "../../utils/validators";
 
 const COLORES = ["#28a745", "#1abc9c", "#3498db", "#9b59b6", "#e67e22", "#e74c3c", "#f39c12", "#1e3799"];
 
@@ -21,29 +22,40 @@ const ModalAgregarMeta = ({ onClose, onSuccess, idUsuario }) => {
     fecha_objetivo: hoy(),
     color: "#28a745",
   });
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  const handleChange = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
+  const validateField = (name, value) => {
+    let err = "";
+    if (name === "meta" && !value.trim()) err = "El nombre de la meta es obligatorio.";
+    if (name === "valor_objetivo") err = validateAmount(value, "El valor objetivo");
+    if (name === "monto_ahorrado" && value !== "" && Number(value) < 0) {
+      err = "El monto inicial no puede ser negativo.";
+    }
+    if (name === "fecha_objetivo" && !value) err = "Debes seleccionar una fecha objetivo.";
+
+    setErrors((prev) => ({ ...prev, [name]: err }));
+    return err;
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((p) => ({ ...p, [name]: value }));
+    validateField(name, value);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.meta.trim()) {
-      Swal.fire({ icon: "warning", title: "Campo requerido", text: "El nombre de la meta es obligatorio.", confirmButtonColor: "#28a745" });
+    const errMeta = validateField("meta", form.meta);
+    const errVal = validateField("valor_objetivo", form.valor_objetivo);
+    const errMonto = validateField("monto_ahorrado", form.monto_ahorrado);
+    const errFecha = validateField("fecha_objetivo", form.fecha_objetivo);
+
+    if (errMeta || errVal || errMonto || errFecha) {
+      Swal.fire({ icon: "warning", title: "Validación", text: "Por favor corrige los datos del formulario.", confirmButtonColor: "#28a745" });
       return;
     }
-    if (!form.valor_objetivo || Number(form.valor_objetivo) <= 0) {
-      Swal.fire({ icon: "warning", title: "Monto inválido", text: "El valor objetivo debe ser mayor a $0.", confirmButtonColor: "#28a745" });
-      return;
-    }
-    if (Number(form.monto_ahorrado) < 0) {
-      Swal.fire({ icon: "warning", title: "Monto inválido", text: "El monto inicial no puede ser negativo.", confirmButtonColor: "#28a745" });
-      return;
-    }
-    if (!form.fecha_objetivo) {
-      Swal.fire({ icon: "warning", title: "Fecha requerida", text: "Debes seleccionar una fecha objetivo.", confirmButtonColor: "#28a745" });
-      return;
-    }
+
     setLoading(true);
     try {
       await crearMeta({
@@ -77,8 +89,6 @@ const ModalAgregarMeta = ({ onClose, onSuccess, idUsuario }) => {
         </div>
 
         <form className="modal-form" onSubmit={handleSubmit} noValidate>
-          {error && <div className="modal-error">{error}</div>}
-
           <div className="form-group">
             <label>Nombre de la meta *</label>
             <input
@@ -87,8 +97,10 @@ const ModalAgregarMeta = ({ onClose, onSuccess, idUsuario }) => {
               onChange={handleChange}
               placeholder="Ej: Ahorro para viaje"
               maxLength={45}
+              className={errors.meta ? "border-danger" : ""}
               required
             />
+            {errors.meta && <small className="text-danger fw-bold d-block mt-1">⚠️ {errors.meta}</small>}
           </div>
 
           <div className="form-row">
@@ -100,7 +112,9 @@ const ModalAgregarMeta = ({ onClose, onSuccess, idUsuario }) => {
                 value={form.valor_objetivo}
                 onChange={handleChange}
                 placeholder="Ej: 1000000"
+                className={errors.valor_objetivo ? "border-danger" : ""}
               />
+              {errors.valor_objetivo && <small className="text-danger fw-bold d-block mt-1">⚠️ {errors.valor_objetivo}</small>}
             </div>
             <div className="form-group">
               <label>Monto inicial ahorrado</label>
@@ -110,7 +124,9 @@ const ModalAgregarMeta = ({ onClose, onSuccess, idUsuario }) => {
                 value={form.monto_ahorrado}
                 onChange={handleChange}
                 placeholder="0"
+                className={errors.monto_ahorrado ? "border-danger" : ""}
               />
+              {errors.monto_ahorrado && <small className="text-danger fw-bold d-block mt-1">⚠️ {errors.monto_ahorrado}</small>}
             </div>
           </div>
 
@@ -121,9 +137,10 @@ const ModalAgregarMeta = ({ onClose, onSuccess, idUsuario }) => {
               type="date"
               value={form.fecha_objetivo}
               onChange={handleChange}
+              className={errors.fecha_objetivo ? "border-danger" : ""}
             />
+            {errors.fecha_objetivo && <small className="text-danger fw-bold d-block mt-1">⚠️ {errors.fecha_objetivo}</small>}
           </div>
-
 
           <div className="form-group">
             <label>Color de progreso</label>
@@ -157,10 +174,16 @@ const ModalAgregarMeta = ({ onClose, onSuccess, idUsuario }) => {
 // ─── Modal de Agregar Monto ──────────────────────────────────────────────────
 const ModalAgregarMonto = ({ onClose, onSuccess, metas }) => {
   const [form, setForm] = useState({ id_ahorro: metas[0]?.id_ahorro || "", monto: "" });
+  const [errorMonto, setErrorMonto] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  const handleChange = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((p) => ({ ...p, [name]: value }));
+    if (name === "monto") {
+      setErrorMonto(validateAmount(value, "El monto a añadir"));
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -168,8 +191,10 @@ const ModalAgregarMonto = ({ onClose, onSuccess, metas }) => {
       Swal.fire({ icon: "warning", title: "Meta requerida", text: "Selecciona una meta de ahorro.", confirmButtonColor: "#28a745" });
       return;
     }
-    if (!form.monto || Number(form.monto) <= 0) {
-      Swal.fire({ icon: "warning", title: "Monto inválido", text: "El monto a añadir debe ser mayor a $0.", confirmButtonColor: "#28a745" });
+    const err = validateAmount(form.monto, "El monto a añadir");
+    if (err) {
+      setErrorMonto(err);
+      Swal.fire({ icon: "warning", title: "Monto inválido", text: err, confirmButtonColor: "#28a745" });
       return;
     }
     setLoading(true);
@@ -200,8 +225,6 @@ const ModalAgregarMonto = ({ onClose, onSuccess, metas }) => {
         </div>
 
         <form className="modal-form" onSubmit={handleSubmit} noValidate>
-          {/* los errores ahora los maneja SweetAlert2 */}
-
           <div className="form-group">
             <label>Selecciona la meta</label>
             <select name="id_ahorro" value={form.id_ahorro} onChange={handleChange}>
@@ -240,7 +263,9 @@ const ModalAgregarMonto = ({ onClose, onSuccess, metas }) => {
               value={form.monto}
               onChange={handleChange}
               placeholder="Ej: 50000"
+              className={errorMonto ? "border-danger" : ""}
             />
+            {errorMonto && <small className="text-danger fw-bold d-block mt-1">⚠️ {errorMonto}</small>}
           </div>
 
           <div className="modal-actions">
@@ -265,23 +290,33 @@ const ModalEditarMeta = ({ onClose, onSuccess, meta }) => {
     fecha_objetivo: meta.fecha_objetivo ? meta.fecha_objetivo.split("T")[0] : hoy(),
     color: meta.color || "#28a745",
   });
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  const handleChange = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
+  const validateField = (name, value) => {
+    let err = "";
+    if (name === "meta" && !value.trim()) err = "El nombre de la meta es obligatorio.";
+    if (name === "valor_objetivo") err = validateAmount(value, "El valor objetivo");
+    if (name === "fecha_objetivo" && !value) err = "Debes seleccionar una fecha objetivo.";
+
+    setErrors((prev) => ({ ...prev, [name]: err }));
+    return err;
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((p) => ({ ...p, [name]: value }));
+    validateField(name, value);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.meta.trim()) {
-      Swal.fire({ icon: "warning", title: "Campo requerido", text: "El nombre de la meta es obligatorio.", confirmButtonColor: "#28a745" });
-      return;
-    }
-    if (!form.valor_objetivo || Number(form.valor_objetivo) <= 0) {
-      Swal.fire({ icon: "warning", title: "Monto inválido", text: "El valor objetivo debe ser mayor a $0.", confirmButtonColor: "#28a745" });
-      return;
-    }
-    if (!form.fecha_objetivo) {
-      Swal.fire({ icon: "warning", title: "Fecha requerida", text: "Debes seleccionar una fecha objetivo.", confirmButtonColor: "#28a745" });
+    const errMeta = validateField("meta", form.meta);
+    const errVal = validateField("valor_objetivo", form.valor_objetivo);
+    const errFecha = validateField("fecha_objetivo", form.fecha_objetivo);
+
+    if (errMeta || errVal || errFecha) {
+      Swal.fire({ icon: "warning", title: "Validación", text: "Por favor corrige los datos de la meta.", confirmButtonColor: "#28a745" });
       return;
     }
     setLoading(true);
@@ -315,8 +350,6 @@ const ModalEditarMeta = ({ onClose, onSuccess, meta }) => {
         </div>
 
         <form className="modal-form" onSubmit={handleSubmit} noValidate>
-          {error && <div className="modal-error">{error}</div>}
-
           <div className="form-group">
             <label>Nombre de la meta *</label>
             <input
@@ -325,8 +358,10 @@ const ModalEditarMeta = ({ onClose, onSuccess, meta }) => {
               onChange={handleChange}
               placeholder="Nombre del ahorro"
               maxLength={45}
+              className={errors.meta ? "border-danger" : ""}
               required
             />
+            {errors.meta && <small className="text-danger fw-bold d-block mt-1">⚠️ {errors.meta}</small>}
           </div>
 
           <div className="form-group">
@@ -336,7 +371,9 @@ const ModalEditarMeta = ({ onClose, onSuccess, meta }) => {
               type="number"
               value={form.valor_objetivo}
               onChange={handleChange}
+              className={errors.valor_objetivo ? "border-danger" : ""}
             />
+            {errors.valor_objetivo && <small className="text-danger fw-bold d-block mt-1">⚠️ {errors.valor_objetivo}</small>}
           </div>
 
           <div className="form-group">
@@ -346,7 +383,9 @@ const ModalEditarMeta = ({ onClose, onSuccess, meta }) => {
               type="date"
               value={form.fecha_objetivo}
               onChange={handleChange}
+              className={errors.fecha_objetivo ? "border-danger" : ""}
             />
+            {errors.fecha_objetivo && <small className="text-danger fw-bold d-block mt-1">⚠️ {errors.fecha_objetivo}</small>}
           </div>
 
           <div className="form-group">
@@ -398,6 +437,7 @@ const MetasDeAhorro = () => {
     monto: "",
     fecha_registro: hoy()
   });
+  const [errorMontoGasto, setErrorMontoGasto] = useState("");
   const [gastoLoading, setGastoLoading] = useState(false);
 
   // Las categorías como pares label/valor — el valor debe coincidir con el ENUM de la BD
@@ -460,12 +500,10 @@ const MetasDeAhorro = () => {
 
   const handleGastoSubmit = async (e) => {
     e.preventDefault();
-    if (!gastoForm.monto) {
-      Swal.fire({ icon: "warning", title: "Campo requerido", text: "Debes ingresar un monto para el egreso.", confirmButtonColor: "#28a745" });
-      return;
-    }
-    if (Number(gastoForm.monto) <= 0) {
-      Swal.fire({ icon: "warning", title: "Monto inválido", text: "El monto del egreso debe ser mayor a $0. No se permiten valores negativos o en cero.", confirmButtonColor: "#28a745" });
+    const err = validateAmount(gastoForm.monto, "El monto del egreso");
+    if (err) {
+      setErrorMontoGasto(err);
+      Swal.fire({ icon: "warning", title: "Monto inválido", text: err, confirmButtonColor: "#28a745" });
       return;
     }
     if (!gastoForm.fecha_registro) {
@@ -746,11 +784,16 @@ const MetasDeAhorro = () => {
                   <label className="form-label fw-bold text-secondary">Monto (COP) *</label>
                   <input
                     type="number"
-                    className="form-control custom-input py-2"
+                    className={`form-control custom-input py-2 ${errorMontoGasto ? "border-danger" : ""}`}
                     placeholder="Ej: 5000"
                     value={gastoForm.monto}
-                    onChange={(e) => setGastoForm({ ...gastoForm, monto: e.target.value })}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setGastoForm({ ...gastoForm, monto: val });
+                      setErrorMontoGasto(validateAmount(val, "El monto del egreso"));
+                    }}
                   />
+                  {errorMontoGasto && <small className="text-danger fw-bold d-block mt-1">⚠️ {errorMontoGasto}</small>}
                 </div>
 
                 <div className="mb-4">

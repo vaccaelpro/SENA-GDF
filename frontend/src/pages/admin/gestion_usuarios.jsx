@@ -3,6 +3,12 @@ import "../../css/gestion_usuarios.css";
 import { BsSearch, BsPencilSquare, BsTrashFill, BsX } from "react-icons/bs";
 import { listarUsuarios, actualizarUsuario, eliminarUsuario } from "../../services/admin/usuarios.service";
 import Swal from "sweetalert2";
+import {
+  validateOnlyLetters,
+  validateOptionalLetters,
+  validateOnlyNumbers,
+  validateEmail
+} from "../../utils/validators";
 
 const Tabla_gestion_usuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -24,6 +30,7 @@ const Tabla_gestion_usuarios = () => {
     rol: "USUARIO",
     tipo_apoyo: "regular"
   });
+  const [formErrors, setFormErrors] = useState({});
 
   useEffect(() => {
     fetchUsuarios();
@@ -65,6 +72,21 @@ const Tabla_gestion_usuarios = () => {
     }
   };
 
+  const validateField = (name, value) => {
+    let err = "";
+    if (name === "primer_nombre") err = validateOnlyLetters(value, "El primer nombre");
+    if (name === "segundo_nombre") err = validateOptionalLetters(value);
+    if (name === "primer_apellido") err = validateOnlyLetters(value, "El primer apellido");
+    if (name === "segundo_apellido") err = validateOptionalLetters(value);
+    if (name === "documento") err = validateOnlyNumbers(value, "El documento", 6, 11);
+    if (name === "celular") err = validateOnlyNumbers(value, "El celular", 10, 10);
+    if (name === "grupo_formacion") err = validateOnlyNumbers(value, "La ficha (grupo)", 4, 10);
+    if (name === "correo_electronico") err = validateEmail(value);
+
+    setFormErrors((prev) => ({ ...prev, [name]: err }));
+    return err;
+  };
+
   const handleAbrirEditar = (usuario) => {
     setUsuarioSeleccionado(usuario.id_usuario);
     setFormData({
@@ -80,23 +102,44 @@ const Tabla_gestion_usuarios = () => {
       rol: usuario.rol,
       tipo_apoyo: usuario.tipo_apoyo
     });
+    setFormErrors({});
     setShowModal(true);
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
     setUsuarioSeleccionado(null);
+    setFormErrors({});
   };
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
+    validateField(name, value);
   };
 
   const handleSubmitUpdate = async (e) => {
     e.preventDefault();
+
+    const fieldsToValidate = [
+      "primer_nombre", "segundo_nombre", "primer_apellido", "segundo_apellido",
+      "documento", "celular", "grupo_formacion", "correo_electronico"
+    ];
+
+    let hasError = false;
+    fieldsToValidate.forEach((field) => {
+      const err = validateField(field, formData[field]);
+      if (err) hasError = true;
+    });
+
+    if (hasError) {
+      Swal.fire("Validación", "Por favor corrige los datos inválidos en el formulario.", "warning");
+      return;
+    }
+
     try {
       await actualizarUsuario(usuarioSeleccionado, formData);
       Swal.fire('Actualizado', 'Los datos del usuario han sido actualizados.', 'success');
@@ -220,19 +263,23 @@ const Tabla_gestion_usuarios = () => {
                   <div className="row">
                     <div className="col-md-6 form-group-premium">
                       <label className="form-label-premium">Primer Nombre</label>
-                      <input type="text" name="primer_nombre" className="form-control form-control-premium" value={formData.primer_nombre} onChange={handleChange} required />
+                      <input type="text" name="primer_nombre" className={`form-control form-control-premium ${formErrors.primer_nombre ? 'border-danger' : ''}`} value={formData.primer_nombre} onChange={handleChange} required />
+                      {formErrors.primer_nombre && <small className="text-danger font-weight-bold d-block mt-1">⚠️ {formErrors.primer_nombre}</small>}
                     </div>
                     <div className="col-md-6 form-group-premium">
                       <label className="form-label-premium">Segundo Nombre</label>
-                      <input type="text" name="segundo_nombre" className="form-control form-control-premium" value={formData.segundo_nombre} onChange={handleChange} />
+                      <input type="text" name="segundo_nombre" className={`form-control form-control-premium ${formErrors.segundo_nombre ? 'border-danger' : ''}`} value={formData.segundo_nombre} onChange={handleChange} />
+                      {formErrors.segundo_nombre && <small className="text-danger font-weight-bold d-block mt-1">⚠️ {formErrors.segundo_nombre}</small>}
                     </div>
                     <div className="col-md-6 form-group-premium">
                       <label className="form-label-premium">Primer Apellido</label>
-                      <input type="text" name="primer_apellido" className="form-control form-control-premium" value={formData.primer_apellido} onChange={handleChange} required />
+                      <input type="text" name="primer_apellido" className={`form-control form-control-premium ${formErrors.primer_apellido ? 'border-danger' : ''}`} value={formData.primer_apellido} onChange={handleChange} required />
+                      {formErrors.primer_apellido && <small className="text-danger font-weight-bold d-block mt-1">⚠️ {formErrors.primer_apellido}</small>}
                     </div>
                     <div className="col-md-6 form-group-premium">
                       <label className="form-label-premium">Segundo Apellido</label>
-                      <input type="text" name="segundo_apellido" className="form-control form-control-premium" value={formData.segundo_apellido} onChange={handleChange} />
+                      <input type="text" name="segundo_apellido" className={`form-control form-control-premium ${formErrors.segundo_apellido ? 'border-danger' : ''}`} value={formData.segundo_apellido} onChange={handleChange} />
+                      {formErrors.segundo_apellido && <small className="text-danger font-weight-bold d-block mt-1">⚠️ {formErrors.segundo_apellido}</small>}
                     </div>
                     <div className="col-md-4 form-group-premium">
                       <label className="form-label-premium">Tipo Documento</label>
@@ -244,19 +291,23 @@ const Tabla_gestion_usuarios = () => {
                     </div>
                     <div className="col-md-4 form-group-premium">
                       <label className="form-label-premium">Documento</label>
-                      <input type="number" name="documento" className="form-control form-control-premium" value={formData.documento} onChange={handleChange} required />
+                      <input type="text" name="documento" className={`form-control form-control-premium ${formErrors.documento ? 'border-danger' : ''}`} value={formData.documento} onChange={handleChange} required />
+                      {formErrors.documento && <small className="text-danger font-weight-bold d-block mt-1">⚠️ {formErrors.documento}</small>}
                     </div>
                     <div className="col-md-4 form-group-premium">
                       <label className="form-label-premium">Celular</label>
-                      <input type="text" name="celular" className="form-control form-control-premium" value={formData.celular} onChange={handleChange} required />
+                      <input type="text" name="celular" className={`form-control form-control-premium ${formErrors.celular ? 'border-danger' : ''}`} value={formData.celular} onChange={handleChange} required />
+                      {formErrors.celular && <small className="text-danger font-weight-bold d-block mt-1">⚠️ {formErrors.celular}</small>}
                     </div>
                     <div className="col-md-6 form-group-premium">
                       <label className="form-label-premium">Grupo Formación</label>
-                      <input type="text" name="grupo_formacion" className="form-control form-control-premium" value={formData.grupo_formacion} onChange={handleChange} required />
+                      <input type="text" name="grupo_formacion" className={`form-control form-control-premium ${formErrors.grupo_formacion ? 'border-danger' : ''}`} value={formData.grupo_formacion} onChange={handleChange} required />
+                      {formErrors.grupo_formacion && <small className="text-danger font-weight-bold d-block mt-1">⚠️ {formErrors.grupo_formacion}</small>}
                     </div>
                     <div className="col-md-6 form-group-premium">
                       <label className="form-label-premium">Correo Electrónico</label>
-                      <input type="email" name="correo_electronico" className="form-control form-control-premium" value={formData.correo_electronico} onChange={handleChange} required />
+                      <input type="email" name="correo_electronico" className={`form-control form-control-premium ${formErrors.correo_electronico ? 'border-danger' : ''}`} value={formData.correo_electronico} onChange={handleChange} required />
+                      {formErrors.correo_electronico && <small className="text-danger font-weight-bold d-block mt-1">⚠️ {formErrors.correo_electronico}</small>}
                     </div>
                     <div className="col-md-6 form-group-premium">
                       <label className="form-label-premium">Rol</label>

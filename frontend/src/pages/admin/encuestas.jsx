@@ -10,6 +10,7 @@ const Encuestas = () => {
   const [preguntas, setPreguntas] = useState([
     { pregunta: "", tipo: "escala" }
   ]);
+  const [errorTitulo, setErrorTitulo] = useState("");
 
   const agregarPregunta = () => {
     setPreguntas([...preguntas, { pregunta: "", tipo: "escala" }]);
@@ -30,6 +31,7 @@ const Encuestas = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!titulo.trim()) {
+      setErrorTitulo("El título de la encuesta es obligatorio.");
       return Swal.fire("Campo requerido", "Por favor ingresa un título para la encuesta.", "warning");
     }
     const preguntasVacias = preguntas.some(p => !p.pregunta.trim());
@@ -61,6 +63,7 @@ const Encuestas = () => {
       });
 
       setTitulo("");
+      setErrorTitulo("");
       setDescripcion("");
       setPreguntas([{ pregunta: "", tipo: "escala" }]);
     } catch (error) {
@@ -87,12 +90,16 @@ const Encuestas = () => {
             <label className="form-label fw-bold text-secondary">Título de la Encuesta *</label>
             <input
               type="text"
-              className="form-control custom-input py-2"
+              className={`form-control custom-input py-2 ${errorTitulo ? "border-danger" : ""}`}
               placeholder="Ej: Encuesta de Satisfacción GDF"
               value={titulo}
-              onChange={(e) => setTitulo(e.target.value)}
+              onChange={(e) => {
+                setTitulo(e.target.value);
+                if (e.target.value.trim()) setErrorTitulo("");
+              }}
               required
             />
+            {errorTitulo && <small className="text-danger fw-bold d-block mt-1">⚠️ {errorTitulo}</small>}
           </div>
 
           <div className="mb-4">

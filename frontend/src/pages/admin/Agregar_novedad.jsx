@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import { FaNewspaper, FaTag, FaImage, FaLink, FaSave, FaArrowLeft, FaEdit } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import "../../css/agregar_novedad.css";
+import { validateUrl } from "../../utils/validators";
 
 const Agregar_novedad = () => {
   const { id } = useParams();
@@ -17,34 +18,25 @@ const Agregar_novedad = () => {
     categoria: "",
     url_referencia: "",
   });
+  const [formErrors, setFormErrors] = useState({});
   const [imagen, setImagen] = useState(null);
   const [imagenPreview, setImagenPreview] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  useState(() => {
-    if (id) {
-      (async () => {
-        try {
-          const data = await obtenerPorId(id);
-          setForm({
-            titulo: data.titulo || "",
-            contenido: data.contenido || "",
-            categoria: data.categoria || "",
-            url_referencia: data.url_referencia || "",
-          });
-          if (data.imagen_url) {
-            setImagenPreview(`http://localhost:3001/uploads/${data.imagen_url}`);
-          }
-        } catch (err) {
-          Swal.fire("Error", "No se pudo cargar la novedad", "error");
-          navigate("/Eliminar_novedad");
-        }
-      })();
-    }
-  }, [id]);
+  const validateField = (name, value) => {
+    let err = "";
+    if (name === "titulo" && !value.trim()) err = "El título es obligatorio.";
+    if (name === "contenido" && !value.trim()) err = "El contenido es obligatorio.";
+    if (name === "url_referencia") err = validateUrl(value);
+
+    setFormErrors((prev) => ({ ...prev, [name]: err }));
+    return err;
+  };
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    validateField(name, value);
   };
 
   const handleImagen = (e) => {
@@ -81,8 +73,12 @@ const Agregar_novedad = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!form.titulo.trim() || !form.contenido.trim()) {
-      Swal.fire("Validación", "Título y contenido son obligatorios", "warning");
+    const errTit = validateField("titulo", form.titulo);
+    const errCont = validateField("contenido", form.contenido);
+    const errUrl = validateField("url_referencia", form.url_referencia);
+
+    if (errTit || errCont || errUrl) {
+      Swal.fire("Validación", "Por favor completa los campos requeridos y verifica que la URL sea válida", "warning");
       return;
     }
 
@@ -146,7 +142,7 @@ const Agregar_novedad = () => {
               </label>
               <input
                 type="text"
-                className="form-control form-control-lg"
+                className={`form-control form-control-lg ${formErrors.titulo ? 'border-danger' : ''}`}
                 id="titulo"
                 name="titulo"
                 value={form.titulo}
@@ -154,6 +150,7 @@ const Agregar_novedad = () => {
                 placeholder="Ingrese el título de la publicación"
                 required
               />
+              {formErrors.titulo && <small className="text-danger fw-bold d-block mt-1">⚠️ {formErrors.titulo}</small>}
             </div>
 
             <div className="mb-4">
@@ -161,7 +158,7 @@ const Agregar_novedad = () => {
                 <FaNewspaper className="text-success" /> Contenido
               </label>
               <textarea
-                className="form-control"
+                className={`form-control ${formErrors.contenido ? 'border-danger' : ''}`}
                 id="contenido"
                 name="contenido"
                 rows="6"
@@ -170,6 +167,7 @@ const Agregar_novedad = () => {
                 placeholder="Escriba el contenido de la publicación"
                 required
               ></textarea>
+              {formErrors.contenido && <small className="text-danger fw-bold d-block mt-1">⚠️ {formErrors.contenido}</small>}
             </div>
 
             <div className="row mb-4">
@@ -196,14 +194,15 @@ const Agregar_novedad = () => {
                   <FaLink className="text-success" /> URL de referencia
                 </label>
                 <input
-                  className="form-control"
-                  type="url"
+                  className={`form-control ${formErrors.url_referencia ? 'border-danger' : ''}`}
+                  type="text"
                   id="url_referencia"
                   name="url_referencia"
                   value={form.url_referencia}
                   onChange={handleChange}
                   placeholder="https://ejemplo.com"
                 />
+                {formErrors.url_referencia && <small className="text-danger fw-bold d-block mt-1">⚠️ {formErrors.url_referencia}</small>}
               </div>
             </div>
 

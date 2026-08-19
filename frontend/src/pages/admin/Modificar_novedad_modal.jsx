@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { actualizar } from "../../services/admin/comunicados.service";
 import Swal from "sweetalert2";
 import { FaEdit, FaNewspaper, FaTag, FaImage, FaLink, FaSave, FaTimes } from "react-icons/fa";
+import { validateUrl } from "../../utils/validators";
 
 const Modificar_novedad_modal = ({ comunicado, onClose, onActualizado }) => {
   const [form, setForm] = useState({
@@ -10,6 +11,7 @@ const Modificar_novedad_modal = ({ comunicado, onClose, onActualizado }) => {
     categoria: "",
     url_referencia: "",
   });
+  const [formErrors, setFormErrors] = useState({});
   const [imagen, setImagen] = useState(null);
   const [imagenPreview, setImagenPreview] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -25,13 +27,26 @@ const Modificar_novedad_modal = ({ comunicado, onClose, onActualizado }) => {
       if (comunicado.imagen_url) {
         setImagenPreview(`http://localhost:3001/uploads/${comunicado.imagen_url}`);
       }
+      setFormErrors({});
     }
   }, [comunicado]);
 
   if (!comunicado) return null;
 
+  const validateField = (name, value) => {
+    let err = "";
+    if (name === "titulo" && !value.trim()) err = "El título es obligatorio.";
+    if (name === "contenido" && !value.trim()) err = "El contenido es obligatorio.";
+    if (name === "url_referencia") err = validateUrl(value);
+
+    setFormErrors((prev) => ({ ...prev, [name]: err }));
+    return err;
+  };
+
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    validateField(name, value);
   };
 
   const handleImagen = (e) => {
@@ -68,8 +83,12 @@ const Modificar_novedad_modal = ({ comunicado, onClose, onActualizado }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!form.titulo.trim() || !form.contenido.trim()) {
-      Swal.fire("Validación", "Título y contenido son obligatorios", "warning");
+    const errTit = validateField("titulo", form.titulo);
+    const errCont = validateField("contenido", form.contenido);
+    const errUrl = validateField("url_referencia", form.url_referencia);
+
+    if (errTit || errCont || errUrl) {
+      Swal.fire("Validación", "Por favor completa los campos requeridos y verifica que la URL sea válida", "warning");
       return;
     }
 
@@ -124,13 +143,14 @@ const Modificar_novedad_modal = ({ comunicado, onClose, onActualizado }) => {
                 </label>
                 <input
                   type="text"
-                  className="form-control form-control-premium"
+                  className={`form-control form-control-premium ${formErrors.titulo ? 'border-danger' : ''}`}
                   name="titulo"
                   value={form.titulo}
                   onChange={handleChange}
                   placeholder="Título de la publicación"
                   required
                 />
+                {formErrors.titulo && <small className="text-danger fw-bold d-block mt-1">⚠️ {formErrors.titulo}</small>}
               </div>
 
               <div className="form-group-premium">
@@ -138,7 +158,7 @@ const Modificar_novedad_modal = ({ comunicado, onClose, onActualizado }) => {
                   <FaNewspaper /> Contenido
                 </label>
                 <textarea
-                  className="form-control form-control-premium"
+                  className={`form-control form-control-premium ${formErrors.contenido ? 'border-danger' : ''}`}
                   name="contenido"
                   rows="5"
                   value={form.contenido}
@@ -146,6 +166,7 @@ const Modificar_novedad_modal = ({ comunicado, onClose, onActualizado }) => {
                   placeholder="Contenido de la publicación"
                   required
                 ></textarea>
+                {formErrors.contenido && <small className="text-danger fw-bold d-block mt-1">⚠️ {formErrors.contenido}</small>}
               </div>
 
               <div className="row">
@@ -174,13 +195,14 @@ const Modificar_novedad_modal = ({ comunicado, onClose, onActualizado }) => {
                       <FaLink /> URL de referencia
                     </label>
                     <input
-                      className="form-control form-control-premium"
-                      type="url"
+                      className={`form-control form-control-premium ${formErrors.url_referencia ? 'border-danger' : ''}`}
+                      type="text"
                       name="url_referencia"
                       value={form.url_referencia}
                       onChange={handleChange}
                       placeholder="https://ejemplo.com"
                     />
+                    {formErrors.url_referencia && <small className="text-danger fw-bold d-block mt-1">⚠️ {formErrors.url_referencia}</small>}
                   </div>
                 </div>
               </div>

@@ -4,25 +4,38 @@ import Swal from "sweetalert2";
 import { recuperarPassword } from "../../services/auth/auth.service";
 import "../../css/recuperarpass1.css";
 import logoSena from "../../assets/img/logosena.png";
+import { validateEmail } from "../../utils/validators";
 
 const RecuperarPassword = () => {
   const [correo, setCorreo] = useState("");
+  const [errorCorreo, setErrorCorreo] = useState("");
   const [cargando, setCargando] = useState(false);
 
-  const Toast = Swal.mixin({
-    toast: true,
-    position: "top-end",
-    showConfirmButton: false,
-    timer: 3000,
-    timerProgressBar: true,
-    didOpen: (toast) => {
-      toast.onmouseenter = Swal.stopTimer;
-      toast.onmouseleave = Swal.resumeTimer;
-    }
-  });
+  const validate = (val) => {
+    const err = validateEmail(val);
+    setErrorCorreo(err);
+    return err;
+  };
+
+  const handleCorreoChange = (e) => {
+    const val = e.target.value;
+    setCorreo(val);
+    validate(val);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const err = validate(correo);
+    if (err) {
+      Swal.fire({
+        icon: "warning",
+        title: "Correo Inválido",
+        text: err,
+        confirmButtonColor: "#28a745"
+      });
+      return;
+    }
+
     setCargando(true);
 
     try {
@@ -35,6 +48,7 @@ const RecuperarPassword = () => {
         confirmButtonColor: "#28a745"
       });
       setCorreo("");
+      setErrorCorreo("");
     } catch (error) {
       const errorMsg = error.response?.data?.message || "No se pudo procesar la solicitud";
       Swal.fire({
@@ -67,18 +81,19 @@ const RecuperarPassword = () => {
           <h1>RECUPERAR CONTRASEÑA</h1>
           <p>Ingresa tu correo electrónico para recibir el enlace de recuperación.</p>
           
-          <form className="w-100 px-3" onSubmit={handleSubmit}>
+          <form className="w-100 px-3" onSubmit={handleSubmit} noValidate>
             <div className="input-group-auth">
               <ion-icon name="mail-outline"></ion-icon>
               <input
                 type="email"
-                className="auth-input"
+                className={`auth-input ${errorCorreo ? "input-error" : ""}`}
                 placeholder="Correo electrónico (ejemplo@correo.com)"
                 value={correo}
-                onChange={(e) => setCorreo(e.target.value)}
+                onChange={handleCorreoChange}
                 required
               />
             </div>
+            {errorCorreo && <div className="field-error-msg">⚠️ {errorCorreo}</div>}
 
             <button type="submit" className="auth-btn mt-3" disabled={cargando}>
               {cargando ? "Enviando..." : "Enviar enlace"}
