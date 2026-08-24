@@ -19,11 +19,11 @@ if (fs.existsSync(caPath)) {
 
 
 const poolConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  port: parseInt(process.env.DB_PORT) || 3306,
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'sena',
+  host: process.env.DB_HOST || process.env.DB_HOST_LOCAL,
+  user: process.env.DB_USER || process.env.DB_USER_LOCAL,
+  port: parseInt(process.env.DB_PORT) || process.env.DB_PORT_LOCAL,
+  password: process.env.DB_PASSWORD || process.env.DB_PASSWORD_LOCAL,
+  database: process.env.DB_NAME || process.env.DB_NAME_LOCAL,
   waitForConnections: true,
   connectionLimit: 5,
   queueLimit: 0,
@@ -43,13 +43,13 @@ pool.getConnection((err, connection) => {
     logger.error('DB', 'Error al conectar a la base de datos', {
       code: err.code,
       message: err.message,
-      host: process.env.DB_HOST || 'localhost',
+      host: process.env.DB_HOST || process.env.DB_HOST_LOCAL,
     });
     return;
   }
   logger.info('DB', 'Conexion establecida correctamente', {
-    database: process.env.DB_NAME || 'sena',
-    host: process.env.DB_HOST || 'localhost',
+    database: process.env.DB_NAME || process.env.DB_NAME_LOCAL,
+    host: process.env.DB_HOST || process.env.DB_HOST_LOCAL,
     ssl: sslConfig ? 'habilitado' : 'deshabilitado',
   });
   connection.release();
