@@ -17,7 +17,7 @@ if (fs.existsSync(caPath)) {
   logger.warn('DB', 'SSL no configurado. Conexion sin cifrado.');
 }
 
-
+// Las bases de datos de producción deben estár actualizadas con las de desarrollo para evitar errores de subida y devuelta de datos
 const poolConfig = {
   host: process.env.DB_HOST || process.env.DB_HOST_LOCAL,
   user: process.env.DB_USER || process.env.DB_USER_LOCAL,
