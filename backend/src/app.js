@@ -1,5 +1,4 @@
 const express = require("express");
-const path = require("path");
 const cors = require("cors");
 const logger = require("./utils/logger");
 
@@ -13,9 +12,6 @@ app.use((req, _res, next) => {
     logger.request(req);
     next();
 });
-
-// Servir archivos estáticos (imágenes subidas)
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 const authRoutes = require("./modules/auth/auth.routes");
 const adminRoutes = require("./modules/admin/admin.routes");
