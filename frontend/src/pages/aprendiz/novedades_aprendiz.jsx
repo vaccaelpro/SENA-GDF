@@ -20,10 +20,8 @@ const Novedades_aprendiz = () => {
   }, []);
 
   const getImagenUrl = (comunicado) => {
-    if (comunicado.imagen_url) {
-      return `http://localhost:3001/uploads/${comunicado.imagen_url}`;
-    }
-    return null;
+    // imagen_url ya contiene el base64 (data:image/...;base64,...) guardado en la BD.
+    return comunicado.imagen_url || null;
   };
 
   if (loading) {

@@ -1,5 +1,4 @@
 const db = require('../../config/database');
-const { saveBase64Image, deleteImage } = require('../../utils/uploadHelper');
 const logger = require('../../utils/logger');
 
 
@@ -561,10 +560,8 @@ exports.crearComunicado = async (data, usuarioId) => {
     try {
         const { titulo, contenido, categoria, imagen_base64, url_referencia } = data;
 
-        let imagen_url = null;
-        if (imagen_base64) {
-            imagen_url = saveBase64Image(imagen_base64);
-        }
+        // Guardamos la imagen directamente en base64 en la BD (columna LONGTEXT).
+        let imagen_url = imagen_base64 || null;
 
         const [result] = await db.query(
             `INSERT INTO comunicados (titulo, contenido, categoria, imagen_url, url_referencia, fecha_publicacion, ultima_actualizacion, usuario_id_usuario)
@@ -586,12 +583,10 @@ exports.actualizarComunicado = async (id, data) => {
 
         let imagen_url = null;
         if (imagen_base64) {
-            const actual = await this.obtenerComunicadoPorId(id);
-            if (actual && actual.imagen_url) {
-                deleteImage(actual.imagen_url);
-            }
-            imagen_url = saveBase64Image(imagen_base64);
+            // Nueva imagen: se guarda directamente en base64 en la BD.
+            imagen_url = imagen_base64;
         } else if (mantener_imagen) {
+            // Conservar la imagen actual (no se sube una nueva).
             const actual = await this.obtenerComunicadoPorId(id);
             imagen_url = actual ? actual.imagen_url : null;
         }
@@ -615,11 +610,6 @@ exports.actualizarComunicado = async (id, data) => {
 
 exports.eliminarComunicado = async (id) => {
     try {
-        const actual = await this.obtenerComunicadoPorId(id);
-        if (actual && actual.imagen_url) {
-            deleteImage(actual.imagen_url);
-        }
-
         await db.query('DELETE FROM comunicados WHERE id_comunicado = ?', [id]);
         return { success: true };
     } catch (error) {

@@ -102,7 +102,9 @@ const Agregar_novedad = () => {
         payload.usuario_id = usuario.id_usuario;
       }
 
-      if (isEditing && imagenPreview && !imagenPreview.startsWith("data:")) {
+      // En edición: si NO se seleccionó una imagen nueva pero hay una imagen existente
+      // (base64 en la BD), se conserva tal cual.
+      if (isEditing && !imagen && imagenPreview) {
         payload.mantener_imagen = true;
       }
 

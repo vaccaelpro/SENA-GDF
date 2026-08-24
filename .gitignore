@@ -136,3 +136,5 @@ scratch/
 tsconfig.tsbuildinfo
 # OpenCode / Gentle AI — configuracion local del asistente
 .atl/
+# Archivo de base de datos
+sena.sql

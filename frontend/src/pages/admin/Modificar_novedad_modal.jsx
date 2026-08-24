@@ -25,7 +25,7 @@ const Modificar_novedad_modal = ({ comunicado, onClose, onActualizado }) => {
         url_referencia: comunicado.url_referencia || "",
       });
       if (comunicado.imagen_url) {
-        setImagenPreview(`http://localhost:3001/uploads/${comunicado.imagen_url}`);
+        setImagenPreview(comunicado.imagen_url);
       }
       setFormErrors({});
     }
