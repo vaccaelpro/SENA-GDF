@@ -125,7 +125,18 @@ exports.generarTokenRecuperacion = async (correo) => {
 
     const tokenPlano = crypto.randomBytes(32).toString("hex");
     const tokenHash = await bcrypt.hash(tokenPlano, 10);
+    // Es necesario crear una actualización en la base de datos para invalidar los otros tokens generados para que solo funcione el actual
+    // Esto se hace para evitar que puedan llegar a usar tokens que deberían estar inválidos
 
+    await db.query(
+        `UPDATE recuperacion_contrasena
+        SET fecha_restablecimiento = NOW()
+        WHERE usuario_id_usuario = ?
+        AND fecha_restablecimiento IS NULL`, [usuarioId]
+    );
+
+
+    // Aquí se está generando un nuevo token
     await db.query(
         `INSERT INTO recuperacion_contrasena 
      (token, fecha_solicitud, usuario_id_usuario)
@@ -159,7 +170,7 @@ exports.generarTokenRecuperacion = async (correo) => {
                 
                 <p style="color: #555; font-size: 16px; line-height: 1.6;">
                     Hola,<br><br>
-                    Has solicitado restablecer tu contraseña para acceder al sistema SENA GDF. No te preocupes, esto ocurre a veces.
+                    Has solicitado restablecer tu contraseña para acceder al sistema SENA GDF. Si no te valída, asegurate de no haber pedido varios correos de recuperación
                 </p>
                 
                 <div style="text-align: center; margin: 40px 0;">
@@ -241,11 +252,22 @@ exports.cambiarPassword = async (tokenPlano, nuevaContrasena) => {
             "UPDATE usuario SET contrasena = ?, ultima_actualizacion = NOW() WHERE id_usuario = ?",
             [hash, registroEncontrado.usuario_id_usuario]
         );
-        await db.query(
-            "UPDATE recuperacion_contrasena SET fecha_restablecimiento = NOW() WHERE id_recuperacion = ?",
-            [registroEncontrado.id_recuperacion]
-        );
+        // Esto antes solo invalidaba el token recien usado pero no los tokens anteriores
 
+        // await db.query(
+        //     "UPDATE recuperacion_contrasena SET fecha_restablecimiento = NOW() WHERE id_recuperacion = ?",
+        //     [registroEncontrado.id_recuperacion]
+        // );
+        
+        // Ahora invalidaremos todos los tokens antiguos que estén activos para que no puedan usarlos
+        await db.query(
+            `UPDATE recuperacion_contrasena 
+            SET fecha_restablecimiento = NOW() 
+            WHERE usuario_id_usuario = ? 
+            AND fecha_restablecimiento IS NULL`,
+            [registroEncontrado.usuario_id_usuario]
+        );
+        // Ahora solo hay un token activo por usuario y no varios para evitar cambios de contraseña repentinos o por hackeos de correos
         return { success: true };
 
     } catch (error) {
