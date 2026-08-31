@@ -124,3 +124,31 @@ exports.restablecerPassword = async (req, res) => {
         res.status(400).json({ message: "Token inválido o expirado" });
     }
 };
+
+// =============================== Cerrar Sesión ===================================
+// Agregamos un nuevo controllador para recibir y devolver datos del método CerrarSesion
+
+exports.logout = async (req, res) => {
+    try {
+        const token = req.headers['authorization']?.replace('Bearer ', '');
+
+        if (!token) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Token no proporcionado" 
+            });
+        }
+
+        await service.cerrarSesion(token);
+
+        logger.info('AUTH', 'Sesión cerrada exitosamente');
+        res.json({ success: true, message: "Sesión cerrada" });
+
+    } catch (error) {
+        logger.error('AUTH', 'Error al cerrar sesión', { error: error.message });
+        res.status(400).json({ 
+            success: false, 
+            message: error.message || "Error al cerrar sesión" 
+        });
+    }
+};

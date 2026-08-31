@@ -26,8 +26,25 @@ exports.validarLogin = async (tipo_documento, documento, contrasena) => {
             return { error: true, message: "La contraseña es incorrecta" };
         }
 
+        //Implementamos el uso de registro de sesiones con base de datos de la tabla sesion para llevar trazabilidad de las sesiones
+        // También nos ayuda a poder finalizar sesiones para no dejar fallas en seguridad
+
+        // Generaremos tokens de sesión como en el recuperar contraseña y el token de recuperación
+
+        const token = crypto.randomBytes(32).toString('hex');
+        const expiracion = new Date(Date.now() + 24 * 60 * 60 * 1000); // Este token dura 24 horas
+
+        // Ahora la guardaremos en la tabla sesión
+
+        await db.query(
+            `INSERT INTO sesion (usuario_id_usuario, token, activa, fecha_expiracion, fecha_registro, ultima_actualizacion)
+            VALUES (?, ?, 1, ?, NOW(), NOW())`,
+            [usuario.id_usuario, token, expiracion]
+        );
+
         return {
             success: true,
+            token: token, // este token lo usarémos en el frontend
             usuario: {
                 id_usuario: usuario.id_usuario,
                 primer_nombre: usuario.primer_nombre,
@@ -41,6 +58,24 @@ exports.validarLogin = async (tipo_documento, documento, contrasena) => {
         throw error;
     }
 
+};
+
+// Agregarémos un nuevo método o función para cerrar sesión
+// Usamos funciones de flecha pq son más sencillas de entender
+
+exports.cerrarSesion = async (token) => {
+    //Actualizamos la tabla sesion para registrar la sesión
+    const [resultado] = await db.query(
+        `UPDATE sesion SET activa = 0, ultima_actualizacion = NOW() 
+         WHERE token = ? AND activa = 1`,
+        [token]
+    );
+    // Si no se actualiza devolvemos que la sesión está cerrada o no existe
+    if (resultado.affectedRows === 0) {
+        throw new Error("Sesión no encontrada o ya cerrada");
+    }
+
+    return { success: true, message: "Sesión cerrada correctamente" };
 };
 
 exports.registrarUsuario = async (data) => {
