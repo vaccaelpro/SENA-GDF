@@ -276,7 +276,7 @@ exports.cambiarPassword = async (tokenPlano, nuevaContrasena) => {
         //     "UPDATE recuperacion_contrasena SET fecha_restablecimiento = NOW() WHERE id_recuperacion = ?",
         //     [registroEncontrado.id_recuperacion]
         // );
-        
+
         // Ahora invalidaremos todos los tokens antiguos que estén activos para que no puedan usarlos
         await db.query(
             `UPDATE recuperacion_contrasena 

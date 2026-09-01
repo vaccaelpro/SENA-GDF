@@ -12,6 +12,7 @@ router.post("/restablecer", controller.restablecerPassword);
 // Agregamos una nueva ruta para el cierre de sesión
 router.post("/logout", verifyToken, controller.logout);
 
+
 router.get("/test", (req, res) => {
     res.json({ message: "Módulo de autenticación funcionando correctamente" });
 });
