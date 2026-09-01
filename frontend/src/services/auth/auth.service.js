@@ -30,8 +30,8 @@ export const logout = async () => {
     await api.post("/auth/logout");
   } finally {
     // Limpiamos el storage incluso si el request falla, no podemos dejar los datos expuestos
-    localStorage.removeItem("token");
-    localStorage.removeItem("usuario");
-    localStorage.removeItem("rol");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("usuario");
+    sessionStorage.removeItem("rol");
   }
 };

@@ -1,5 +1,7 @@
 import "../css/sidebar_admin.css"
 import logoSena from "../assets/img/logosena2.png";
+import { useNavigate } from "react-router-dom";
+import { logout } from "../services/auth/auth.service";
 import {
   BsNewspaper,
   BsPersonFillGear,
@@ -13,6 +15,7 @@ import {
 import { Link } from "react-router-dom";
 
 const Sidebar_administrador = ({ isOpen, onClose }) => {
+  const navigate = useNavigate();
   return (
     <div className={`sidebar d-flex flex-column p-3 ${isOpen ? "open" : ""}`}>
       {/* Mobile close button */}
@@ -79,9 +82,9 @@ const Sidebar_administrador = ({ isOpen, onClose }) => {
           </Link>
         </div>
         <div onClick={onClose}>
-          <Link to="/" className="cerrar">
+          <button onClick={async () => { await logout(); navigate("/"); }} className="cerrar">
             <BsBoxArrowLeft /> Cerrar Sesión
-          </Link>
+          </button>
         </div>
       </div>
     </div>

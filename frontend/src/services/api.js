@@ -16,7 +16,7 @@ const api = axios.create({
 // como de antes ya estaba la implementación entonces solo es agregarla
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -34,9 +34,9 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401 && !esRutaDeAuth) {
       //Limpiamos el token de JWT con los datos del usuario
-      localStorage.removeItem("token")
-      localStorage.removeItem("usuario");
-      localStorage.removeItem("rol");
+      sessionStorage.removeItem("token")
+      sessionStorage.removeItem("usuario");
+      sessionStorage.removeItem("rol");
       window.location.href = "/";
     }
 

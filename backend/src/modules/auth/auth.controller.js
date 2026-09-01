@@ -29,6 +29,7 @@ exports.login = async (req, res) => {
             message: "Login exitoso",
             usuario: resultado.usuario,
             rol: resultado.usuario.rol,
+            token: resultado.token
         });
 
     } catch (error) {
