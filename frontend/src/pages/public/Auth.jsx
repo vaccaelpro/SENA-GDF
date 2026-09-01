@@ -82,6 +82,8 @@ const Auth = () => {
     try {
       const data = await login(loginForm);
       if (data.success) {
+        // Guardamos el token de JWT en el local storage, así lo guardamos cada que el inicio de sesión esté bien
+        localStorage.setItem("token", data.token);
         localStorage.setItem("usuario", JSON.stringify(data.usuario));
         localStorage.setItem("rol", data.rol);
         showToast("success", "¡Inicio de sesión exitoso!");

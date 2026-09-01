@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const logger = require("../../utils/logger");
+const jwt = require("jsonwebtoken");
 
 
 exports.validarLogin = async (tipo_documento, documento, contrasena) => {
@@ -26,8 +27,18 @@ exports.validarLogin = async (tipo_documento, documento, contrasena) => {
             return { error: true, message: "La contraseña es incorrecta" };
         }
 
+        //Implementamos JWT generando el token firmado
+        const token = jwt.sign(
+            {
+                id: usuario.id_usuario,
+                rol: usuario.rol,
+            },
+            process.env.JWT_SECRET,{expiresIn: process.env.JWT_EXPIRES_IN}
+        )
+
         return {
             success: true,
+            token, //devolvemos el token generado
             usuario: {
                 id_usuario: usuario.id_usuario,
                 primer_nombre: usuario.primer_nombre,
@@ -45,6 +56,10 @@ exports.validarLogin = async (tipo_documento, documento, contrasena) => {
 
 // Agregarémos un nuevo método o función para cerrar sesión
 // Usamos funciones de flecha pq son más sencillas de entender
+
+exports.cerrarSesion = async () => {
+    return {success: true, message: "Sesión cerrada correctamente" };
+};
 
 exports.registrarUsuario = async (data) => {
     const {

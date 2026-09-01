@@ -125,3 +125,21 @@ exports.restablecerPassword = async (req, res) => {
     }
 };
 
+// =============================== Cerrar Sesión ===================================
+// Agregamos un nuevo controllador para recibir y devolver datos del método CerrarSesion
+
+exports.logout = async (req, res) => {
+    try {
+        await service.cerrarSesion();
+
+        logger.info('AUTH', 'Sesión cerrada exitosamente');
+        res.json({ success: true, message: "Sesión cerrada" });
+
+    } catch (error) {
+        logger.error('AUTH', 'Error al cerrar sesión', { error: error.message });
+        res.status(400).json({ 
+            success: false, 
+            message: error.message || "Error al cerrar sesión" 
+        });
+    }
+};
