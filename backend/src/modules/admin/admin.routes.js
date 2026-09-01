@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const controller = require("./admin.controller");
+const { verifyToken } = require("../../shared/middleware/auth.middleware");
+router.use(verifyToken);
 
 router.get("/usuarios", controller.listarUsuarios);
 router.put("/usuarios/:id", controller.actualizarUsuario);

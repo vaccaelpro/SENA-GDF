@@ -12,12 +12,14 @@ const api = axios.create({
   timeout: 15000,
 });
 
-// Interceptor de petición: puede agregar token en el futuro
+// Interceptor de petición: agregamos el token de JWT
+// como de antes ya estaba la implementación entonces solo es agregarla
 api.interceptors.request.use(
   (config) => {
-    // Si en el futuro se implementa JWT, aquí se adjunta:
-    // const token = localStorage.getItem("token");
-    // if (token) config.headers.Authorization = `Bearer ${token}`;
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => Promise.reject(error)
@@ -31,6 +33,8 @@ api.interceptors.response.use(
     const esRutaDeAuth = url.includes("/auth/login") || url.includes("/auth/register") || url.includes("/auth/recuperar") || url.includes("/auth/restablecer");
 
     if (error.response?.status === 401 && !esRutaDeAuth) {
+      //Limpiamos el token de JWT con los datos del usuario
+      localStorage.removeItem("token")
       localStorage.removeItem("usuario");
       localStorage.removeItem("rol");
       window.location.href = "/";

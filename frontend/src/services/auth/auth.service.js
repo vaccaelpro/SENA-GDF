@@ -23,3 +23,15 @@ export const restablecerPassword = async (token, nuevaContrasena) => {
   const res = await api.post("/auth/restablecer", { token, nuevaContrasena });
   return res.data;
 };
+
+// Cerrar sesión
+export const logout = async () => {
+  try {
+    await api.post("/auth/logout");
+  } finally {
+    // Limpiamos el storage incluso si el request falla, no podemos dejar los datos expuestos
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+    localStorage.removeItem("rol");
+  }
+};

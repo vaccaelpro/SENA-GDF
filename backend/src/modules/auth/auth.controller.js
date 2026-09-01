@@ -130,16 +130,7 @@ exports.restablecerPassword = async (req, res) => {
 
 exports.logout = async (req, res) => {
     try {
-        const token = req.headers['authorization']?.replace('Bearer ', '');
-
-        if (!token) {
-            return res.status(400).json({ 
-                success: false, 
-                message: "Token no proporcionado" 
-            });
-        }
-
-        await service.cerrarSesion(token);
+        await service.cerrarSesion();
 
         logger.info('AUTH', 'Sesión cerrada exitosamente');
         res.json({ success: true, message: "Sesión cerrada" });
