@@ -3,6 +3,7 @@ const router = express.Router();
 const controller = require('./aprendiz.controller');
 
 router.get('/test', controller.test);
+
 console.log("Cargando rutas de Aprendiz...");
 
 // Rutas de grupo y chat

@@ -9,8 +9,10 @@ router.post("/register", controller.register);
 router.post("/recuperar", controller.recuperarPassword);
 router.post("/restablecer", controller.restablecerPassword);
 
+
 router.get("/test", (req, res) => {
     res.json({ message: "Módulo de autenticación funcionando correctamente" });
 });
+
 
 module.exports = router;

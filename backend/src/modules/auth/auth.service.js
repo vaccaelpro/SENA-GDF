@@ -43,6 +43,9 @@ exports.validarLogin = async (tipo_documento, documento, contrasena) => {
 
 };
 
+// Agregarémos un nuevo método o función para cerrar sesión
+// Usamos funciones de flecha pq son más sencillas de entender
+
 exports.registrarUsuario = async (data) => {
     const {
         primer_nombre,
@@ -258,7 +261,7 @@ exports.cambiarPassword = async (tokenPlano, nuevaContrasena) => {
         //     "UPDATE recuperacion_contrasena SET fecha_restablecimiento = NOW() WHERE id_recuperacion = ?",
         //     [registroEncontrado.id_recuperacion]
         // );
-        
+
         // Ahora invalidaremos todos los tokens antiguos que estén activos para que no puedan usarlos
         await db.query(
             `UPDATE recuperacion_contrasena 

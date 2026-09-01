@@ -124,3 +124,4 @@ exports.restablecerPassword = async (req, res) => {
         res.status(400).json({ message: "Token inválido o expirado" });
     }
 };
+
