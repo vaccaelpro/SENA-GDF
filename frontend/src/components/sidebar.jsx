@@ -1,6 +1,7 @@
 import "../css/sidebar.css";
 import logoSena from "../assets/img/logosena2.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { logout } from "../services/auth/auth.service";
 
 import {
   FaNewspaper,
@@ -15,6 +16,14 @@ import {
 } from "react-icons/fa";
 
 const Sidebar = ({ isOpen, onClose }) => {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    onClose();
+    await logout();
+    navigate("/", { replace: true });
+  };
+
   return (
     <div className={`sidebar d-flex flex-column p-3 ${isOpen ? "open" : ""}`}>
       {/* Mobile close button */}
@@ -82,10 +91,13 @@ const Sidebar = ({ isOpen, onClose }) => {
           </Link>
         </div>
 
-        <div onClick={onClose}>
-          <Link to="/" className="cerrar">
+        <div>
+          <button
+            className="cerrar sidebar-logout-btn"
+            onClick={handleLogout}
+          >
             <FaSignOutAlt className="menu-icon" /> Cerrar Sesión
-          </Link>
+          </button>
         </div>
       </div>
     </div>

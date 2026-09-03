@@ -114,6 +114,20 @@
   box-shadow: inset 3px 0 0 #e74c3c !important;
 }
 
+/* Botón de cierre de sesión — mismo aspecto que los links del sidebar */
+.sidebar-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  text-decoration: none;
+}
+
 /* ─── Mobile Close Btn ────────────────────────────────────────────── */
 .sidebar-close-btn {
   position: absolute;

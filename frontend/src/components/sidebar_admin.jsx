@@ -10,9 +10,18 @@ import {
   BsBoxArrowLeft,
   BsX
 } from "react-icons/bs";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { logout } from "../services/auth/auth.service";
 
 const Sidebar_administrador = ({ isOpen, onClose }) => {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    onClose();
+    await logout();
+    navigate("/", { replace: true });
+  };
+
   return (
     <div className={`sidebar d-flex flex-column p-3 ${isOpen ? "open" : ""}`}>
       {/* Mobile close button */}
@@ -78,10 +87,13 @@ const Sidebar_administrador = ({ isOpen, onClose }) => {
             <BsGearFill /> Ajustes
           </Link>
         </div>
-        <div onClick={onClose}>
-          <Link to="/" className="cerrar">
+        <div>
+          <button
+            className="cerrar sidebar-logout-btn"
+            onClick={handleLogout}
+          >
             <BsBoxArrowLeft /> Cerrar Sesión
-          </Link>
+          </button>
         </div>
       </div>
     </div>
