@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Swal from "sweetalert2";
 import {
   FaPlusCircle,
   FaTag,
@@ -39,6 +40,12 @@ const Crear_grupo = () => {
 
     if (errNombre || errTipo) {
       setMensaje({ texto: "Corrige los errores del formulario antes de continuar.", tipo: "danger" });
+      Swal.fire({
+        icon: "warning",
+        title: "Campos Requeridos",
+        text: "Corrige los errores del formulario antes de continuar.",
+        confirmButtonColor: "#28a745",
+      });
       return;
     }
 
@@ -51,13 +58,36 @@ const Crear_grupo = () => {
 
       if (data.success) {
         setMensaje({ texto: "Grupo creado exitosamente", tipo: "success" });
+        Swal.fire({
+          icon: "success",
+          title: "¡Grupo Creado!",
+          text: "El grupo ha sido registrado exitosamente.",
+          timer: 2000,
+          showConfirmButton: false,
+        });
         setTimeout(() => {
           navigate("/Lista_grupos");
         }, 1500);
+      } else if (data.error) {
+        const msg = data.message || "Error al crear el grupo";
+        setMensaje({ texto: msg, tipo: "danger" });
+        Swal.fire({
+          icon: "warning",
+          title: "No se Pudo Crear el Grupo",
+          text: msg,
+          confirmButtonColor: "#28a745",
+        });
       }
     } catch (error) {
       console.error(error);
-      setMensaje({ texto: "Error al crear el grupo", tipo: "danger" });
+      const msg = error.response?.data?.error || error.response?.data?.message || "Error al crear el grupo";
+      setMensaje({ texto: msg, tipo: "danger" });
+      Swal.fire({
+        icon: "error",
+        title: "Error al Crear Grupo",
+        text: msg,
+        confirmButtonColor: "#28a745",
+      });
     }
   };
 
@@ -74,11 +104,6 @@ const Crear_grupo = () => {
         </div>
 
         <div className="card-body p-4">
-          {mensaje.texto && (
-            <div className={`alert alert-${mensaje.tipo}`} role="alert">
-              {mensaje.texto}
-            </div>
-          )}
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label className="form-label fw-bold d-flex align-items-center gap-2">

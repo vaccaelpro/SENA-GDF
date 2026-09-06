@@ -338,6 +338,25 @@ exports.registrarExportacion = async (data) => {
 exports.crearGrupo = async (data) => {
     try {
         const { nombre, descripcion, tipo_apoyo } = data;
+
+        if (tipo_apoyo) {
+            const normalizar = (str) => String(str || '').toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const tipoNorm = normalizar(tipo_apoyo);
+
+            const [gruposExistentes] = await db.query(
+                "SELECT id_grupo, nombre, tipo_apoyo FROM grupos"
+            );
+
+            const duplicado = gruposExistentes.find(g => normalizar(g.tipo_apoyo) === tipoNorm);
+
+            if (duplicado) {
+                return {
+                    error: true,
+                    message: `Ya existe un grupo registrado para el tipo de apoyo '${duplicado.tipo_apoyo}' (Grupo: "${duplicado.nombre}"). Únicamente puede existir un grupo por cada tipo de apoyo.`
+                };
+            }
+        }
+
         const [result] = await db.query(
             "INSERT INTO grupos (nombre, descripcion, tipo_apoyo, fecha_creacion, ultima_actualizacion) VALUES (?, ?, ?, NOW(), NOW())",
             [nombre, descripcion, tipo_apoyo]
@@ -362,7 +381,6 @@ exports.crearGrupo = async (data) => {
         logger.error('ADMIN_SVC', 'Error en crearGrupo', { error: error.message });
         throw error;
     }
-
 };
 
 exports.listarGrupos = async () => {

@@ -101,7 +101,8 @@ exports.recuperarPassword = async (req, res) => {
             return res.status(400).json({ message: "Correo requerido" });
         }
 
-        await service.generarTokenRecuperacion(correo);
+        const hostOrigin = (typeof req.get === 'function' ? (req.get('origin') || req.get('referer')) : null) || req.headers?.origin || req.headers?.referer;
+        await service.generarTokenRecuperacion(correo, hostOrigin);
 
         logger.info('AUTH', 'Correo de recuperacion de password enviado');
         res.json({ message: "Correo de recuperación enviado" });

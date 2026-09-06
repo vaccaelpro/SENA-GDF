@@ -1,6 +1,7 @@
 import "../../css/IAFinance.css";
 import { useEffect, useRef, useState, useCallback } from "react";
 import Chart from "chart.js/auto";
+import Swal from "sweetalert2";
 import {
   FaPaperPlane,
   FaWallet,
@@ -108,16 +109,42 @@ const ModalPresupuesto = ({ onClose, onRefresh, idUsuario, ingresos, gastos }) =
   };
 
   const handleEliminar = async (id, tipo) => {
-    if (!window.confirm("¿Estás seguro de eliminar este registro?")) return;
+    const result = await Swal.fire({
+      title: "¿Eliminar registro?",
+      text: `¿Estás seguro de que deseas eliminar este ${tipo}?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc3545",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       if (tipo === "ingreso") {
         await eliminarIngreso(id);
       } else {
         await eliminarGasto(id);
       }
+      Swal.fire({
+        icon: "success",
+        title: "¡Eliminado!",
+        text: `El ${tipo} ha sido eliminado correctamente.`,
+        timer: 1800,
+        showConfirmButton: false,
+      });
       onRefresh();
     } catch (err) {
       console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: `No se pudo eliminar el ${tipo}. Inténtalo de nuevo.`,
+        confirmButtonColor: "#28a745",
+      });
     }
   };
 

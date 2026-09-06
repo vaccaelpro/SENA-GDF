@@ -151,12 +151,19 @@ const Tabla_gestion_usuarios = () => {
     }
   };
 
+  const [paginaActual, setPaginaActual] = useState(1);
+  const USUARIOS_POR_PAGINA = 5;
+
   const usuariosFiltrados = usuarios.filter((u) => {
     const nombreCompleto = `${u.primer_nombre} ${u.segundo_nombre || ""} ${u.primer_apellido} ${u.segundo_apellido || ""}`.toLowerCase();
-    const documento = u.documento.toString();
+    const documento = u.documento ? u.documento.toString() : "";
     const term = busqueda.toLowerCase();
     return nombreCompleto.includes(term) || documento.includes(term);
   });
+
+  const totalPaginas = Math.ceil(usuariosFiltrados.length / USUARIOS_POR_PAGINA) || 1;
+  const indiceInicio = (paginaActual - 1) * USUARIOS_POR_PAGINA;
+  const usuariosPaginados = usuariosFiltrados.slice(indiceInicio, indiceInicio + USUARIOS_POR_PAGINA);
 
   return (
     <>
@@ -171,7 +178,10 @@ const Tabla_gestion_usuarios = () => {
             className="form-control border-start-0"
             placeholder="Buscar por nombre o documento..."
             value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
+            onChange={(e) => {
+              setBusqueda(e.target.value);
+              setPaginaActual(1);
+            }}
           />
         </div>
 
@@ -199,8 +209,8 @@ const Tabla_gestion_usuarios = () => {
                 </tr>
               </thead>
               <tbody>
-                {usuariosFiltrados.length > 0 ? (
-                  usuariosFiltrados.map((usuario) => (
+                {usuariosPaginados.length > 0 ? (
+                  usuariosPaginados.map((usuario) => (
                     <tr key={usuario.id_usuario}>
                       <td>{`${usuario.primer_nombre} ${usuario.segundo_nombre || ""}`}</td>
                       <td>{`${usuario.primer_apellido} ${usuario.segundo_apellido || ""}`}</td>
@@ -248,6 +258,46 @@ const Tabla_gestion_usuarios = () => {
             </table>
           )}
         </div>
+
+        {/* Paginación de 5 usuarios por página */}
+        {!cargando && usuariosFiltrados.length > 0 && (
+          <div className="pagination-container">
+            <small className="text-muted fw-semibold">
+              Mostrando {indiceInicio + 1} a {Math.min(indiceInicio + USUARIOS_POR_PAGINA, usuariosFiltrados.length)} de {usuariosFiltrados.length} usuarios
+            </small>
+
+            <div className="d-flex align-items-center gap-1">
+              <button
+                type="button"
+                className="page-item-btn me-1"
+                onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
+                disabled={paginaActual === 1}
+              >
+                &laquo; Anterior
+              </button>
+
+              {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((numPage) => (
+                <button
+                  key={numPage}
+                  type="button"
+                  className={`page-item-btn ${paginaActual === numPage ? "active-btn" : ""}`}
+                  onClick={() => setPaginaActual(numPage)}
+                >
+                  {numPage}
+                </button>
+              ))}
+
+              <button
+                type="button"
+                className="page-item-btn ms-1"
+                onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}
+                disabled={paginaActual === totalPaginas}
+              >
+                Siguiente &raquo;
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {showModal && (

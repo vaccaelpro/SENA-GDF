@@ -129,7 +129,7 @@ exports.registrarUsuario = async (data) => {
 };
 
 
-exports.generarTokenRecuperacion = async (correo) => {
+exports.generarTokenRecuperacion = async (correo, hostOrigin = null) => {
     const correoNormalizado = String(correo).trim().toLowerCase();
 
     const [usuarios] = await db.query(
@@ -163,23 +163,26 @@ exports.generarTokenRecuperacion = async (correo) => {
         [tokenHash, usuarioId]
     );
 
-    // Configuración resiliente del transporte de correo para producción
-    const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
-        },
-        tls: {
-            rejectUnauthorized: false
-        }
-    });
+    // Determinar la URL del frontend dinámicamente según el ambiente (Producción/Render vs Local)
+    let frontUrl = hostOrigin ? String(hostOrigin).replace(/\/$/, "") : "";
+    if (!frontUrl || frontUrl.includes("localhost") && process.env.FRONT_URL && !process.env.FRONT_URL.includes("localhost")) {
+        frontUrl = process.env.FRONT_URL.replace(/\/$/, "");
+    }
+    if (!frontUrl) {
+        frontUrl = "http://localhost:3000";
+    }
 
-    const frontUrl = (process.env.FRONT_URL || "http://localhost:3000").replace(/\/$/, "");
     const enlace = `${frontUrl}/restablecer/${tokenPlano}`;
+    const emailUser = process.env.EMAIL_USER;
+    const emailPass = process.env.EMAIL_PASS;
 
-    await transporter.sendMail({
-        from: `"SENA GDF - Soporte" <${process.env.EMAIL_USER}>`,
+    if (!emailUser || !emailPass) {
+        logger.error('AUTH_SVC', 'Variables EMAIL_USER o EMAIL_PASS no están configuradas en las variables de entorno');
+        throw new Error("Configuración del servidor de correo incompleta en producción. Contacta al administrador.");
+    }
+
+    const mailOptions = {
+        from: `"SENA GDF - Soporte" <${emailUser}>`,
         to: correoNormalizado,
         subject: "Recuperación de Contraseña - SENA GDF",
         html: `
@@ -214,9 +217,47 @@ exports.generarTokenRecuperacion = async (correo) => {
             </div>
         </div>
         `,
-    });
+    };
 
-    logger.info('AUTH_SVC', 'Email de recuperacion enviado exitosamente', { usuarioId });
+    // Estrategia de envío resiliente: Puerto 465 (SSL) con Fallback automático a Puerto 587 (STARTTLS)
+    try {
+        const transporter465 = nodemailer.createTransport({
+            host: process.env.EMAIL_HOST || "smtp.gmail.com",
+            port: 465,
+            secure: true,
+            auth: { user: emailUser, pass: emailPass },
+            connectionTimeout: 8000,
+            greetingTimeout: 5000,
+            socketTimeout: 10000,
+            tls: { rejectUnauthorized: false }
+        });
+        await transporter465.sendMail(mailOptions);
+        logger.info('AUTH_SVC', 'Email enviado vía Puerto 465 (SSL)', { usuarioId });
+    } catch (err465) {
+        logger.warn('AUTH_SVC', 'Fallo al enviar vía puerto 465, probando fallback puerto 587...', { error: err465.message });
+        try {
+            const transporter587 = nodemailer.createTransport({
+                host: process.env.EMAIL_HOST || "smtp.gmail.com",
+                port: 587,
+                secure: false,
+                requireTLS: true,
+                auth: { user: emailUser, pass: emailPass },
+                connectionTimeout: 8000,
+                greetingTimeout: 5000,
+                socketTimeout: 10000,
+                tls: { rejectUnauthorized: false }
+            });
+            await transporter587.sendMail(mailOptions);
+            logger.info('AUTH_SVC', 'Email enviado vía Puerto 587 (STARTTLS)', { usuarioId });
+        } catch (err587) {
+            logger.error('AUTH_SVC', 'Fallo crítico al enviar correo en ambos puertos (465 y 587)', {
+                err465: err465.message,
+                err587: err587.message
+            });
+            throw new Error(`Error al enviar el correo: ${err587.message || err465.message}`);
+        }
+    }
+
     return { success: true };
 };
 

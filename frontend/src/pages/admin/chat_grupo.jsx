@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 import "../../css/chat_grupo_admin.css";
 import {
   obtenerMensajesGrupo,
@@ -85,7 +86,12 @@ const Chat_admin = () => {
     if (!nuevoMensaje.trim()) return;
 
     if (!usuarioActual || !usuarioActual.id_usuario) {
-      alert("No se encontró la información del usuario en sesión.");
+      Swal.fire({
+        icon: "error",
+        title: "Sesión no Encontrada",
+        text: "No se encontró la información del usuario en sesión.",
+        confirmButtonColor: "#28a745",
+      });
       return;
     }
 
@@ -98,7 +104,12 @@ const Chat_admin = () => {
       fetchMensajes(); // Recargar los mensajes tras enviar
     } catch (error) {
       console.error("Error al enviar mensaje:", error);
-      alert("Error al enviar el mensaje.");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo enviar el mensaje.",
+        confirmButtonColor: "#28a745",
+      });
     }
   };
 
@@ -120,18 +131,48 @@ const Chat_admin = () => {
       fetchMensajes();
     } catch (error) {
       console.error("Error al actualizar mensaje:", error);
-      alert("Error al actualizar el mensaje.");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo actualizar el mensaje.",
+        confirmButtonColor: "#28a745",
+      });
     }
   };
 
   const handleDeleteMessage = async (msgId) => {
-    if (!window.confirm("¿Estás seguro de que quieres eliminar este mensaje?")) return;
+    const result = await Swal.fire({
+      title: "¿Eliminar mensaje?",
+      text: "¿Estás seguro de que deseas eliminar este mensaje del chat?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc3545",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       await eliminarMensaje(msgId);
+      Swal.fire({
+        icon: "success",
+        title: "¡Mensaje Eliminado!",
+        text: "El mensaje ha sido eliminado del grupo.",
+        timer: 1800,
+        showConfirmButton: false,
+      });
       fetchMensajes();
     } catch (error) {
       console.error("Error al eliminar mensaje:", error);
-      alert("Error al eliminar el mensaje.");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo eliminar el mensaje.",
+        confirmButtonColor: "#28a745",
+      });
     }
   };
 

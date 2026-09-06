@@ -78,11 +78,14 @@ exports.crearGrupo = async (req, res) => {
             return res.status(400).json({ error: 'Faltan campos obligatorios' });
         }
         const result = await service.crearGrupo(req.body);
+        if (result.error) {
+            return res.status(400).json({ error: result.message });
+        }
         logger.info('ADMIN', 'Grupo creado', { nombre, tipo_apoyo, usuarios_agregados: result.usuarios_agregados });
         res.status(201).json(result);
     } catch (error) {
         logger.error('ADMIN', 'Error al crear grupo', { error: error.message });
-        res.status(500).json({ error: 'Error al crear el grupo' });
+        res.status(500).json({ error: error.message || 'Error al crear el grupo' });
     }
 }
 

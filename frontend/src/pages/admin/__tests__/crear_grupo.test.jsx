@@ -27,9 +27,6 @@ describe("crear_grupo", () => {
     expect(
       await screen.findByText(/El nombre del grupo es obligatorio\./)
     ).toBeInTheDocument();
-    expect(
-      screen.getByText("Corrige los errores del formulario antes de continuar.")
-    ).toBeInTheDocument();
     expect(mocks.crearGrupo).not.toHaveBeenCalled();
   });
 

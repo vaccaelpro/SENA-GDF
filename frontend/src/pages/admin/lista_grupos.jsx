@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import "../../css/lista_grupos.css"
+import "../../css/lista_grupos.css";
+import Swal from "sweetalert2";
 import {
   FaUsers,
   FaPlusCircle,
@@ -38,15 +39,38 @@ const Lista_grupos = () => {
   }, []);
 
   const handleDeleteGrupo = async (id) => {
-    if (!window.confirm("¿Estás seguro de que quieres eliminar este grupo? Se perderán todos sus mensajes y asociaciones.")) {
-      return;
-    }
+    const result = await Swal.fire({
+      title: "¿Eliminar grupo?",
+      text: "Se perderán todos sus mensajes y asociaciones asociadas a este grupo.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc3545",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Sí, eliminar grupo",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       await eliminarGrupo(id);
+      Swal.fire({
+        icon: "success",
+        title: "¡Grupo Eliminado!",
+        text: "El grupo ha sido eliminado exitosamente.",
+        timer: 1800,
+        showConfirmButton: false,
+      });
       fetchGrupos();
     } catch (error) {
       console.error("Error eliminando el grupo:", error);
-      alert("Error al eliminar el grupo.");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo eliminar el grupo. Inténtalo de nuevo.",
+        confirmButtonColor: "#28a745",
+      });
     }
   };
 
@@ -61,13 +85,35 @@ const Lista_grupos = () => {
   };
 
   const handleSaveGrupo = async (id) => {
+    if (!editForm.nombre || !editForm.nombre.trim()) {
+      Swal.fire({
+        icon: "warning",
+        title: "Nombre Requerido",
+        text: "El nombre del grupo no puede estar vacío.",
+        confirmButtonColor: "#28a745",
+      });
+      return;
+    }
+
     try {
       await actualizarGrupo(id, editForm);
+      Swal.fire({
+        icon: "success",
+        title: "¡Grupo Actualizado!",
+        text: "La información del grupo ha sido actualizada correctamente.",
+        timer: 1800,
+        showConfirmButton: false,
+      });
       setEditingGroupId(null);
       fetchGrupos();
     } catch (error) {
       console.error("Error actualizando el grupo:", error);
-      alert("Error al actualizar el grupo.");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo actualizar el grupo. Inténtalo de nuevo.",
+        confirmButtonColor: "#28a745",
+      });
     }
   };
 
