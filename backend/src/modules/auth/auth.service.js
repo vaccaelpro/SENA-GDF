@@ -1,7 +1,7 @@
 const db = require("../../config/database");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
-const nodemailer = require("nodemailer");
+const fetch = require("node-fetch");
 const logger = require("../../utils/logger");
 const jwt = require("jsonwebtoken");
 
@@ -33,7 +33,7 @@ exports.validarLogin = async (tipo_documento, documento, contrasena) => {
                 id: usuario.id_usuario,
                 rol: usuario.rol,
             },
-            process.env.JWT_SECRET,{expiresIn: process.env.JWT_EXPIRES_IN}
+            process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN }
         )
 
         return {
@@ -58,7 +58,7 @@ exports.validarLogin = async (tipo_documento, documento, contrasena) => {
 // Usamos funciones de flecha pq son más sencillas de entender
 
 exports.cerrarSesion = async () => {
-    return {success: true, message: "Sesión cerrada correctamente" };
+    return { success: true, message: "Sesión cerrada correctamente" };
 };
 
 exports.registrarUsuario = async (data) => {
@@ -129,6 +129,111 @@ exports.registrarUsuario = async (data) => {
 };
 
 
+/**
+ * Envía un correo electrónico utilizando la API REST de Brevo (Sendinblue).
+ * Es 100% GRATUITA (300 correos/día), NO requiere tarjeta de crédito y funciona vía HTTPS (puerto 443),
+ * evitando los bloqueos de puertos SMTP en plataformas de producción como Render.
+ */
+async function enviarCorreoBrevoAPI({ to, subject, html }) {
+    const brevoApiKey = process.env.BREVO_API_KEY;
+    const emailUser = process.env.EMAIL_USER || "senagdf@gmail.com";
+
+    if (!brevoApiKey) {
+        throw new Error("Falta la variable BREVO_API_KEY en las variables de entorno.");
+    }
+
+    logger.info('AUTH_SVC', `Enviando correo con Brevo API`, { from: emailUser, to: to, subject: subject });
+
+    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+            "accept": "application/json",
+            "api-key": brevoApiKey,
+            "content-type": "application/json",
+        },
+        body: JSON.stringify({
+            sender: { name: "SENA GDF - Soporte", email: emailUser },
+            to: [{ email: to }],
+            subject: subject,
+            htmlContent: html,
+        }),
+    });
+
+    const responseData = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        logger.error('AUTH_SVC', 'Error al enviar correo via Brevo API', { status: response.status, error: responseData });
+        throw new Error(`Error al enviar el correo via Brevo: ${responseData.message || 'Fallo en la entrega'}`);
+    }
+
+    logger.info('AUTH_SVC', 'Correo enviado exitosamente vía Brevo API', { messageId: responseData.messageId, to: to });
+    return true;
+}
+
+/**
+ * Envía un correo electrónico utilizando la API REST oficial de Gmail (OAuth2).
+ */
+async function enviarCorreoGmailAPI({ to, subject, html }) {
+    const clientId = process.env.GMAIL_CLIENT_ID;
+    const clientSecret = process.env.GMAIL_CLIENT_SECRET;
+    const refreshToken = process.env.GMAIL_REFRESH_TOKEN;
+    const emailUser = process.env.EMAIL_USER || "senagdf@gmail.com";
+
+    if (!clientId || !clientSecret || !refreshToken) {
+        throw new Error("Faltan variables de configuración de correo (BREVO_API_KEY o GMAIL_CLIENT_ID).");
+    }
+
+    const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+            client_id: clientId,
+            client_secret: clientSecret,
+            refresh_token: refreshToken,
+            grant_type: "refresh_token",
+        }),
+    });
+
+    const tokenData = await tokenResponse.json();
+    if (!tokenResponse.ok) {
+        logger.error('AUTH_SVC', 'Error renovando access token de Gmail OAuth2', { error: tokenData });
+        throw new Error(`Error de autenticación con Gmail: ${tokenData.error_description || tokenData.error}`);
+    }
+
+    const strEmail = [
+        `From: "SENA GDF - Soporte" <${emailUser}>`,
+        `To: ${to}`,
+        `Subject: =?utf-8?B?${Buffer.from(subject).toString('base64')}?=`,
+        'MIME-Version: 1.0',
+        'Content-Type: text/html; charset=utf-8',
+        '',
+        html,
+    ].join('\r\n');
+
+    const base64UrlEmail = Buffer.from(strEmail)
+        .toString('base64')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
+
+    const gmailResponse = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${tokenData.access_token}`,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ raw: base64UrlEmail }),
+    });
+
+    if (!gmailResponse.ok) {
+        const errData = await gmailResponse.json().catch(() => ({}));
+        logger.error('AUTH_SVC', 'Error al enviar mensaje vía Gmail API', { status: gmailResponse.status, error: errData });
+        throw new Error("No se pudo enviar el correo a través de la API de Gmail.");
+    }
+
+    return true;
+}
+
 exports.generarTokenRecuperacion = async (correo, hostOrigin = null) => {
     const correoNormalizado = String(correo).trim().toLowerCase();
 
@@ -143,11 +248,11 @@ exports.generarTokenRecuperacion = async (correo, hostOrigin = null) => {
 
     const usuarioId = usuarios[0].id_usuario;
 
-    // Generar token plano seguro y hash SHA-256 para búsqueda ultrarrápida (O(1))
+    // Generar token plano seguro y hash SHA-256 para búsqueda ultrarrápida O(1)
     const tokenPlano = crypto.randomBytes(32).toString("hex");
     const tokenHash = crypto.createHash("sha256").update(tokenPlano).digest("hex");
 
-    // Invalidar TODOS los tokens anteriores de este usuario para que solo 1 token esté activo
+    // Invalidar TODOS los tokens anteriores del usuario — solo 1 token activo a la vez
     await db.query(
         `UPDATE recuperacion_contrasena
          SET fecha_restablecimiento = NOW()
@@ -163,99 +268,68 @@ exports.generarTokenRecuperacion = async (correo, hostOrigin = null) => {
         [tokenHash, usuarioId]
     );
 
-    // Determinar la URL del frontend dinámicamente según el ambiente (Producción/Render vs Local)
+    // Determinar URL del frontend: producción tiene prioridad sobre localhost
     let frontUrl = hostOrigin ? String(hostOrigin).replace(/\/$/, "") : "";
-    if (!frontUrl || frontUrl.includes("localhost") && process.env.FRONT_URL && !process.env.FRONT_URL.includes("localhost")) {
-        frontUrl = process.env.FRONT_URL.replace(/\/$/, "");
+    const envFrontUrl = process.env.FRONT_URL ? process.env.FRONT_URL.replace(/\/$/, "") : "";
+    if (!frontUrl || (frontUrl.includes("localhost") && envFrontUrl && !envFrontUrl.includes("localhost"))) {
+        frontUrl = envFrontUrl;
     }
     if (!frontUrl) {
         frontUrl = "http://localhost:3000";
     }
 
     const enlace = `${frontUrl}/restablecer/${tokenPlano}`;
-    const emailUser = process.env.EMAIL_USER;
-    const emailPass = process.env.EMAIL_PASS;
+    const anioActual = new Date().getFullYear();
 
-    if (!emailUser || !emailPass) {
-        logger.error('AUTH_SVC', 'Variables EMAIL_USER o EMAIL_PASS no están configuradas en las variables de entorno');
-        throw new Error("Configuración del servidor de correo incompleta en producción. Contacta al administrador.");
-    }
-
-    const mailOptions = {
-        from: `"SENA GDF - Soporte" <${emailUser}>`,
-        to: correoNormalizado,
-        subject: "Recuperación de Contraseña - SENA GDF",
-        html: `
-        <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; border-radius: 10px;">
-            <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #28a745; margin: 0;">SENA GDF</h1>
-                    <p style="color: #666; font-size: 16px;">Gestión de Finanzas</p>
-                </div>
-                
-                <h2 style="color: #333; text-align: center;">Recuperación de Contraseña</h2>
-                
-                <p style="color: #555; font-size: 16px; line-height: 1.6;">
-                    Hola,<br><br>
-                    Has solicitado restablecer tu contraseña para acceder al sistema SENA GDF. Si no reconoces esta solicitud, puedes ignorar este correo.
-                </p>
-                
-                <div style="text-align: center; margin: 40px 0;">
-                    <a href="${enlace}" style="background-color: #28a745; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 18px; display: inline-block;">
-                        Restablecer Contraseña
-                    </a>
-                </div>
-                
-                <p style="color: #888; font-size: 14px; text-align: center; border-top: 1px solid #eee; padding-top: 20px;">
-                    Este enlace es válido únicamente por <b>15 minutos</b>.<br>
-                    Nota: Al solicitar un nuevo enlace, cualquier enlace solicitado anteriormente quedará automáticamente invalidado.
-                </p>
-                
-                <div style="text-align: center; margin-top: 30px; font-size: 12px; color: #aaa;">
-                    &copy; ${new Date().getFullYear()} SENA GDF. Todos los derechos reservados.
-                </div>
+    const htmlBody = `
+    <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="color: #28a745; margin: 0;">SENA GDF</h1>
+                <p style="color: #666; font-size: 16px;">Gestión de Finanzas</p>
+            </div>
+            <h2 style="color: #333; text-align: center;">Recuperación de Contraseña</h2>
+            <p style="color: #555; font-size: 16px; line-height: 1.6;">
+                Hola,<br><br>
+                Has solicitado restablecer tu contraseña para acceder al sistema SENA GDF.
+                Si no reconoces esta solicitud, puedes ignorar este correo de forma segura.
+            </p>
+            <div style="text-align: center; margin: 40px 0;">
+                <a href="${enlace}"
+                   style="background-color: #28a745; color: white; padding: 15px 30px;
+                          text-decoration: none; border-radius: 8px; font-weight: bold;
+                          font-size: 18px; display: inline-block;">
+                    Restablecer Contraseña
+                </a>
+            </div>
+            <p style="color: #888; font-size: 14px; text-align: center; border-top: 1px solid #eee; padding-top: 20px;">
+                Este enlace es válido únicamente por <b>15 minutos</b>.<br>
+                Al solicitar un nuevo enlace, el anterior queda automáticamente invalidado.
+            </p>
+            <div style="text-align: center; margin-top: 30px; font-size: 12px; color: #aaa;">
+                &copy; ${anioActual} SENA GDF. Todos los derechos reservados.
             </div>
         </div>
-        `,
-    };
+    </div>`;
 
-    // Estrategia de envío resiliente: Puerto 465 (SSL) con Fallback automático a Puerto 587 (STARTTLS)
-    try {
-        const transporter465 = nodemailer.createTransport({
-            host: process.env.EMAIL_HOST || "smtp.gmail.com",
-            port: 465,
-            secure: true,
-            auth: { user: emailUser, pass: emailPass },
-            connectionTimeout: 8000,
-            greetingTimeout: 5000,
-            socketTimeout: 10000,
-            tls: { rejectUnauthorized: false }
+    // Envío del correo utilizando la API disponible (Brevo API o Gmail API)
+    if (process.env.BREVO_API_KEY) {
+        await enviarCorreoBrevoAPI({
+            to: correoNormalizado,
+            subject: "Recuperación de Contraseña - SENA GDF",
+            html: htmlBody,
         });
-        await transporter465.sendMail(mailOptions);
-        logger.info('AUTH_SVC', 'Email enviado vía Puerto 465 (SSL)', { usuarioId });
-    } catch (err465) {
-        logger.warn('AUTH_SVC', 'Fallo al enviar vía puerto 465, probando fallback puerto 587...', { error: err465.message });
-        try {
-            const transporter587 = nodemailer.createTransport({
-                host: process.env.EMAIL_HOST || "smtp.gmail.com",
-                port: 587,
-                secure: false,
-                requireTLS: true,
-                auth: { user: emailUser, pass: emailPass },
-                connectionTimeout: 8000,
-                greetingTimeout: 5000,
-                socketTimeout: 10000,
-                tls: { rejectUnauthorized: false }
-            });
-            await transporter587.sendMail(mailOptions);
-            logger.info('AUTH_SVC', 'Email enviado vía Puerto 587 (STARTTLS)', { usuarioId });
-        } catch (err587) {
-            logger.error('AUTH_SVC', 'Fallo crítico al enviar correo en ambos puertos (465 y 587)', {
-                err465: err465.message,
-                err587: err587.message
-            });
-            throw new Error(`Error al enviar el correo: ${err587.message || err465.message}`);
-        }
+        logger.info('AUTH_SVC', 'Correo de recuperación enviado exitosamente vía Brevo API', { usuarioId, destinatario: correoNormalizado });
+    } else if (process.env.GMAIL_CLIENT_ID) {
+        await enviarCorreoGmailAPI({
+            to: correoNormalizado,
+            subject: "Recuperación de Contraseña - SENA GDF",
+            html: htmlBody,
+        });
+        logger.info('AUTH_SVC', 'Correo de recuperación enviado exitosamente vía Gmail API', { usuarioId, destinatario: correoNormalizado });
+    } else {
+        logger.error('AUTH_SVC', 'No se ha configurado ninguna API de correo (BREVO_API_KEY ni GMAIL_CLIENT_ID)');
+        throw new Error("Configuración del servidor de correo incompleta en el servidor. Contacta al administrador.");
     }
 
     return { success: true };
