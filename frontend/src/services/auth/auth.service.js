@@ -18,6 +18,12 @@ export const recuperarPassword = async (correo) => {
   return res.data;
 };
 
+/** Validar si un token de recuperación sigue activo */
+export const validarToken = async (token) => {
+  const res = await api.get(`/auth/validar-token/${token}`);
+  return res.data;
+};
+
 /** Restablecer la contraseña con un token válido */
 export const restablecerPassword = async (token, nuevaContrasena) => {
   const res = await api.post("/auth/restablecer", { token, nuevaContrasena });

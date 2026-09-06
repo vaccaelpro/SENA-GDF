@@ -130,9 +130,11 @@ exports.registrarUsuario = async (data) => {
 
 
 exports.generarTokenRecuperacion = async (correo) => {
+    const correoNormalizado = String(correo).trim().toLowerCase();
+
     const [usuarios] = await db.query(
-        "SELECT id_usuario FROM usuario WHERE correo_electronico = ?",
-        [correo]
+        "SELECT id_usuario FROM usuario WHERE LOWER(TRIM(correo_electronico)) = ?",
+        [correoNormalizado]
     );
 
     if (usuarios.length === 0) {
@@ -141,40 +143,44 @@ exports.generarTokenRecuperacion = async (correo) => {
 
     const usuarioId = usuarios[0].id_usuario;
 
+    // Generar token plano seguro y hash SHA-256 para búsqueda ultrarrápida (O(1))
     const tokenPlano = crypto.randomBytes(32).toString("hex");
-    const tokenHash = await bcrypt.hash(tokenPlano, 10);
-    // Es necesario crear una actualización en la base de datos para invalidar los otros tokens generados para que solo funcione el actual
-    // Esto se hace para evitar que puedan llegar a usar tokens que deberían estar inválidos
+    const tokenHash = crypto.createHash("sha256").update(tokenPlano).digest("hex");
 
+    // Invalidar TODOS los tokens anteriores de este usuario para que solo 1 token esté activo
     await db.query(
         `UPDATE recuperacion_contrasena
-        SET fecha_restablecimiento = NOW()
-        WHERE usuario_id_usuario = ?
-        AND fecha_restablecimiento IS NULL`, [usuarioId]
+         SET fecha_restablecimiento = NOW()
+         WHERE usuario_id_usuario = ?
+           AND fecha_restablecimiento IS NULL`,
+        [usuarioId]
     );
 
-
-    // Aquí se está generando un nuevo token
+    // Insertar el nuevo token activo
     await db.query(
-        `INSERT INTO recuperacion_contrasena 
-     (token, fecha_solicitud, usuario_id_usuario)
-     VALUES (?, NOW(), ?)`,
+        `INSERT INTO recuperacion_contrasena (token, fecha_solicitud, usuario_id_usuario)
+         VALUES (?, NOW(), ?)`,
         [tokenHash, usuarioId]
     );
 
+    // Configuración resiliente del transporte de correo para producción
     const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS,
         },
+        tls: {
+            rejectUnauthorized: false
+        }
     });
 
-    const enlace = `${process.env.FRONT_URL}/restablecer/${tokenPlano}`;
+    const frontUrl = (process.env.FRONT_URL || "http://localhost:3000").replace(/\/$/, "");
+    const enlace = `${frontUrl}/restablecer/${tokenPlano}`;
 
     await transporter.sendMail({
         from: `"SENA GDF - Soporte" <${process.env.EMAIL_USER}>`,
-        to: correo,
+        to: correoNormalizado,
         subject: "Recuperación de Contraseña - SENA GDF",
         html: `
         <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; border-radius: 10px;">
@@ -188,7 +194,7 @@ exports.generarTokenRecuperacion = async (correo) => {
                 
                 <p style="color: #555; font-size: 16px; line-height: 1.6;">
                     Hola,<br><br>
-                    Has solicitado restablecer tu contraseña para acceder al sistema SENA GDF. Si no te valída, asegurate de no haber pedido varios correos de recuperación
+                    Has solicitado restablecer tu contraseña para acceder al sistema SENA GDF. Si no reconoces esta solicitud, puedes ignorar este correo.
                 </p>
                 
                 <div style="text-align: center; margin: 40px 0;">
@@ -198,8 +204,8 @@ exports.generarTokenRecuperacion = async (correo) => {
                 </div>
                 
                 <p style="color: #888; font-size: 14px; text-align: center; border-top: 1px solid #eee; padding-top: 20px;">
-                    Este enlace es válido por <b>15 minutos</b>.<br>
-                    Si no solicitaste este cambio, puedes ignorar este correo de forma segura.
+                    Este enlace es válido únicamente por <b>15 minutos</b>.<br>
+                    Nota: Al solicitar un nuevo enlace, cualquier enlace solicitado anteriormente quedará automáticamente invalidado.
                 </p>
                 
                 <div style="text-align: center; margin-top: 30px; font-size: 12px; color: #aaa;">
@@ -210,87 +216,103 @@ exports.generarTokenRecuperacion = async (correo) => {
         `,
     });
 
-    logger.info('AUTH_SVC', 'Email de recuperacion enviado exitosamente');
+    logger.info('AUTH_SVC', 'Email de recuperacion enviado exitosamente', { usuarioId });
     return { success: true };
-
 };
 
+/**
+ * Valida un token de recuperación plano recibido del usuario.
+ * @param {string} tokenPlano - El token en texto plano enviado por URL
+ * @returns {Promise<object>} Registro de recuperación encontrado si es válido
+ */
 exports.validarTokenRecuperacion = async (tokenPlano) => {
-    const [tokens] = await db.query(
-        `SELECT id_recuperacion, token, fecha_solicitud 
-     FROM recuperacion_contrasena 
-     WHERE fecha_restablecimiento IS NULL`
+    if (!tokenPlano || typeof tokenPlano !== 'string') {
+        throw new Error("Token de recuperación no proporcionado");
+    }
+
+    const tokenHash = crypto.createHash("sha256").update(tokenPlano).digest("hex");
+
+    // 1. Búsqueda directa ultrarrápida por hash SHA-256 o token exacto (O(1))
+    const [tokensDirectos] = await db.query(
+        `SELECT id_recuperacion, token, fecha_solicitud, usuario_id_usuario,
+                TIMESTAMPDIFF(MINUTE, fecha_solicitud, NOW()) AS minutos_transcurridos
+         FROM recuperacion_contrasena 
+         WHERE (token = ? OR token = ?) AND fecha_restablecimiento IS NULL
+         ORDER BY id_recuperacion DESC
+         LIMIT 1`,
+        [tokenHash, tokenPlano]
     );
 
-    for (const registro of tokens) {
-        const coincide = await bcrypt.compare(tokenPlano, registro.token);
-        if (coincide) {
-            const esValido =
-                new Date() - new Date(registro.fecha_solicitud) <= 15 * 60 * 1000;
+    let registro = tokensDirectos.length > 0 ? tokensDirectos[0] : null;
 
-            if (!esValido) {
-                throw new Error("El token ha expirado");
+    // 2. Fallback para tokens legados almacenados con bcrypt
+    if (!registro) {
+        const [tokensBcrypt] = await db.query(
+            `SELECT id_recuperacion, token, fecha_solicitud, usuario_id_usuario,
+                    TIMESTAMPDIFF(MINUTE, fecha_solicitud, NOW()) AS minutos_transcurridos
+             FROM recuperacion_contrasena 
+             WHERE fecha_restablecimiento IS NULL AND token LIKE '$2%'
+             ORDER BY id_recuperacion DESC
+             LIMIT 5`
+        );
+
+        for (const r of tokensBcrypt) {
+            const coincide = await bcrypt.compare(tokenPlano, r.token);
+            if (coincide) {
+                registro = r;
+                break;
             }
-
-            return registro.id_recuperacion;
         }
     }
 
-    throw new Error("Token inválido");
+    if (!registro) {
+        throw new Error("El enlace de recuperación es inválido o ya fue utilizado.");
+    }
+
+    // 3. Validación de expiración estricta de 15 minutos calculada directamente por la BD
+    if (registro.minutos_transcurridos > 15) {
+        await db.query(
+            `UPDATE recuperacion_contrasena SET fecha_restablecimiento = NOW() WHERE id_recuperacion = ?`,
+            [registro.id_recuperacion]
+        );
+        throw new Error("El enlace de recuperación ha expirado. Por favor, solicita uno nuevo.");
+    }
+
+    return registro;
 };
 
 exports.cambiarPassword = async (tokenPlano, nuevaContrasena) => {
     try {
-        const [tokens] = await db.query(
-            `SELECT id_recuperacion, token, fecha_solicitud, usuario_id_usuario 
-             FROM recuperacion_contrasena 
-             WHERE fecha_restablecimiento IS NULL`
-        );
-
-        let registroEncontrado = null;
-
-        for (const registro of tokens) {
-            const coincide = await bcrypt.compare(tokenPlano, registro.token);
-            if (coincide) {
-                const esValido = new Date() - new Date(registro.fecha_solicitud) <= 15 * 60 * 1000;
-                if (!esValido) {
-                    throw new Error("El token ha expirado");
-                }
-                registroEncontrado = registro;
-                break;
-            }
+        if (!nuevaContrasena || nuevaContrasena.length < 8) {
+            throw new Error("La nueva contraseña debe tener al menos 8 caracteres.");
         }
 
-        if (!registroEncontrado) {
-            throw new Error("Token inválido");
-        }
+        // Validar el token usando el método de búsqueda rápida
+        const registro = await exports.validarTokenRecuperacion(tokenPlano);
+
+        // Hashear la nueva contraseña
         const hash = await bcrypt.hash(nuevaContrasena, 10);
 
+        // Actualizar la contraseña del usuario
         await db.query(
             "UPDATE usuario SET contrasena = ?, ultima_actualizacion = NOW() WHERE id_usuario = ?",
-            [hash, registroEncontrado.usuario_id_usuario]
+            [hash, registro.usuario_id_usuario]
         );
-        // Esto antes solo invalidaba el token recien usado pero no los tokens anteriores
 
-        // await db.query(
-        //     "UPDATE recuperacion_contrasena SET fecha_restablecimiento = NOW() WHERE id_recuperacion = ?",
-        //     [registroEncontrado.id_recuperacion]
-        // );
-
-        // Ahora invalidaremos todos los tokens antiguos que estén activos para que no puedan usarlos
+        // Invalidar TODOS los tokens de recuperación pendientes del usuario (evita reutilización)
         await db.query(
             `UPDATE recuperacion_contrasena 
-            SET fecha_restablecimiento = NOW() 
-            WHERE usuario_id_usuario = ? 
-            AND fecha_restablecimiento IS NULL`,
-            [registroEncontrado.usuario_id_usuario]
+             SET fecha_restablecimiento = NOW() 
+             WHERE usuario_id_usuario = ? 
+               AND fecha_restablecimiento IS NULL`,
+            [registro.usuario_id_usuario]
         );
-        // Ahora solo hay un token activo por usuario y no varios para evitar cambios de contraseña repentinos o por hackeos de correos
+
+        logger.info('AUTH_SVC', 'Contraseña restablecida exitosamente para el usuario', { id_usuario: registro.usuario_id_usuario });
         return { success: true };
 
     } catch (error) {
         logger.error('AUTH_SVC', 'Error en cambiarPassword', { error: error.message });
         throw error;
     }
-
 };

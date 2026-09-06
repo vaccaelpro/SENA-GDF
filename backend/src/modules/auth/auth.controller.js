@@ -111,9 +111,30 @@ exports.recuperarPassword = async (req, res) => {
     }
 };
 
+exports.validarToken = async (req, res) => {
+    try {
+        const token = req.params.token || req.body.token;
+
+        if (!token) {
+            return res.status(400).json({ success: false, message: "Token requerido" });
+        }
+
+        await service.validarTokenRecuperacion(token);
+        res.json({ success: true, message: "Token válido" });
+
+    } catch (error) {
+        logger.warn('AUTH', 'Validación de token fallida', { error: error.message });
+        res.status(400).json({ success: false, message: error.message || "Token inválido o expirado" });
+    }
+};
+
 exports.restablecerPassword = async (req, res) => {
     try {
         const { token, nuevaContrasena } = req.body;
+
+        if (!token || !nuevaContrasena) {
+            return res.status(400).json({ message: "Token y nueva contraseña requeridos" });
+        }
 
         await service.cambiarPassword(token, nuevaContrasena);
 
@@ -121,7 +142,7 @@ exports.restablecerPassword = async (req, res) => {
         res.json({ message: "Contraseña actualizada" });
 
     } catch (error) {
-        logger.warn('AUTH', 'Intento de restablecimiento con token invalido o expirado');
+        logger.warn('AUTH', 'Intento de restablecimiento fallido', { error: error.message });
         res.status(400).json({ message: "Token inválido o expirado" });
     }
 };

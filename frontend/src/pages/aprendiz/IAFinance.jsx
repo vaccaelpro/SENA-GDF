@@ -1,40 +1,73 @@
 import "../../css/IAFinance.css";
 import { useEffect, useRef, useState, useCallback } from "react";
 import Chart from "chart.js/auto";
-import { 
-  FaPaperPlane, 
-  FaWallet, 
-  FaPlus, 
-  FaTrash, 
-  FaTimes, 
-  FaArrowUp, 
-  FaArrowDown, 
-  FaPiggyBank, 
+import {
+  FaPaperPlane,
+  FaWallet,
+  FaPlus,
+  FaTrash,
+  FaTimes,
+  FaArrowUp,
+  FaArrowDown,
+  FaPiggyBank,
   FaExchangeAlt,
-  FaCalendarAlt
+  FaCalendarAlt,
+  FaRobot,
+  FaExclamationTriangle,
 } from "react-icons/fa";
 import { listarMetas } from "../../services/aprendiz/metas.service";
-import { 
-  listarIngresos, 
-  crearIngreso, 
-  eliminarIngreso, 
-  listarGastos, 
-  crearGasto, 
-  eliminarGasto 
+import {
+  listarIngresos,
+  crearIngreso,
+  eliminarIngreso,
+  listarGastos,
+  crearGasto,
+  eliminarGasto,
 } from "../../services/aprendiz/presupuesto.service";
+import {
+  enviarMensajeIA,
+  obtenerHistorialIA,
+  evaluarAlertaFinanciera,
+} from "../../services/aprendiz/ia.service";
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const formatCOP = (valor) =>
-  new Intl.NumberFormat("es-CO", { 
-    style: "currency", 
-    currency: "COP", 
-    maximumFractionDigits: 0 
+  new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    maximumFractionDigits: 0,
   }).format(valor || 0);
 
 const hoy = () => new Date().toISOString().split("T")[0];
 
-// ─── Modal de Gestión de Presupuesto ──────────────────────────────────────────
+/** Convierte texto plano con URLs en elementos React con <a> clicables */
+const renderizarTextoConLinks = (texto) => {
+  if (!texto) return null;
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const partes = texto.split(urlRegex);
+  return partes.map((parte, i) =>
+    urlRegex.test(parte) ? (
+      <a key={i} href={parte} target="_blank" rel="noopener noreferrer">
+        {parte}
+      </a>
+    ) : (
+      <span key={i}>{parte}</span>
+    )
+  );
+};
+
+/** Sugerencias rápidas para el chat */
+const SUGERENCIAS = [
+  "¿Cómo aplico la regla 50/30/20?",
+  "¿Qué es un fondo de emergencia?",
+  "¿Cómo puedo ahorrar más cada mes?",
+  "Muéstrame videos de educación financiera",
+];
+
+// ─── Modal de Gestión de Presupuesto ─────────────────────────────────────────
 const ModalPresupuesto = ({ onClose, onRefresh, idUsuario, ingresos, gastos }) => {
-  const [activeTab, setActiveTab] = useState("ingresos"); // "ingresos" o "gastos"
+  const [activeTab, setActiveTab] = useState("ingresos");
   const [monto, setMonto] = useState("");
   const [categoria, setCategoria] = useState("Alimentación");
   const [fecha, setFecha] = useState(hoy());
@@ -48,21 +81,19 @@ const ModalPresupuesto = ({ onClose, onRefresh, idUsuario, ingresos, gastos }) =
     }
     setError("");
     setSubmitting(true);
-
     try {
       if (activeTab === "ingresos") {
-        // Guarda ÚNICAMENTE en la tabla de ingresos
         await crearIngreso({
           monto: Number(monto),
           fecha_registro: fecha,
-          usuario_id_usuario: idUsuario
+          usuario_id_usuario: idUsuario,
         });
       } else {
         await crearGasto({
           categoria,
           monto: Number(monto),
           fecha_registro: fecha,
-          usuario_id_usuario: idUsuario
+          usuario_id_usuario: idUsuario,
         });
       }
       setMonto("");
@@ -107,13 +138,13 @@ const ModalPresupuesto = ({ onClose, onRefresh, idUsuario, ingresos, gastos }) =
         </div>
 
         <div className="modal-tabs">
-          <button 
+          <button
             className={`tab-btn ${activeTab === "ingresos" ? "active" : ""}`}
             onClick={() => { setActiveTab("ingresos"); setError(""); }}
           >
             <FaArrowUp className="text-success me-2" /> Ingresos
           </button>
-          <button 
+          <button
             className={`tab-btn ${activeTab === "gastos" ? "active" : ""}`}
             onClick={() => { setActiveTab("gastos"); setError(""); }}
           >
@@ -144,8 +175,8 @@ const ModalPresupuesto = ({ onClose, onRefresh, idUsuario, ingresos, gastos }) =
               {activeTab === "gastos" && (
                 <div className="form-group mb-3">
                   <label>Categoría *</label>
-                  <select 
-                    value={categoria} 
+                  <select
+                    value={categoria}
                     onChange={(e) => setCategoria(e.target.value)}
                     required
                   >
@@ -159,7 +190,9 @@ const ModalPresupuesto = ({ onClose, onRefresh, idUsuario, ingresos, gastos }) =
               )}
 
               <div className="form-group mb-3">
-                <label><FaCalendarAlt /> Fecha *</label>
+                <label>
+                  <FaCalendarAlt /> Fecha *
+                </label>
                 <input
                   type="date"
                   value={fecha}
@@ -168,32 +201,43 @@ const ModalPresupuesto = ({ onClose, onRefresh, idUsuario, ingresos, gastos }) =
                 />
               </div>
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className={`btn-modal-submit w-100 ${activeTab === "gastos" ? "btn-danger" : ""}`}
                 disabled={submitting}
               >
-                <FaPlus className="me-2" /> 
-                {submitting ? "Guardando..." : `Registrar ${activeTab === "ingresos" ? "Ingreso" : "Gasto"}`}
+                <FaPlus className="me-2" />
+                {submitting
+                  ? "Guardando..."
+                  : `Registrar ${activeTab === "ingresos" ? "Ingreso" : "Gasto"}`}
               </button>
             </form>
           </div>
 
           <div className="col-md-7 px-4">
-            <h5 className="fw-bold mb-3">Historial de {activeTab === "ingresos" ? "Ingresos" : "Gastos"}</h5>
+            <h5 className="fw-bold mb-3">
+              Historial de {activeTab === "ingresos" ? "Ingresos" : "Gastos"}
+            </h5>
             <div className="transaction-list">
               {activeTab === "ingresos" ? (
                 ingresos.length === 0 ? (
                   <p className="text-muted">No has registrado ingresos.</p>
                 ) : (
                   ingresos.map((i) => (
-                    <div className="transaction-item d-flex justify-content-between align-items-center mb-2 p-2 border-bottom" key={i.id_ingreso}>
+                    <div
+                      className="transaction-item d-flex justify-content-between align-items-center mb-2 p-2 border-bottom"
+                      key={i.id_ingreso}
+                    >
                       <div>
-                        <span className="fw-semibold text-success d-block">{formatCOP(i.monto)}</span>
-                        <small className="text-muted">{new Date(i.fecha_registro).toLocaleDateString()}</small>
+                        <span className="fw-semibold text-success d-block">
+                          {formatCOP(i.monto)}
+                        </span>
+                        <small className="text-muted">
+                          {new Date(i.fecha_registro).toLocaleDateString()}
+                        </small>
                       </div>
-                      <button 
-                        className="btn btn-sm text-danger" 
+                      <button
+                        className="btn btn-sm text-danger"
                         onClick={() => handleEliminar(i.id_ingreso, "ingreso")}
                       >
                         <FaTrash />
@@ -201,26 +245,33 @@ const ModalPresupuesto = ({ onClose, onRefresh, idUsuario, ingresos, gastos }) =
                     </div>
                   ))
                 )
+              ) : gastos.length === 0 ? (
+                <p className="text-muted">No has registrado gastos.</p>
               ) : (
-                gastos.length === 0 ? (
-                  <p className="text-muted">No has registrado gastos.</p>
-                ) : (
-                  gastos.map((g) => (
-                    <div className="transaction-item d-flex justify-content-between align-items-center mb-2 p-2 border-bottom" key={g.id_gasto}>
-                      <div>
-                        <span className="fw-semibold text-danger d-block">{formatCOP(g.monto)}</span>
-                        <small className="badge bg-secondary me-2">{g.categoria}</small>
-                        <small className="text-muted">{new Date(g.fecha_registro).toLocaleDateString()}</small>
-                      </div>
-                      <button 
-                        className="btn btn-sm text-danger" 
-                        onClick={() => handleEliminar(g.id_gasto, "gasto")}
-                      >
-                        <FaTrash />
-                      </button>
+                gastos.map((g) => (
+                  <div
+                    className="transaction-item d-flex justify-content-between align-items-center mb-2 p-2 border-bottom"
+                    key={g.id_gasto}
+                  >
+                    <div>
+                      <span className="fw-semibold text-danger d-block">
+                        {formatCOP(g.monto)}
+                      </span>
+                      <small className="badge bg-secondary me-2">
+                        {g.categoria}
+                      </small>
+                      <small className="text-muted">
+                        {new Date(g.fecha_registro).toLocaleDateString()}
+                      </small>
                     </div>
-                  ))
-                )
+                    <button
+                      className="btn btn-sm text-danger"
+                      onClick={() => handleEliminar(g.id_gasto, "gasto")}
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                ))
               )}
             </div>
           </div>
@@ -234,16 +285,30 @@ const ModalPresupuesto = ({ onClose, onRefresh, idUsuario, ingresos, gastos }) =
 const IAFinance = () => {
   const idUsuario = JSON.parse(localStorage.getItem("usuario") || "{}").id_usuario;
 
-  const chartRef = useRef(null);
-  const chartInstance = useRef(null);
+  // ── Refs ──────────────────────────────────────────────────────────────────
+  const chartRef       = useRef(null);
+  const chartInstance  = useRef(null);
+  const mensajesEndRef = useRef(null);
 
-  const [metas, setMetas] = useState([]);
+  // ── Estado: datos financieros ─────────────────────────────────────────────
+  const [metas,    setMetas]    = useState([]);
   const [ingresos, setIngresos] = useState([]);
-  const [gastos, setGastos] = useState([]);
+  const [gastos,   setGastos]   = useState([]);
+  const [loading,  setLoading]  = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
 
-  // Cargar todos los datos financieros
+  // ── Estado: chat IA ───────────────────────────────────────────────────────
+  const [mensajes,       setMensajes]       = useState([]); // [{tipo, contenido, ts}]
+  const [inputMensaje,   setInputMensaje]   = useState("");
+  const [enviando,       setEnviando]       = useState(false);
+  const [alertaBanner,   setAlertaBanner]   = useState(null); // mensaje de alerta o null
+
+  // ── Scroll automático al último mensaje ───────────────────────────────────
+  useEffect(() => {
+    mensajesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [mensajes, enviando]);
+
+  // ── Cargar datos financieros y alertas ────────────────────────────────────
   const cargarDatos = useCallback(async () => {
     if (!idUsuario) return;
     setLoading(true);
@@ -251,7 +316,7 @@ const IAFinance = () => {
       const [metasData, ingresosData, gastosData] = await Promise.all([
         listarMetas(idUsuario),
         listarIngresos(idUsuario),
-        listarGastos(idUsuario)
+        listarGastos(idUsuario),
       ]);
       setMetas(metasData);
       setIngresos(ingresosData);
@@ -263,15 +328,54 @@ const IAFinance = () => {
     }
   }, [idUsuario]);
 
+  // ── Cargar historial del chat desde la BD ─────────────────────────────────
+  const cargarHistorialChat = useCallback(async () => {
+    if (!idUsuario) return;
+    try {
+      const historial = await obtenerHistorialIA(idUsuario);
+      const msgs = historial.map((row) => ({
+        tipo: row.tipo,       // 'CHAT_USER' | 'CHAT_IA' | 'ALERTA'
+        contenido: row.contenido,
+        ts: row.fecha_interaccion,
+        id: row.id_interaccion,
+      }));
+      setMensajes(msgs);
+    } catch (err) {
+      console.error("Error al cargar historial IA:", err);
+    }
+  }, [idUsuario]);
+
+  // ── Evaluar alerta de balance al cargar ───────────────────────────────────
+  const verificarAlerta = useCallback(async () => {
+    if (!idUsuario) return;
+    try {
+      const alerta = await evaluarAlertaFinanciera(idUsuario);
+      if (alerta.alertaActiva) {
+        setAlertaBanner(alerta.mensaje);
+      } else {
+        setAlertaBanner(null);
+      }
+    } catch (err) {
+      console.error("Error al verificar alerta financiera:", err);
+    }
+  }, [idUsuario]);
+
   useEffect(() => {
     cargarDatos();
-  }, [cargarDatos]);
+    cargarHistorialChat();
+  }, [cargarDatos, cargarHistorialChat]);
 
-  // Dibujar y actualizar el gráfico dinámico de categorías de gastos
+  // Verificar alerta después de cargar los datos
+  useEffect(() => {
+    if (!loading) {
+      verificarAlerta();
+    }
+  }, [loading, verificarAlerta]);
+
+  // ── Gráfico de categorías ─────────────────────────────────────────────────
   useEffect(() => {
     if (loading) return;
 
-    // Calcular montos acumulados por categorías de gastos
     const dataCategorias = {
       Alimentación: 0,
       Transporte: 0,
@@ -289,35 +393,24 @@ const IAFinance = () => {
     });
 
     const labels = Object.keys(dataCategorias);
-    const data = Object.values(dataCategorias);
+    const data   = Object.values(dataCategorias);
     const totalGasto = data.reduce((acc, curr) => acc + curr, 0);
 
     if (chartInstance.current) {
       chartInstance.current.destroy();
     }
 
-    // Si no hay gastos, dibujamos un gráfico circular con una categoría dummy "Sin gastos"
     const finalLabels = totalGasto === 0 ? ["Sin gastos"] : labels.filter((_, idx) => data[idx] > 0);
-    const finalData = totalGasto === 0 ? [100] : data.filter((d) => d > 0);
-    const finalColors = totalGasto === 0 ? ["#dfe6e9"] : [
-      "#28a745", // Alimentación - verde
-      "#0d6efd", // Transporte - azul
-      "#ffc107", // Salud - amarillo
-      "#fd7e14", // Vivienda - naranja
-      "#dc3545"  // Otros/Personal - rojo
-    ].filter((_, idx) => data[idx] > 0);
+    const finalData   = totalGasto === 0 ? [100] : data.filter((d) => d > 0);
+    const finalColors = totalGasto === 0
+      ? ["#dfe6e9"]
+      : ["#28a745", "#0d6efd", "#ffc107", "#fd7e14", "#dc3545"].filter((_, idx) => data[idx] > 0);
 
     chartInstance.current = new Chart(chartRef.current, {
       type: "doughnut",
       data: {
         labels: finalLabels,
-        datasets: [
-          {
-            data: finalData,
-            backgroundColor: finalColors,
-            borderWidth: 1,
-          },
-        ],
+        datasets: [{ data: finalData, backgroundColor: finalColors, borderWidth: 1 }],
       },
       options: {
         responsive: true,
@@ -325,12 +418,12 @@ const IAFinance = () => {
           legend: { position: "bottom" },
           tooltip: {
             callbacks: {
-              label: function (context) {
-                if (totalGasto === 0) return " Sin egresos registrados";
-                return ` ${context.label}: ${formatCOP(context.raw)}`;
-              }
-            }
-          }
+              label: (ctx) =>
+                totalGasto === 0
+                  ? " Sin egresos registrados"
+                  : ` ${ctx.label}: ${formatCOP(ctx.raw)}`,
+            },
+          },
         },
       },
     });
@@ -342,15 +435,83 @@ const IAFinance = () => {
     };
   }, [gastos, loading]);
 
-  // Cálculos globales
-  const totalAhorrado = metas.reduce((acc, m) => acc + Number(m.monto_ahorrado || 0), 0);
-  const totalIngresos = ingresos.reduce((acc, i) => acc + Number(i.monto || 0), 0);
-  const totalGastos = gastos.reduce((acc, g) => acc + Number(g.monto || 0), 0);
-  const balanceNeto = totalIngresos - totalGastos;
+  // ── Enviar mensaje ────────────────────────────────────────────────────────
+  const handleEnviarMensaje = async () => {
+    const texto = inputMensaje.trim();
+    if (!texto || enviando) return;
 
-  // Primera meta activa si existe
-  const metaActiva = metas[0];
+    // Agregar mensaje del usuario en la UI inmediatamente
+    const msgUsuario = { tipo: "CHAT_USER", contenido: texto, ts: new Date().toISOString(), id: Date.now() };
+    setMensajes((prev) => [...prev, msgUsuario]);
+    setInputMensaje("");
+    setEnviando(true);
 
+    try {
+      const resultado = await enviarMensajeIA(idUsuario, texto);
+
+      // Agregar respuesta de la IA
+      const msgIA = {
+        tipo: "CHAT_IA",
+        contenido: resultado.respuesta,
+        ts: new Date().toISOString(),
+        id: Date.now() + 1,
+      };
+      setMensajes((prev) => [...prev, msgIA]);
+
+      // Si hay alerta nueva, agregarla al chat y al banner
+      if (resultado.alertaFinanciera?.alertaActiva) {
+        setAlertaBanner(resultado.alertaFinanciera.mensaje);
+        // Solo agregar alerta al chat si no existe una ya visible
+        const yaHayAlertaEnChat = msgUsuario && resultado.alertaFinanciera.mensaje;
+        if (yaHayAlertaEnChat) {
+          setMensajes((prev) => [
+            ...prev,
+            {
+              tipo: "ALERTA",
+              contenido: resultado.alertaFinanciera.mensaje,
+              ts: new Date().toISOString(),
+              id: Date.now() + 2,
+            },
+          ]);
+        }
+      } else {
+        setAlertaBanner(null);
+      }
+    } catch (err) {
+      console.error("Error al enviar mensaje a la IA:", err);
+      setMensajes((prev) => [
+        ...prev,
+        {
+          tipo: "CHAT_IA",
+          contenido: "❌ Hubo un problema al conectar con el asistente. Por favor, intenta de nuevo en unos momentos.",
+          ts: new Date().toISOString(),
+          id: Date.now() + 1,
+        },
+      ]);
+    } finally {
+      setEnviando(false);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleEnviarMensaje();
+    }
+  };
+
+  const handleSugerencia = (texto) => {
+    setInputMensaje(texto);
+  };
+
+  // ── Cálculos globales ─────────────────────────────────────────────────────
+  const totalAhorrado  = metas.reduce((acc, m) => acc + Number(m.monto_ahorrado || 0), 0);
+  const totalIngresos  = ingresos.reduce((acc, i) => acc + Number(i.monto || 0), 0);
+  const totalGastos    = gastos.reduce((acc, g) => acc + Number(g.monto || 0), 0);
+  const balanceNeto    = totalIngresos - totalGastos;
+  const metaActiva     = metas[0];
+
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <>
       <br />
@@ -364,34 +525,140 @@ const IAFinance = () => {
           </div>
         ) : (
           <div className="row g-4 animate-fade-in">
+            {/* ── Panel principal: Chat IA ── */}
             <div className="col-lg-8">
+              {/* Tarjeta del chat */}
               <div className="ia-card">
-                <div className="chat-messages p-3">
-                  <p><strong>Este es un espacio para el asistente IA Finance</strong></p>
-                  <p>
-                    Pregunta lo que necesites sobre finanzas.
-                    <br />
-                    El bot estará aquí para ayudarte :)
-                  </p>
+                {/* Header del chat */}
+                <div className="ia-chat-header">
+                  <div className="ia-chat-header-avatar">
+                    <FaRobot />
+                  </div>
+                  <div className="ia-chat-header-info">
+                    <h6>FinanceBot IA</h6>
+                    <small>
+                      <span className="ia-status-dot" />
+                      Especialista en Ahorro &amp; Finanzas
+                    </small>
+                  </div>
+                </div>
+
+                {/* Área de mensajes */}
+                <div className="chat-messages">
+                  {mensajes.length === 0 ? (
+                    <div className="chat-welcome">
+                      <div className="chat-welcome-icon">🤖💰</div>
+                      <h6>¡Hola! Soy FinanceBot</h6>
+                      <p>
+                        Tu asistente especializado en <strong style={{ color: "#55efc4" }}>ahorro y educación financiera</strong>.
+                        <br />
+                        Pregúntame sobre presupuesto, metas de ahorro, la regla 50/30/20 o pídeme videos educativos.
+                      </p>
+                    </div>
+                  ) : (
+                    mensajes.map((msg) => {
+                      if (msg.tipo === "ALERTA") {
+                        return (
+                          <div key={msg.id} className="msg-bubble alerta">
+                            <div className="msg-alerta">
+                              <FaExclamationTriangle style={{ marginRight: 6 }} />
+                              {msg.contenido}
+                            </div>
+                          </div>
+                        );
+                      }
+                      if (msg.tipo === "CHAT_USER") {
+                        return (
+                          <div key={msg.id} className="msg-bubble user">
+                            <div className="msg-text">{msg.contenido}</div>
+                            <span className="msg-timestamp">
+                              {new Date(msg.ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                            </span>
+                          </div>
+                        );
+                      }
+                      // CHAT_IA
+                      return (
+                        <div key={msg.id} className="msg-bubble ia">
+                          <div className="msg-text">
+                            {renderizarTextoConLinks(msg.contenido)}
+                          </div>
+                          <span className="msg-timestamp">
+                            {new Date(msg.ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                        </div>
+                      );
+                    })
+                  )}
+
+                  {/* Indicador "IA escribiendo..." */}
+                  {enviando && (
+                    <div className="typing-bubble">
+                      <span className="typing-dot" />
+                      <span className="typing-dot" />
+                      <span className="typing-dot" />
+                    </div>
+                  )}
+
+                  {/* Ref para auto-scroll */}
+                  <div ref={mensajesEndRef} />
+                </div>
+
+                {/* Sugerencias rápidas (solo cuando el chat está vacío o pocas respuestas) */}
+                {mensajes.filter((m) => m.tipo === "CHAT_USER").length < 2 && (
+                  <div className="sugerencias-wrapper">
+                    {SUGERENCIAS.map((s) => (
+                      <button
+                        key={s}
+                        className="sugerencia-btn"
+                        onClick={() => handleSugerencia(s)}
+                        disabled={enviando}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Input del chat */}
+                <div className="chat-input-wrapper">
+                  <div className="chat-box">
+                    <input
+                      id="ia-finance-input"
+                      type="text"
+                      className="chat-input"
+                      placeholder="Escribe tu pregunta sobre ahorro o finanzas..."
+                      value={inputMensaje}
+                      onChange={(e) => setInputMensaje(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      disabled={enviando}
+                      maxLength={1000}
+                    />
+                    <button
+                      id="ia-finance-send-btn"
+                      className="chat-btn"
+                      onClick={handleEnviarMensaje}
+                      disabled={enviando || !inputMensaje.trim()}
+                      aria-label="Enviar mensaje"
+                    >
+                      <FaPaperPlane />
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              <div className="chat-input-wrapper mt-3">
-                <div className="chat-box">
-                  <input
-                    type="text"
-                    className="chat-input"
-                    placeholder="Ingresa una pregunta para hablar"
-                  />
-                  <button className="chat-btn">
-                    <FaPaperPlane />
-                  </button>
+              {/* Banner de alerta de balance crítico (debajo del chat) */}
+              {alertaBanner && (
+                <div className="alerta-banner mt-3">
+                  <span className="alerta-banner-icon">⚠️</span>
+                  <span>{alertaBanner}</span>
                 </div>
-              </div>
+              )}
             </div>
 
+            {/* ── Panel lateral: Resumen Financiero ── */}
             <div className="col-lg-4">
-              {/* Meta de Ahorro Card */}
+              {/* Meta de Ahorro */}
               <div className="card meta-card p-3">
                 <h6 className="fw-bold d-flex align-items-center gap-2">
                   <FaPiggyBank className="text-success" /> Meta de Ahorro
@@ -405,9 +672,16 @@ const IAFinance = () => {
                       Objetivo total: {formatCOP(metaActiva.valor_objetivo)}
                     </small>
                     <div className="progress mt-2" style={{ height: "6px" }}>
-                      <div 
-                        className="progress-bar bg-success" 
-                        style={{ width: `${Math.min(100, Math.round((metaActiva.monto_ahorrado / metaActiva.valor_objetivo) * 100))}%` }}
+                      <div
+                        className="progress-bar bg-success"
+                        style={{
+                          width: `${Math.min(
+                            100,
+                            Math.round(
+                              (metaActiva.monto_ahorrado / metaActiva.valor_objetivo) * 100
+                            )
+                          )}%`,
+                        }}
                       />
                     </div>
                   </>
@@ -420,8 +694,8 @@ const IAFinance = () => {
                 )}
               </div>
 
-              {/* Mi Presupuesto Card (Clicable) */}
-              <div 
+              {/* Mi Presupuesto */}
+              <div
                 className="card presupuesto-card p-3 mt-4 interactive-card"
                 onClick={() => setModalOpen(true)}
                 style={{ cursor: "pointer" }}
@@ -450,10 +724,10 @@ const IAFinance = () => {
                 </div>
               </div>
 
-              {/* Categorías de Gastos Card */}
+              {/* Categorías de Gastos */}
               <div className="card categorias-card p-3 mt-4">
                 <h6 className="fw-bold mb-3">Categorías de Gastos</h6>
-                <canvas ref={chartRef}></canvas>
+                <canvas ref={chartRef} />
               </div>
             </div>
           </div>
@@ -466,6 +740,7 @@ const IAFinance = () => {
           onClose={() => setModalOpen(false)}
           onRefresh={() => {
             cargarDatos();
+            verificarAlerta();
           }}
           idUsuario={idUsuario}
           ingresos={ingresos}

@@ -189,3 +189,58 @@ exports.eliminarGasto = async (req, res) => {
 };
 
 
+// ============= IA FINANCE =============
+
+/**
+ * POST /api/aprendiz/ia-finance/chat
+ * Procesa un mensaje del usuario con el asistente IA Finance.
+ * Body: { usuarioId: number, mensaje: string }
+ */
+exports.chatIA = async (req, res) => {
+    try {
+        const { usuarioId, mensaje } = req.body;
+
+        if (!usuarioId || !mensaje) {
+            return res.status(400).json({ error: 'usuarioId y mensaje son requeridos.' });
+        }
+
+        const resultado = await service.procesarChatIA({ usuarioId, mensaje });
+        logger.info('IA_FINANCE', 'Chat IA procesado', { usuarioId });
+        res.json(resultado);
+    } catch (error) {
+        logger.error('IA_FINANCE', 'Error en chatIA', { error: error.message });
+        res.status(500).json({ error: 'Error al procesar tu pregunta. Intenta de nuevo.' });
+    }
+};
+
+
+/**
+ * GET /api/aprendiz/ia-finance/historial/:id_usuario
+ * Devuelve el historial de interacciones con la IA para un usuario.
+ */
+exports.obtenerHistorialIA = async (req, res) => {
+    try {
+        const { id_usuario } = req.params;
+        const historial = await service.obtenerHistorialIA(id_usuario);
+        res.json(historial);
+    } catch (error) {
+        logger.error('IA_FINANCE', 'Error al obtener historial IA', { error: error.message });
+        res.status(500).json({ error: 'Error al obtener historial' });
+    }
+};
+
+
+/**
+ * GET /api/aprendiz/ia-finance/alerta/:id_usuario
+ * Evalúa y devuelve el estado de alerta financiera del usuario actual.
+ */
+exports.evaluarAlerta = async (req, res) => {
+    try {
+        const { id_usuario } = req.params;
+        const alerta = await service.evaluarAlertaFinanciera(id_usuario);
+        res.json(alerta);
+    } catch (error) {
+        logger.error('IA_FINANCE', 'Error al evaluar alerta financiera', { error: error.message });
+        res.status(500).json({ error: 'Error al evaluar alerta' });
+    }
+};

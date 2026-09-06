@@ -8,6 +8,7 @@ console.log("Inicializando rutas de Auth...");
 router.post("/login", controller.login);
 router.post("/register", controller.register);
 router.post("/recuperar", controller.recuperarPassword);
+router.get("/validar-token/:token", controller.validarToken);
 router.post("/restablecer", controller.restablecerPassword);
 // Agregamos una nueva ruta para el cierre de sesión
 router.post("/logout", verifyToken, controller.logout);

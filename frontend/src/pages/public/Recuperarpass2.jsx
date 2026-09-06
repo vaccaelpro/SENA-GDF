@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { restablecerPassword } from "../../services/auth/auth.service";
+import { restablecerPassword, validarToken } from "../../services/auth/auth.service";
 import "../../css/recuperarpass2.css";
 import logoSena from "../../assets/img/logosena.png";
 import { validatePassword } from "../../utils/validators";
@@ -14,6 +14,39 @@ const RestablecerPassword = () => {
     const [errorPass, setErrorPass] = useState("");
     const [verPass, setVerPass] = useState(false);
     const [cargando, setCargando] = useState(false);
+    const [verificandoToken, setVerificandoToken] = useState(true);
+
+    useEffect(() => {
+        let isMounted = true;
+        const comprobarToken = async () => {
+            if (!token) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Enlace Inválido",
+                    text: "No se proporcionó un token de recuperación válido.",
+                    confirmButtonColor: "#28a745"
+                }).then(() => navigate("/recuperar"));
+                return;
+            }
+
+            try {
+                await validarToken(token);
+                if (isMounted) setVerificandoToken(false);
+            } catch (error) {
+                if (!isMounted) return;
+                const msg = error.response?.data?.message || "El enlace de recuperación es inválido o ha expirado.";
+                Swal.fire({
+                    icon: "error",
+                    title: "Enlace Expirado o Inválido",
+                    text: msg,
+                    confirmButtonColor: "#28a745"
+                }).then(() => navigate("/recuperar"));
+            }
+        };
+
+        comprobarToken();
+        return () => { isMounted = false; };
+    }, [token, navigate]);
 
     const validate = (val) => {
         const err = validatePassword(val);
@@ -65,6 +98,17 @@ const RestablecerPassword = () => {
             setCargando(false);
         }
     };
+
+    if (verificandoToken) {
+        return (
+            <div className="restablecer-wrapper">
+                <div className="rp-container text-center p-5">
+                    <div className="spinner-border text-success my-4" role="status"></div>
+                    <h5>Verificando la validez del enlace...</h5>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="restablecer-wrapper">

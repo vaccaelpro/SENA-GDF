@@ -28,5 +28,10 @@ router.get('/gastos/:id_usuario', verifyToken, controller.listarGastos);
 router.post('/gastos', verifyToken, controller.crearGasto);
 router.delete('/gastos/:id_gasto', verifyToken, controller.eliminarGasto);
 
+// ============= IA FINANCE =============
+router.post('/ia-finance/chat', verifyToken, controller.chatIA);
+router.get('/ia-finance/historial/:id_usuario', verifyToken, controller.obtenerHistorialIA);
+router.get('/ia-finance/alerta/:id_usuario', verifyToken, controller.evaluarAlerta);
+
 module.exports = router;
 
