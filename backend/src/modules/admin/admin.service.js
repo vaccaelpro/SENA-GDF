@@ -103,6 +103,8 @@ exports.eliminarUsuario = async (id) => {
             "DELETE FROM metas_ahorro WHERE usuario_id_usuario = ?",
             "DELETE FROM ingresos WHERE usuario_id_usuario = ?",
             "DELETE FROM gastos WHERE usuario_id_usuario = ?",
+            "DELETE FROM registro_auditoria WHERE usuario_id_usuario = ?",
+            "DELETE FROM solicitudes_beneficio_metro WHERE usuario_id_usuario = ?",
             "DELETE FROM documentos_metro WHERE usuario_id_usuario = ?",
             "DELETE FROM exportaciones WHERE usuario_id_usuario = ?",
             "DELETE FROM comunicados WHERE usuario_id_usuario = ?",
