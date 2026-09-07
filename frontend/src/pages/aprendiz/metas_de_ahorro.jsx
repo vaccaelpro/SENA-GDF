@@ -557,10 +557,23 @@ const MetasDeAhorro = () => {
     if (confirm.isConfirmed) {
       try {
         await eliminarGasto(idGasto);
+        Swal.fire({
+          icon: "success",
+          title: "¡Eliminado!",
+          text: "El gasto se ha eliminado correctamente.",
+          timer: 1800,
+          showConfirmButton: false,
+          confirmButtonColor: "#28a745"
+        });
         cargarGastos();
       } catch (err) {
         console.error(err);
-        Swal.fire("Error", "No se pudo eliminar el gasto.", "error");
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "No se pudo eliminar el gasto. Intenta de nuevo.",
+          confirmButtonColor: "#28a745"
+        });
       }
     }
   };
