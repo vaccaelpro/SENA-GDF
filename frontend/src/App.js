@@ -23,6 +23,7 @@ import Analisis from "./pages/admin/analisis";
 import Lista_grupos from "./pages/admin/lista_grupos";
 import Crear_grupo from "./pages/admin/crear_grupo";
 import Chat_admin from "./pages/admin/chat_grupo";
+import GestionDocumentosMetro from "./pages/admin/gestion_documentos_metro";
 
 import ProtectedRoute from "./components/shared/ProtectedRoute";
 import Error404 from "./pages/public/Error404";
@@ -70,6 +71,7 @@ function App() {
           <Route path="/Lista_grupos" element={<Lista_grupos />} />
           <Route path="/Crear_grupo" element={<Crear_grupo />} />
           <Route path="/Chat_admin/:id" element={<Chat_admin />} />
+          <Route path="/Gestion_documentos_metro" element={<GestionDocumentosMetro />} />
         </Route>
 
         {/* Ruta para capturar cualquier otra URL inexistente */}

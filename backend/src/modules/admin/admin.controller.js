@@ -397,3 +397,84 @@ exports.verificarRespuestaUsuario = async (req, res) => {
         res.status(500).json({ error: 'Error al verificar' });
     }
 };
+
+// ============= BENEFICIOS METRO (ADMIN) =============
+
+exports.listarDocumentosMetro = async (req, res) => {
+    try {
+        const { estado, busqueda, limite, offset } = req.query;
+        const solicitudes = await service.listarDocumentosMetro({
+            estado,
+            busqueda,
+            limite: limite ? parseInt(limite) : 50,
+            offset: offset ? parseInt(offset) : 0,
+        });
+        res.json(solicitudes);
+    } catch (error) {
+        logger.error('ADMIN', 'Error al listar documentos metro', { error: error.message });
+        res.status(500).json({ error: 'Error al listar documentos del metro' });
+    }
+};
+
+exports.actualizarEstadoDocumentoMetro = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { nuevoEstado } = req.body;
+        const adminId = req.user?.id_usuario;
+
+        if (!['APROBADO', 'REQUIERE_REVISION', 'RECHAZADO'].includes(nuevoEstado)) {
+            return res.status(400).json({ error: 'Estado no válido' });
+        }
+
+        const resultado = await service.actualizarEstadoDocumentoMetro({
+            idSolicitud: id,
+            nuevoEstado,
+            adminId,
+        });
+        res.json(resultado);
+    } catch (error) {
+        logger.error('ADMIN', 'Error al actualizar estado documento metro', { error: error.message });
+        res.status(500).json({ error: 'Error al actualizar el estado del documento' });
+    }
+};
+
+exports.obtenerDocumentoMetroPorId = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const doc = await service.obtenerDocumentoMetroPorId(id);
+        if (!doc) {
+            return res.status(404).json({ error: 'Solicitud no encontrada' });
+        }
+        res.json(doc);
+    } catch (error) {
+        logger.error('ADMIN', 'Error al obtener detalle documento metro', { error: error.message });
+        res.status(500).json({ error: 'Error al obtener detalle' });
+    }
+};
+
+exports.descargarArchivoMetro = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const doc = await service.obtenerDocumentoMetroPorId(id);
+        if (!doc) {
+            return res.status(404).json({ error: 'Documento no encontrado' });
+        }
+
+        const path = require('path');
+        const fs = require('fs');
+        // Quitar barra inicial si existe
+        const rutaRelativa = doc.ruta_archivo.startsWith('/') ? doc.ruta_archivo.slice(1) : doc.ruta_archivo;
+        const rutaAbsoluta = path.join(__dirname, '../../../', rutaRelativa);
+
+        if (!fs.existsSync(rutaAbsoluta)) {
+            return res.status(404).json({ error: 'El archivo físico no existe en el servidor' });
+        }
+
+        const nombreDescarga = doc.nombre_archivo_original || path.basename(rutaAbsoluta);
+        res.download(rutaAbsoluta, nombreDescarga);
+    } catch (error) {
+        logger.error('ADMIN', 'Error al descargar archivo metro', { error: error.message });
+        res.status(500).json({ error: 'Error al descargar archivo' });
+    }
+};
+

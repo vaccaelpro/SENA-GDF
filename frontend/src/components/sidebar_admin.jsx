@@ -10,6 +10,7 @@ import {
   BsBoxArrowLeft,
   BsX
 } from "react-icons/bs";
+import { FaSubway } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { logout } from "../services/auth/auth.service";
 
@@ -76,6 +77,12 @@ const Sidebar_administrador = ({ isOpen, onClose }) => {
         <div className="menu-item" onClick={onClose}>
           <Link to="/Lista_grupos">
             <BsPeopleFill /> Grupos
+          </Link>
+        </div>
+
+        <div className="menu-item" onClick={onClose}>
+          <Link to="/Gestion_documentos_metro">
+            <FaSubway /> Beneficios Metro
           </Link>
         </div>
       </div>

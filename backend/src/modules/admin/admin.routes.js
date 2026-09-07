@@ -43,5 +43,11 @@ router.post("/encuestas/:id/respuestas", controller.registrarRespuestas);
 router.get("/encuestas/:id/analisis", controller.obtenerAnalisisEncuesta);
 router.get("/encuestas/:id/verificar/:usuario_id", controller.verificarRespuestaUsuario);
 
+// Documentos Beneficio Metro
+router.get("/documentos-metro", controller.listarDocumentosMetro);
+router.get("/documentos-metro/:id", controller.obtenerDocumentoMetroPorId);
+router.put("/documentos-metro/:id/estado", controller.actualizarEstadoDocumentoMetro);
+router.get("/documentos-metro/:id/descargar", controller.descargarArchivoMetro);
+
 module.exports = router;
 

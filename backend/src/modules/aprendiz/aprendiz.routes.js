@@ -33,5 +33,27 @@ router.post('/ia-finance/chat', verifyToken, controller.chatIA);
 router.get('/ia-finance/historial/:id_usuario', verifyToken, controller.obtenerHistorialIA);
 router.get('/ia-finance/alerta/:id_usuario', verifyToken, controller.evaluarAlerta);
 
+// ============= BENEFICIO METRO (VALIDADOR IA) =============
+const jwt = require("jsonwebtoken");
+const docMetroCtrl = require('./documentoMetro.controller');
+
+const authMetroSuave = (req, res, next) => {
+    const token = req.headers["authorization"]?.replace("Bearer ", "") || req.query?.token;
+    if (token) {
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            req.usuario = { id: decoded.id, rol: decoded.rol };
+        } catch (e) {
+            // Si el token expira, no forzamos 401 para no cerrar sesión al usuario abruptamente
+        }
+    }
+    next();
+};
+
+router.post('/documento-metro/analizar', authMetroSuave, docMetroCtrl.analizarDocumento);
+router.get('/documento-metro/mis-solicitudes', authMetroSuave, docMetroCtrl.obtenerMisSolicitudes);
+router.get('/documento-metro/plantilla', docMetroCtrl.descargarPlantilla);
+router.get('/documento-metro/:id/descargar', authMetroSuave, docMetroCtrl.descargarArchivo);
+
 module.exports = router;
 

@@ -68,6 +68,13 @@ exports.register = async (req, res) => {
             });
         }
 
+        if (typeof correo_electronico === 'string' && correo_electronico.trim().length < 8) {
+            return res.status(400).json({
+                success: false,
+                message: "El correo electrónico es demasiado corto (mínimo 8 caracteres)",
+            });
+        }
+
         const resultado = await service.registrarUsuario(req.body);
 
         if (resultado.error) {

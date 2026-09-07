@@ -1,0 +1,373 @@
+/* Estilos para el Validador de Documentos del Metro (SENA GDF) */
+
+.validador-metro-wrapper {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Subnavegación de pestañas */
+.metro-subnav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: #ffffff;
+  padding: 8px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e9ecef;
+}
+
+.metro-subnav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #495057;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.metro-subnav-btn:hover {
+  background: #f1f8f1;
+  color: #39a900;
+}
+
+.metro-subnav-btn.active {
+  background: #39a900;
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(57, 169, 0, 0.25);
+}
+
+/* Tarjetas */
+.metro-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.metro-card:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.07);
+}
+
+.metro-card-header {
+  display: flex;
+  align-items: center;
+  padding: 18px 22px;
+  background: #fafbfc;
+  border-bottom: 1px solid #edf2f7;
+  gap: 14px;
+}
+
+.metro-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #e8f5e9;
+  color: #39a900;
+  font-size: 1.25rem;
+}
+
+.metro-card-body {
+  padding: 22px;
+}
+
+/* Zona de Carga (Dropzone) */
+.metro-dropzone {
+  border: 2px dashed #39a900;
+  border-radius: 14px;
+  background: #fcfefc;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.metro-dropzone:hover {
+  background: #f4faf4;
+  border-color: #2e8b00;
+}
+
+.metro-dropzone.has-file {
+  border-style: solid;
+  border-color: #e2e8f0;
+  background: #000000;
+}
+
+.preview-container {
+  position: relative;
+  width: 100%;
+  max-height: 380px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.img-preview {
+  max-width: 100%;
+  max-height: 380px;
+  object-fit: contain;
+}
+
+.preview-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.preview-container:hover .preview-overlay {
+  opacity: 1;
+}
+
+/* Botones SENA */
+.btn-sena-primary {
+  background: #39a900;
+  border-color: #39a900;
+  color: #ffffff;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-sena-primary:hover,
+.btn-sena-primary:focus {
+  background: #2e8b00;
+  border-color: #2e8b00;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(57, 169, 0, 0.3);
+}
+
+.metro-info-box {
+  display: flex;
+  align-items: flex-start;
+  padding: 12px 14px;
+  background: #e8f5e9;
+  border-radius: 8px;
+  color: #1b5e20;
+}
+
+/* Semáforo de Estado */
+.status-badge-container {
+  padding: 16px 20px;
+  border-radius: 12px;
+  border-left: 6px solid;
+}
+
+.status-badge-container.aprobado {
+  background: #e8f5e9;
+  border-left-color: #39a900;
+  color: #1b5e20;
+}
+
+.status-badge-container.requiere_revision {
+  background: #fff8e1;
+  border-left-color: #ffb300;
+  color: #b78103;
+}
+
+.status-badge-container.rechazado {
+  background: #ffebee;
+  border-left-color: #e53935;
+  color: #b71c1c;
+}
+
+.status-title {
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.5px;
+}
+
+/* Grid de datos extraídos */
+.datos-extraidos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.dato-item {
+  display: flex;
+  flex-direction: column;
+  background: #f8f9fa;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #edf2f7;
+}
+
+.dato-label {
+  font-size: 0.75rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.dato-val {
+  font-size: 0.9rem;
+  color: #212529;
+  word-break: break-word;
+}
+
+/* Guía de diligenciamiento */
+.paso-guia-card {
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 18px;
+  height: 100%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.paso-icono-circulo {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #e8f5e9;
+  color: #39a900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.paso-tip-box {
+  display: flex;
+  align-items: flex-start;
+  padding: 8px 10px;
+  background: #f1f8f1;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: #2e7d32;
+}
+
+/* Plantilla oficial */
+.plantilla-preview-wrapper {
+  max-width: 680px;
+  margin: 0 auto;
+  border: 1px solid #ced4da;
+}
+
+.plantilla-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Modal personalizado para ver detalle dentro de la pantalla */
+.modal-backdrop-custom {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(0, 0, 0, 0.75) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 999999 !important;
+  padding: 24px !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+.modal-dialog-custom {
+  background: #ffffff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 980px;
+  max-height: 86vh;
+  margin: auto !important;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  position: relative;
+  animation: modalScaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-header-custom {
+  padding: 16px 24px;
+  border-bottom: 1px solid #e9ecef;
+  background: #fafbfc;
+  flex-shrink: 0;
+}
+
+.modal-body-custom {
+  padding: 22px 24px;
+  overflow-y: auto;
+  max-height: calc(86vh - 65px);
+  flex-grow: 1;
+}
+
+.document-preview-frame {
+  max-height: 440px;
+  overflow: auto;
+  background: #212529;
+  border-radius: 8px;
+}
+
+.modal-doc-img {
+  max-height: 420px;
+  object-fit: contain;
+  margin: 0 auto;
+}
+
+.modal-btn-exit {
+  transition: all 0.2s ease;
+  background: #ffffff;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+}
+
+.modal-btn-exit:hover {
+  background: #f8d7da;
+  color: #dc3545;
+  border-color: #f5c2c7;
+}
+

@@ -15,6 +15,7 @@ const fakeConnection = { release: vi.fn() };
 
 const fakePool = {
   query: vi.fn().mockResolvedValue([[], []]),
+  on: vi.fn(),
   promise: function () {
     return { query: this.query };
   },

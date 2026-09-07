@@ -30,6 +30,7 @@ import {
   obtenerHistorialIA,
   evaluarAlertaFinanciera,
 } from "../../services/aprendiz/ia.service";
+import { validateAmount } from "../../utils/validators";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -72,15 +73,57 @@ const ModalPresupuesto = ({ onClose, onRefresh, idUsuario, ingresos, gastos }) =
   const [monto, setMonto] = useState("");
   const [categoria, setCategoria] = useState("Alimentación");
   const [fecha, setFecha] = useState(hoy());
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+
+  const validateField = (name, value) => {
+    let err = "";
+    if (name === "monto") {
+      err = validateAmount(value, activeTab === "ingresos" ? "El monto del ingreso" : "El monto del gasto");
+      if (!err && Number(value) <= 0) {
+        err = "El monto debe ser un valor positivo mayor a 0.";
+      }
+    }
+    if (name === "fecha" && !value) {
+      err = "Debes seleccionar una fecha.";
+    }
+    setErrors((prev) => ({ ...prev, [name]: err }));
+    return err;
+  };
+
+  const handleMontoChange = (e) => {
+    const val = e.target.value;
+    setMonto(val);
+    validateField("monto", val);
+  };
+
+  const handleKeyDownMonto = (e) => {
+    if (e.key === "-" || e.key === "e" || e.key === "E" || e.key === "+") {
+      e.preventDefault();
+    }
+  };
+
+  const handleFechaChange = (e) => {
+    const val = e.target.value;
+    setFecha(val);
+    validateField("fecha", val);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!monto || Number(monto) <= 0) {
-      return setError("El monto debe ser mayor a 0.");
+    const errMonto = validateField("monto", monto);
+    const errFecha = validateField("fecha", fecha);
+
+    if (errMonto || errFecha) {
+      Swal.fire({
+        icon: "warning",
+        title: "Validación",
+        text: errMonto || errFecha || "Por favor corrige los datos del formulario.",
+        confirmButtonColor: "#28a745",
+      });
+      return;
     }
-    setError("");
+
     setSubmitting(true);
     try {
       if (activeTab === "ingresos") {
@@ -97,12 +140,26 @@ const ModalPresupuesto = ({ onClose, onRefresh, idUsuario, ingresos, gastos }) =
           usuario_id_usuario: idUsuario,
         });
       }
+      Swal.fire({
+        icon: "success",
+        title: "¡Registrado!",
+        text: `${activeTab === "ingresos" ? "Ingreso" : "Gasto"} registrado correctamente.`,
+        confirmButtonColor: "#28a745",
+        timer: 1800,
+        showConfirmButton: false,
+      });
       setMonto("");
       setFecha(hoy());
+      setErrors({});
       onRefresh();
     } catch (err) {
-      setError("Error al registrar la transacción. Intenta de nuevo.");
       console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: `No se pudo registrar el ${activeTab === "ingresos" ? "ingreso" : "gasto"}. Intenta de nuevo.`,
+        confirmButtonColor: "#28a745",
+      });
     } finally {
       setSubmitting(false);
     }
@@ -167,13 +224,13 @@ const ModalPresupuesto = ({ onClose, onRefresh, idUsuario, ingresos, gastos }) =
         <div className="modal-tabs">
           <button
             className={`tab-btn ${activeTab === "ingresos" ? "active" : ""}`}
-            onClick={() => { setActiveTab("ingresos"); setError(""); }}
+            onClick={() => { setActiveTab("ingresos"); setErrors({}); }}
           >
             <FaArrowUp className="text-success me-2" /> Ingresos
           </button>
           <button
             className={`tab-btn ${activeTab === "gastos" ? "active" : ""}`}
-            onClick={() => { setActiveTab("gastos"); setError(""); }}
+            onClick={() => { setActiveTab("gastos"); setErrors({}); }}
           >
             <FaArrowDown className="text-danger me-2" /> Gastos
           </button>
@@ -184,19 +241,21 @@ const ModalPresupuesto = ({ onClose, onRefresh, idUsuario, ingresos, gastos }) =
             <h5 className="fw-bold mb-3">
               Agregar {activeTab === "ingresos" ? "Ingreso" : "Gasto"}
             </h5>
-            <form onSubmit={handleSubmit} className="modal-form">
-              {error && <div className="modal-error mb-3">{error}</div>}
-
+            <form onSubmit={handleSubmit} className="modal-form" noValidate>
               <div className="form-group mb-3">
                 <label>Monto (COP) *</label>
                 <input
                   type="number"
+                  name="monto"
                   min="1"
                   value={monto}
-                  onChange={(e) => setMonto(e.target.value)}
+                  onChange={handleMontoChange}
+                  onKeyDown={handleKeyDownMonto}
                   placeholder="Ej: 50000"
+                  className={errors.monto ? "border-danger" : ""}
                   required
                 />
+                {errors.monto && <small className="text-danger fw-bold d-block mt-1">⚠️ {errors.monto}</small>}
               </div>
 
               {activeTab === "gastos" && (
@@ -222,10 +281,13 @@ const ModalPresupuesto = ({ onClose, onRefresh, idUsuario, ingresos, gastos }) =
                 </label>
                 <input
                   type="date"
+                  name="fecha"
                   value={fecha}
-                  onChange={(e) => setFecha(e.target.value)}
+                  onChange={handleFechaChange}
+                  className={errors.fecha ? "border-danger" : ""}
                   required
                 />
+                {errors.fecha && <small className="text-danger fw-bold d-block mt-1">⚠️ {errors.fecha}</small>}
               </div>
 
               <button

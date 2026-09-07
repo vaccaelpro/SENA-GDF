@@ -1,62 +1,81 @@
-.container {
-  margin-left: 14.666%;
-  margin-top: 20px;
+/* ─── IADocument: Validador IA de Formularios Metro — SENA GDF ─────────────── */
+
+/* Hero banner con gradiente del sistema */
+.iadocument-page {
+  min-height: 100vh;
+  background: #f4f6f9;
 }
 
-.contenedor-bot {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 320px;
-  height: 300px;
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  display: flex;
-  flex-direction: column;
-  z-index: 1100;
+.iadocument-hero {
+  background: linear-gradient(135deg, #39a900 0%, #2a7c00 55%, #1d5800 100%);
+  padding: 40px 32px 48px;
+  position: relative;
+  overflow: hidden;
 }
 
-.headerbot {
-  background-color: #28a745;
-  color: white;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  padding: 10px;
+.iadocument-hero::before {
+  content: "";
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  pointer-events: none;
 }
 
-.Titulo-bot {
-  font-size: 1.1rem;
-  font-weight: bold;
-  margin: 0;
+.iadocument-hero::after {
+  content: "";
+  position: absolute;
+  bottom: -60px;
+  left: -30px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  pointer-events: none;
 }
 
-.chat-body {
-  flex: 1;
-  padding: 10px;
-  overflow-y: auto;
-  font-size: 0.9rem;
+.iadocument-hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
 }
 
-.mensaje-bot {
-  background: #e9ecef;
-  padding: 8px 12px;
-  border-radius: 8px;
-  margin-bottom: 8px;
+.iadocument-badge {
   display: inline-block;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  margin-bottom: 14px;
+  backdrop-filter: blur(6px);
 }
 
-.input-area {
-  border-top: 1px solid #ddd;
-  padding: 10px;
+.iadocument-title {
+  color: #ffffff;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  line-height: 1.25;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
 }
 
-.form-control {
-  border: none;
-  box-shadow: none;
+.iadocument-subtitle {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 1rem;
+  margin: 0;
+  max-width: 600px;
+  line-height: 1.6;
 }
 
-.btn-success {
-  background-color: #28a745;
-  color: white;
+/* Cuerpo de la página */
+.iadocument-body {
+  margin-top: -24px;
+  position: relative;
 }

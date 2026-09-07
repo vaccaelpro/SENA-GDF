@@ -138,3 +138,7 @@ tsconfig.tsbuildinfo
 .atl/
 # Archivo de base de datos
 sena.sql
+
+# Archivos subidos por usuarios
+backend/uploads/
+uploads/

@@ -31,10 +31,11 @@ api.interceptors.response.use(
   (error) => {
     const url = error.config?.url || "";
     const esRutaDeAuth = url.includes("/auth/login") || url.includes("/auth/register") || url.includes("/auth/recuperar") || url.includes("/auth/restablecer");
+    const esRutaDocumentoMetro = url.includes("documento-metro") || url.includes("documentos-metro");
 
-    if (error.response?.status === 401 && !esRutaDeAuth) {
-      //Limpiamos el token de JWT con los datos del usuario
-      localStorage.removeItem("token")
+    if (error.response?.status === 401 && !esRutaDeAuth && !esRutaDocumentoMetro) {
+      // Limpiamos el token de JWT con los datos del usuario solo en rutas críticas
+      localStorage.removeItem("token");
       localStorage.removeItem("usuario");
       localStorage.removeItem("rol");
       window.location.href = "/";

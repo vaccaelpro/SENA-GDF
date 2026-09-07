@@ -1,0 +1,88 @@
+/* Estilos para el panel de administración de Beneficios Metro (SENA GDF) */
+
+.gestion-metro-container {
+  min-height: 85vh;
+  background-color: #f8f9fa;
+}
+
+.admin-header-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #e8f5e9;
+  color: #39a900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.btn-sena-admin {
+  background: #39a900;
+  border-color: #39a900;
+  color: #ffffff;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-sena-admin:hover {
+  background: #2e8b00;
+  border-color: #2e8b00;
+  color: #ffffff;
+}
+
+.active-filter {
+  background-color: #39a900 !important;
+  border-color: #39a900 !important;
+  color: #ffffff !important;
+}
+
+/* Modal personalizado */
+.modal-backdrop-custom {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 20px;
+}
+
+.modal-dialog-custom {
+  background: #ffffff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 950px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.modal-header-custom {
+  padding: 16px 24px;
+  border-bottom: 1px solid #e9ecef;
+  background: #fafbfc;
+}
+
+.modal-body-custom {
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.document-preview-frame {
+  max-height: 480px;
+  overflow: auto;
+  background: #212529;
+}
+
+.modal-doc-img {
+  max-height: 460px;
+  object-fit: contain;
+  margin: 0 auto;
+}

@@ -47,7 +47,15 @@ export const validateOnlyNumbers = (val, fieldName = "este campo", minLen = 1, m
  */
 export const validateEmail = (val) => {
   if (!val || !val.trim()) return "El correo electrónico es obligatorio.";
-  if (!EMAIL_REGEX.test(val.trim())) {
+  const str = val.trim();
+  if (str.length < 8) {
+    return "El correo electrónico es demasiado corto (mínimo 8 caracteres).";
+  }
+  const parts = str.split("@");
+  if (parts.length === 2 && parts[0].length < 3) {
+    return "El correo debe tener al menos 3 caracteres antes del @.";
+  }
+  if (!EMAIL_REGEX.test(str)) {
     return "Este campo es solo específico para un correo electrónico válido (ejemplo@dominio.com).";
   }
   return "";

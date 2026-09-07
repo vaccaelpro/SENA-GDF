@@ -28,7 +28,7 @@ const Tabla_gestion_usuarios = () => {
     grupo_formacion: "",
     correo_electronico: "",
     rol: "USUARIO",
-    tipo_apoyo: "regular"
+    tipo_apoyo: "N/A"
   });
   const [formErrors, setFormErrors] = useState({});
 
@@ -67,7 +67,8 @@ const Tabla_gestion_usuarios = () => {
         fetchUsuarios();
       } catch (error) {
         console.error("Error al eliminar:", error);
-        Swal.fire('Error', 'Hubo un problema al eliminar el usuario.', 'error');
+        const msg = error.response?.data?.message || error.response?.data?.error || 'Hubo un problema al eliminar el usuario.';
+        Swal.fire('Error', msg, 'error');
       }
     }
   };
@@ -100,7 +101,7 @@ const Tabla_gestion_usuarios = () => {
       grupo_formacion: usuario.grupo_formacion,
       correo_electronico: usuario.correo_electronico,
       rol: usuario.rol,
-      tipo_apoyo: usuario.tipo_apoyo
+      tipo_apoyo: usuario.tipo_apoyo || "N/A"
     });
     setFormErrors({});
     setShowModal(true);
@@ -141,8 +142,17 @@ const Tabla_gestion_usuarios = () => {
     }
 
     try {
-      await actualizarUsuario(usuarioSeleccionado, formData);
-      Swal.fire('Actualizado', 'Los datos del usuario han sido actualizados.', 'success');
+      const payload = {
+        ...formData,
+        tipo_apoyo: (!formData.tipo_apoyo || formData.tipo_apoyo === "N/A") ? null : formData.tipo_apoyo
+      };
+      await actualizarUsuario(usuarioSeleccionado, payload);
+      Swal.fire({
+        icon: 'success',
+        title: 'Actualizado',
+        text: 'Los datos del usuario han sido actualizados.',
+        confirmButtonColor: '#28a745'
+      });
       handleCloseModal();
       fetchUsuarios();
     } catch (error) {
@@ -225,7 +235,9 @@ const Tabla_gestion_usuarios = () => {
                         </span>
                       </td>
                       <td>
-                        <span className="badge bg-success">{usuario.tipo_apoyo || 'N/A'}</span>
+                        <span className={`badge ${!usuario.tipo_apoyo || usuario.tipo_apoyo === 'N/A' ? 'bg-secondary' : 'bg-success'}`}>
+                          {usuario.tipo_apoyo || 'N/A'}
+                        </span>
                       </td>
                       <td>
                         <div className="d-flex gap-2 justify-content-center">
@@ -368,7 +380,8 @@ const Tabla_gestion_usuarios = () => {
                     </div>
                     <div className="col-md-6 form-group-premium">
                       <label className="form-label-premium">Tipo Apoyo</label>
-                      <select name="tipo_apoyo" className="form-control form-control-premium" value={formData.tipo_apoyo} onChange={handleChange} required>
+                      <select name="tipo_apoyo" className="form-control form-control-premium" value={formData.tipo_apoyo || "N/A"} onChange={handleChange}>
+                        <option value="N/A">N/A</option>
                         <option value="regular">Regular</option>
                         <option value="alimentacion">Alimentación</option>
                         <option value="transporte">Transporte</option>

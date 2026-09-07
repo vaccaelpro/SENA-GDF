@@ -31,6 +31,8 @@ exports.actualizarUsuario = async (id, data) => {
             tipo_apoyo
         } = data;
 
+        const tipoApoyoFinal = (!tipo_apoyo || tipo_apoyo === 'N/A') ? null : tipo_apoyo;
+
         await db.query(
             `UPDATE usuario SET 
                 primer_nombre = ?, 
@@ -57,7 +59,7 @@ exports.actualizarUsuario = async (id, data) => {
                 grupo_formacion,
                 correo_electronico,
                 rol,
-                tipo_apoyo,
+                tipoApoyoFinal,
                 id
             ]
         );
@@ -67,10 +69,10 @@ exports.actualizarUsuario = async (id, data) => {
         await db.query("DELETE FROM grupos_usuarios WHERE usuario_id = ?", [id]);
 
         // Si el usuario es un Aprendiz (USUARIO), lo asignamos al grupo que coincida con su nuevo tipo_apoyo
-        if (rol === 'USUARIO' && tipo_apoyo) {
+        if (rol === 'USUARIO' && tipoApoyoFinal) {
             const [grupos] = await db.query(
                 "SELECT id_grupo FROM grupos WHERE tipo_apoyo = ? LIMIT 1",
-                [tipo_apoyo]
+                [tipoApoyoFinal]
             );
 
             if (grupos.length > 0) {
@@ -91,6 +93,31 @@ exports.actualizarUsuario = async (id, data) => {
 
 exports.eliminarUsuario = async (id) => {
     try {
+        // Limpieza previa en cascada de referencias de clave foránea antes de eliminar al usuario
+        const consultasLimpieza = [
+            "DELETE FROM recuperacion_contrasena WHERE usuario_id_usuario = ?",
+            "DELETE FROM interacciones_bot_finanzas WHERE usuario_id_usuario = ?",
+            "DELETE FROM chat_grupo WHERE usuario_id = ?",
+            "DELETE FROM grupos_usuarios WHERE usuario_id = ?",
+            "DELETE FROM respuestas_encuesta WHERE usuario_id_usuario = ?",
+            "DELETE FROM metas_ahorro WHERE usuario_id_usuario = ?",
+            "DELETE FROM ingresos WHERE usuario_id_usuario = ?",
+            "DELETE FROM gastos WHERE usuario_id_usuario = ?",
+            "DELETE FROM documentos_metro WHERE usuario_id_usuario = ?",
+            "DELETE FROM exportaciones WHERE usuario_id_usuario = ?",
+            "DELETE FROM comunicados WHERE usuario_id_usuario = ?",
+            "DELETE FROM preguntas_encuesta WHERE usuario_id_usuario = ?",
+            "DELETE FROM formularios WHERE usuario_id_usuario = ?"
+        ];
+
+        for (const sql of consultasLimpieza) {
+            try {
+                await db.query(sql, [id]);
+            } catch (cleanupErr) {
+                logger.warn('ADMIN_SVC', `Omitiendo tabla en limpieza previa: ${cleanupErr.message}`);
+            }
+        }
+
         await db.query("DELETE FROM usuario WHERE id_usuario = ?", [id]);
         return { success: true };
     } catch (error) {
@@ -636,4 +663,117 @@ exports.eliminarComunicado = async (id) => {
     }
 
 };
+
+// ============= GESTIÓN BENEFICIOS METRO (ADMIN) =============
+
+exports.listarDocumentosMetro = async ({ estado, busqueda, limite = 50, offset = 0 }) => {
+    try {
+        let sql = `
+            SELECT 
+                s.id_solicitud,
+                s.tarjeta_civica,
+                s.tipo_documento,
+                s.numero_documento,
+                s.nombre_completo,
+                s.direccion,
+                s.municipio,
+                s.barrio,
+                s.estrato,
+                s.telefono,
+                s.email,
+                s.fecha_nacimiento,
+                s.institucion_educativa,
+                s.grado_seccion_facultad,
+                s.tiene_firma_estudiante,
+                s.tiene_firma_acudiente,
+                s.direccion_coherente,
+                s.estado_validacion,
+                s.puntaje_confianza,
+                s.observaciones_ia,
+                s.ruta_archivo,
+                s.nombre_archivo_original,
+                s.fecha_subida,
+                s.fecha_revision,
+                s.admin_revisor_id,
+                u.id_usuario,
+                u.primer_nombre,
+                u.primer_apellido,
+                u.correo_electronico,
+                u.grupo_formacion
+            FROM solicitudes_beneficio_metro s
+            INNER JOIN usuario u ON s.usuario_id_usuario = u.id_usuario
+            WHERE 1=1
+        `;
+        const params = [];
+
+        if (estado && estado !== 'TODOS') {
+            sql += ' AND s.estado_validacion = ?';
+            params.push(estado);
+        }
+
+        if (busqueda && busqueda.trim()) {
+            sql += ' AND (s.nombre_completo LIKE ? OR s.numero_documento LIKE ? OR s.tarjeta_civica LIKE ? OR u.primer_nombre LIKE ? OR u.primer_apellido LIKE ?)';
+            const term = `%${busqueda.trim()}%`;
+            params.push(term, term, term, term, term);
+        }
+
+        sql += ' ORDER BY s.fecha_subida DESC LIMIT ? OFFSET ?';
+        params.push(Number(limite), Number(offset));
+
+        const [rows] = await db.query(sql, params);
+
+        return rows.map(r => ({
+            ...r,
+            observaciones_ia: typeof r.observaciones_ia === 'string' ? JSON.parse(r.observaciones_ia) : r.observaciones_ia,
+        }));
+    } catch (error) {
+        logger.error('ADMIN_SVC', 'Error en listarDocumentosMetro', { error: error.message });
+        throw error;
+    }
+};
+
+exports.actualizarEstadoDocumentoMetro = async ({ idSolicitud, nuevoEstado, adminId }) => {
+    try {
+        await db.query(
+            `UPDATE solicitudes_beneficio_metro
+             SET estado_validacion = ?, fecha_revision = NOW(), admin_revisor_id = ?
+             WHERE id_solicitud = ?`,
+            [nuevoEstado, adminId, idSolicitud]
+        );
+        return { success: true, idSolicitud, nuevoEstado };
+    } catch (error) {
+        logger.error('ADMIN_SVC', 'Error en actualizarEstadoDocumentoMetro', { error: error.message });
+        throw error;
+    }
+};
+
+exports.obtenerDocumentoMetroPorId = async (idSolicitud) => {
+    try {
+        const [rows] = await db.query(
+            `SELECT 
+                s.*,
+                u.primer_nombre,
+                u.primer_apellido,
+                u.correo_electronico,
+                u.celular as celular_usuario,
+                u.grupo_formacion
+             FROM solicitudes_beneficio_metro s
+             INNER JOIN usuario u ON s.usuario_id_usuario = u.id_usuario
+             WHERE s.id_solicitud = ?`,
+            [idSolicitud]
+        );
+        if (rows.length === 0) return null;
+
+        const row = rows[0];
+        return {
+            ...row,
+            observaciones_ia: typeof row.observaciones_ia === 'string' ? JSON.parse(row.observaciones_ia) : row.observaciones_ia,
+            resultado_ia_raw: typeof row.resultado_ia_raw === 'string' ? JSON.parse(row.resultado_ia_raw) : row.resultado_ia_raw,
+        };
+    } catch (error) {
+        logger.error('ADMIN_SVC', 'Error en obtenerDocumentoMetroPorId', { error: error.message });
+        throw error;
+    }
+};
+
 

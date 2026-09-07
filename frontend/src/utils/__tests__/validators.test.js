@@ -77,6 +77,15 @@ describe("validators", () => {
       );
     });
 
+    it("retorna error para email demasiado corto", () => {
+      expect(validateEmail("a@b.co")).toBe(
+        "El correo electrónico es demasiado corto (mínimo 8 caracteres)."
+      );
+      expect(validateEmail("ab@c.com")).toBe(
+        "El correo debe tener al menos 3 caracteres antes del @."
+      );
+    });
+
     it("retorna '' para email válido", () => {
       expect(validateEmail("juan@test.com")).toBe("");
     });

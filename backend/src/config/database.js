@@ -8,10 +8,10 @@ let sslConfig = undefined;
 const caPath = path.join(__dirname, '../../certs/ca.pem');
 
 if (fs.existsSync(caPath)) {
-  sslConfig = { ca: fs.readFileSync(caPath).toString() };
+  sslConfig = { ca: fs.readFileSync(caPath).toString(), rejectUnauthorized: false };
   logger.info('DB', 'Certificado SSL cargado desde archivo local (ca.pem)');
 } else if (process.env.DB_SSL_CA) {
-  sslConfig = { ca: Buffer.from(process.env.DB_SSL_CA, 'base64').toString('utf8') };
+  sslConfig = { ca: Buffer.from(process.env.DB_SSL_CA, 'base64').toString('utf8'), rejectUnauthorized: false };
   logger.info('DB', 'Certificado SSL cargado desde variable de entorno DB_SSL_CA');
 } else {
   logger.warn('DB', 'SSL no configurado. Conexion sin cifrado.');
@@ -38,6 +38,19 @@ if (sslConfig) {
 
 const pool = mysql.createPool(poolConfig);
 
+// Prevenir caídas del proceso ante caídas o reinicios de conexión TCP en la nube (Aiven MySQL ECONNRESET)
+if (pool && typeof pool.on === 'function') {
+  pool.on('error', (err) => {
+    logger.error('DB', 'Error en conexión del pool de base de datos', {
+      code: err.code,
+      message: err.message,
+    });
+    if (err.code === 'PROTOCOL_CONNECTION_LOST' || err.code === 'ECONNRESET' || err.code === 'ETIMEDOUT') {
+      logger.warn('DB', 'Conexión cerrada remotamente. El pool reestablecerá nuevas conexiones bajo demanda.');
+    }
+  });
+}
+
 pool.getConnection((err, connection) => {
   if (err) {
     logger.error('DB', 'Error al conectar a la base de datos', {
@@ -55,4 +68,4 @@ pool.getConnection((err, connection) => {
   connection.release();
 });
 
-module.exports = pool.promise();
+module.exports = pool.promise();
