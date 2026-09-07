@@ -37,42 +37,49 @@
   color: #ffffff !important;
 }
 
-/* Modal personalizado */
+/* Modal personalizado — centrado fijo en pantalla con máxima prioridad z-index */
 .modal-backdrop-custom {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.65);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1050;
-  padding: 20px;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 999999 !important;
+  padding: 16px;
+  box-sizing: border-box;
 }
 
 .modal-dialog-custom {
   background: #ffffff;
   border-radius: 16px;
   width: 100%;
-  max-width: 950px;
-  max-height: 90vh;
+  max-width: 960px;
+  max-height: 92vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
   overflow: hidden;
+  margin: auto !important;
+  position: relative;
 }
 
 .modal-header-custom {
   padding: 16px 24px;
   border-bottom: 1px solid #e9ecef;
   background: #fafbfc;
+  flex-shrink: 0;
 }
 
 .modal-body-custom {
   overflow-y: auto;
   flex-grow: 1;
+  -webkit-overflow-scrolling: touch;
 }
 
 .document-preview-frame {
@@ -86,3 +93,4 @@
   object-fit: contain;
   margin: 0 auto;
 }
+

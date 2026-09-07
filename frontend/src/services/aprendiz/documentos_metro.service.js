@@ -39,6 +39,15 @@ export const obtenerUrlPlantillaMetro = () => {
 };
 
 /**
+ * Devuelve la URL directa para VISUALIZAR inline el documento del aprendiz
+ */
+export const obtenerUrlVerMetroAprendiz = (idSolicitud) => {
+  const base = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+  const token = localStorage.getItem("token") || "";
+  return `${base}${BASE}/${idSolicitud}/ver${token ? `?token=${encodeURIComponent(token)}` : ""}`;
+};
+
+/**
  * Devuelve la URL directa para descargar el documento del aprendiz
  */
 export const obtenerUrlDescargaMetroAprendiz = (idSolicitud) => {

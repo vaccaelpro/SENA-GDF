@@ -462,19 +462,77 @@ exports.descargarArchivoMetro = async (req, res) => {
 
         const path = require('path');
         const fs = require('fs');
-        // Quitar barra inicial si existe
-        const rutaRelativa = doc.ruta_archivo.startsWith('/') ? doc.ruta_archivo.slice(1) : doc.ruta_archivo;
-        const rutaAbsoluta = path.join(__dirname, '../../../', rutaRelativa);
+        const nombreDescarga = doc.nombre_archivo_original || 'documento';
+        const extension = path.extname(nombreDescarga).toLowerCase();
+        const mimeMap = { '.pdf': 'application/pdf', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png' };
+        const contentType = mimeMap[extension] || 'application/octet-stream';
 
-        if (!fs.existsSync(rutaAbsoluta)) {
-            return res.status(404).json({ error: 'El archivo físico no existe en el servidor' });
+        // Intentar desde disco primero
+        if (doc.ruta_archivo) {
+            const rutaRelativa = doc.ruta_archivo.startsWith('/') ? doc.ruta_archivo.slice(1) : doc.ruta_archivo;
+            const rutaAbsoluta = path.join(__dirname, '../../../', rutaRelativa);
+            if (fs.existsSync(rutaAbsoluta)) {
+                res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(nombreDescarga)}"`);
+                return res.download(rutaAbsoluta, nombreDescarga);
+            }
         }
 
-        const nombreDescarga = doc.nombre_archivo_original || path.basename(rutaAbsoluta);
-        res.download(rutaAbsoluta, nombreDescarga);
+        // Fallback: reconstruir desde base64 en BD
+        if (doc.archivo_base64) {
+            const buffer = Buffer.from(doc.archivo_base64, 'base64');
+            res.setHeader('Content-Type', contentType);
+            res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(nombreDescarga)}"`);
+            res.setHeader('Content-Length', buffer.length);
+            return res.end(buffer);
+        }
+
+        return res.status(404).json({ error: 'El archivo no está disponible en el servidor' });
     } catch (error) {
         logger.error('ADMIN', 'Error al descargar archivo metro', { error: error.message });
         res.status(500).json({ error: 'Error al descargar archivo' });
     }
 };
+
+exports.verArchivoMetroInline = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const doc = await service.obtenerDocumentoMetroPorId(id);
+        if (!doc) {
+            return res.status(404).json({ error: 'Documento no encontrado' });
+        }
+
+        const path = require('path');
+        const fs = require('fs');
+        const nombreDescarga = doc.nombre_archivo_original || 'documento';
+        const extension = path.extname(nombreDescarga).toLowerCase();
+        const mimeMap = { '.pdf': 'application/pdf', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png' };
+        const contentType = mimeMap[extension] || 'application/octet-stream';
+
+        // Intentar desde disco primero
+        if (doc.ruta_archivo) {
+            const rutaRelativa = doc.ruta_archivo.startsWith('/') ? doc.ruta_archivo.slice(1) : doc.ruta_archivo;
+            const rutaAbsoluta = path.join(__dirname, '../../../', rutaRelativa);
+            if (fs.existsSync(rutaAbsoluta)) {
+                res.setHeader('Content-Type', contentType);
+                res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(nombreDescarga)}"`);
+                return res.sendFile(rutaAbsoluta);
+            }
+        }
+
+        // Fallback: reconstruir desde base64 en BD
+        if (doc.archivo_base64) {
+            const buffer = Buffer.from(doc.archivo_base64, 'base64');
+            res.setHeader('Content-Type', contentType);
+            res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(nombreDescarga)}"`);
+            res.setHeader('Content-Length', buffer.length);
+            return res.end(buffer);
+        }
+
+        return res.status(404).json({ error: 'El archivo no está disponible en el servidor' });
+    } catch (error) {
+        logger.error('ADMIN', 'Error al visualizar archivo metro inline', { error: error.message });
+        res.status(500).json({ error: 'Error al visualizar archivo' });
+    }
+};
+
 

@@ -17,17 +17,10 @@ import {
   listarDocumentosMetroAdmin,
   actualizarEstadoDocumentoMetroAdmin,
   obtenerUrlDescargaMetroAdmin,
+  obtenerUrlVerMetroAdmin,
   descargarArchivoMetroBlob,
 } from "../../services/admin/documentos_metro_admin.service";
 import "../../css/gestion_documentos_metro.css";
-
-const obtenerUrlCompleta = (ruta) => {
-  if (!ruta) return "";
-  if (ruta.startsWith("http://") || ruta.startsWith("https://")) return ruta;
-  const base = process.env.REACT_APP_BACKEND_URL || "http://localhost:3001";
-  const limpia = ruta.startsWith("/") ? ruta : `/${ruta}`;
-  return `${base}${limpia}`;
-};
 
 const GestionDocumentosMetro = () => {
   const [solicitudes, setSolicitudes] = useState([]);
@@ -334,14 +327,14 @@ const GestionDocumentosMetro = () => {
                       {modalSolicitud.ruta_archivo?.toLowerCase().endsWith(".pdf") ? (
                         <div className="pdf-preview-box">
                           <iframe
-                            src={obtenerUrlCompleta(modalSolicitud.ruta_archivo)}
+                            src={obtenerUrlVerMetroAdmin(modalSolicitud.id_solicitud)}
                             title="Documento PDF"
                             className="w-100 rounded border"
                             style={{ height: "460px", border: "none" }}
                           />
                           <div className="mt-2 text-center">
                             <a
-                              href={obtenerUrlDescargaMetroAdmin(modalSolicitud.id_solicitud)}
+                              href={obtenerUrlVerMetroAdmin(modalSolicitud.id_solicitud)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="btn btn-sm btn-outline-success"
@@ -353,19 +346,13 @@ const GestionDocumentosMetro = () => {
                       ) : (
                         <div className="img-preview-box">
                           <img
-                            src={obtenerUrlCompleta(modalSolicitud.ruta_archivo)}
+                            src={obtenerUrlVerMetroAdmin(modalSolicitud.id_solicitud)}
                             alt="Documento escaneado"
                             className="img-fluid rounded modal-doc-img"
-                            onError={(e) => {
-                              if (!e.target.dataset.tried) {
-                                e.target.dataset.tried = "true";
-                                e.target.src = `http://localhost:3001${modalSolicitud.ruta_archivo.startsWith('/') ? '' : '/'}${modalSolicitud.ruta_archivo}`;
-                              }
-                            }}
                           />
                           <div className="mt-2 text-center">
                             <a
-                              href={obtenerUrlCompleta(modalSolicitud.ruta_archivo)}
+                              href={obtenerUrlVerMetroAdmin(modalSolicitud.id_solicitud)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="btn btn-sm btn-outline-success"

@@ -20,19 +20,12 @@ import {
   analizarDocumentoMetro,
   obtenerMisSolicitudesMetro,
   obtenerUrlPlantillaMetro,
+  obtenerUrlVerMetroAprendiz,
   obtenerUrlDescargaMetroAprendiz,
   descargarArchivoMetroAprendizBlob,
 } from "../../services/aprendiz/documentos_metro.service";
 import plantillaImg from "../../assets/img/formato_metro_plantilla.jpg";
 import "../../css/validador_metro.css";
-
-const obtenerUrlCompleta = (ruta) => {
-  if (!ruta) return "";
-  if (ruta.startsWith("http://") || ruta.startsWith("https://")) return ruta;
-  const base = process.env.REACT_APP_BACKEND_URL || "http://localhost:3001";
-  const limpia = ruta.startsWith("/") ? ruta : `/${ruta}`;
-  return `${base}${limpia}`;
-};
 
 const PASOS_GUIA = [
   {
@@ -788,14 +781,14 @@ const ValidadorMetro = () => {
                       {modalDetalle.ruta_archivo?.toLowerCase().endsWith(".pdf") ? (
                         <div className="pdf-preview-box">
                           <iframe
-                            src={obtenerUrlCompleta(modalDetalle.ruta_archivo)}
+                            src={obtenerUrlVerMetroAprendiz(modalDetalle.id_solicitud)}
                             title="Documento PDF"
                             className="w-100 rounded border"
                             style={{ height: "450px", border: "none" }}
                           />
                           <div className="mt-2 text-center">
                             <a
-                              href={obtenerUrlDescargaMetroAprendiz(modalDetalle.id_solicitud)}
+                              href={obtenerUrlVerMetroAprendiz(modalDetalle.id_solicitud)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="btn btn-sm btn-outline-success"
@@ -807,19 +800,13 @@ const ValidadorMetro = () => {
                       ) : (
                         <div className="img-preview-box">
                           <img
-                            src={obtenerUrlCompleta(modalDetalle.ruta_archivo)}
+                            src={obtenerUrlVerMetroAprendiz(modalDetalle.id_solicitud)}
                             alt="Formulario cargado"
                             className="img-fluid rounded modal-doc-img"
-                            onError={(e) => {
-                              if (!e.target.dataset.tried) {
-                                e.target.dataset.tried = "true";
-                                e.target.src = `http://localhost:3001${modalDetalle.ruta_archivo.startsWith('/') ? '' : '/'}${modalDetalle.ruta_archivo}`;
-                              }
-                            }}
                           />
                           <div className="mt-2 text-center">
                             <a
-                              href={obtenerUrlCompleta(modalDetalle.ruta_archivo)}
+                              href={obtenerUrlVerMetroAprendiz(modalDetalle.id_solicitud)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="btn btn-sm btn-outline-success"

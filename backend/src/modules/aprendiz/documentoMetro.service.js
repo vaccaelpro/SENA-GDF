@@ -12,6 +12,21 @@ if (!fs.existsSync(CARPETA_UPLOADS)) {
   fs.mkdirSync(CARPETA_UPLOADS, { recursive: true });
 }
 
+// Auto-migración: agregar columna archivo_base64 si no existe (sin modificar esquema manualmente)
+(async () => {
+  try {
+    await db.query(
+      `ALTER TABLE solicitudes_beneficio_metro ADD COLUMN IF NOT EXISTS archivo_base64 LONGTEXT NULL AFTER ruta_archivo`
+    );
+    logger.info('DOCUMENTO_METRO', 'Columna archivo_base64 verificada/creada correctamente');
+  } catch (e) {
+    // MySQL < 8.0 no soporta IF NOT EXISTS en ALTER TABLE; lo manejamos manualmente
+    if (e.code !== 'ER_DUP_FIELDNAME') {
+      logger.warn('DOCUMENTO_METRO', 'No se pudo verificar columna archivo_base64: ' + e.message);
+    }
+  }
+})();
+
 /**
  * Procesa la subida y auditoría con IA de un formulario del Metro
  */
@@ -87,11 +102,12 @@ exports.procesarDocumentoMetro = async ({ usuarioId, archivoBuffer, nombreOrigin
 
   const resultadoRawJSON = JSON.stringify(resultadoIA);
 
-  // 3. Guardar en base de datos
+  // 3. Guardar en base de datos (incluyendo base64 para persistencia en producción)
   const sqlInsert = `
     INSERT INTO solicitudes_beneficio_metro (
       usuario_id_usuario,
       ruta_archivo,
+      archivo_base64,
       nombre_archivo_original,
       tarjeta_civica,
       tipo_documento,
@@ -115,7 +131,7 @@ exports.procesarDocumentoMetro = async ({ usuarioId, archivoBuffer, nombreOrigin
       observaciones_ia,
       resultado_ia_raw,
       fecha_subida
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
   `;
 
   // Sanitizar tipo de documento
@@ -133,6 +149,7 @@ exports.procesarDocumentoMetro = async ({ usuarioId, archivoBuffer, nombreOrigin
   const valores = [
     idUsuarioInt,
     rutaRelativa,
+    base64Data,
     nombreOriginal,
     datos.tarjeta_civica ? String(datos.tarjeta_civica).trim() : null,
     tipoDocLimpio,
@@ -249,7 +266,10 @@ exports.obtenerDetalleSolicitud = async (idSolicitud, usuarioId = null) => {
  * Obtiene una solicitud básica por su ID
  */
 exports.obtenerSolicitudPorId = async (idSolicitud) => {
-  const [rows] = await db.query('SELECT * FROM solicitudes_beneficio_metro WHERE id_solicitud = ?', [idSolicitud]);
+  const [rows] = await db.query(
+    'SELECT id_solicitud, ruta_archivo, archivo_base64, nombre_archivo_original, usuario_id_usuario FROM solicitudes_beneficio_metro WHERE id_solicitud = ?',
+    [idSolicitud]
+  );
   return rows[0] || null;
 };
 

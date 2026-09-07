@@ -33,6 +33,15 @@ export const actualizarEstadoDocumentoMetroAdmin = async (idSolicitud, nuevoEsta
 };
 
 /**
+ * Obtiene la URL para VISUALIZAR inline el archivo (modal PDF/imagen)
+ */
+export const obtenerUrlVerMetroAdmin = (idSolicitud) => {
+  const base = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+  const token = localStorage.getItem("token") || "";
+  return `${base}${BASE}/${idSolicitud}/ver${token ? `?token=${encodeURIComponent(token)}` : ""}`;
+};
+
+/**
  * Obtiene la URL para descargar el archivo físico subido (con token en query)
  */
 export const obtenerUrlDescargaMetroAdmin = (idSolicitud) => {
@@ -58,3 +67,4 @@ export const descargarArchivoMetroBlob = async (idSolicitud, nombreSugerido) => 
   window.URL.revokeObjectURL(url);
   document.body.removeChild(a);
 };
+

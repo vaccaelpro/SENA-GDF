@@ -53,7 +53,9 @@ const authMetroSuave = (req, res, next) => {
 router.post('/documento-metro/analizar', authMetroSuave, docMetroCtrl.analizarDocumento);
 router.get('/documento-metro/mis-solicitudes', authMetroSuave, docMetroCtrl.obtenerMisSolicitudes);
 router.get('/documento-metro/plantilla', docMetroCtrl.descargarPlantilla);
+router.get('/documento-metro/:id/ver', authMetroSuave, docMetroCtrl.verArchivoInline);
 router.get('/documento-metro/:id/descargar', authMetroSuave, docMetroCtrl.descargarArchivo);
 
 module.exports = router;
+
 

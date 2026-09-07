@@ -47,7 +47,9 @@ router.get("/encuestas/:id/verificar/:usuario_id", controller.verificarRespuesta
 router.get("/documentos-metro", controller.listarDocumentosMetro);
 router.get("/documentos-metro/:id", controller.obtenerDocumentoMetroPorId);
 router.put("/documentos-metro/:id/estado", controller.actualizarEstadoDocumentoMetro);
+router.get("/documentos-metro/:id/ver", controller.verArchivoMetroInline);
 router.get("/documentos-metro/:id/descargar", controller.descargarArchivoMetro);
 
 module.exports = router;
+
 

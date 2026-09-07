@@ -4,6 +4,49 @@ const path = require('path');
 const fs = require('fs');
 
 /**
+ * Utilidad interna: envía el archivo al cliente desde disco o desde base64 en BD.
+ * Parámetros: res, solicitud (objeto BD), inline (true=visualizar, false=descargar)
+ */
+const _servirArchivo = (res, solicitud, inline = true) => {
+  const nombreDescarga = solicitud.nombre_archivo_original || 'documento';
+  const extension = path.extname(nombreDescarga).toLowerCase();
+  const mimeMap = {
+    '.pdf': 'application/pdf',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.png': 'image/png',
+  };
+  const contentType = mimeMap[extension] || 'application/octet-stream';
+  const disposition = inline ? 'inline' : 'attachment';
+
+  // Intentar desde disco primero
+  if (solicitud.ruta_archivo) {
+    const rutaRelativa = solicitud.ruta_archivo.startsWith('/') ? solicitud.ruta_archivo.slice(1) : solicitud.ruta_archivo;
+    const rutaAbsoluta = path.join(__dirname, '../../../', rutaRelativa);
+    if (fs.existsSync(rutaAbsoluta)) {
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Content-Disposition', `${disposition}; filename="${encodeURIComponent(nombreDescarga)}"`);
+      return res.sendFile(rutaAbsoluta);
+    }
+  }
+
+  // Fallback: reconstruir desde base64 almacenado en BD
+  if (solicitud.archivo_base64) {
+    try {
+      const buffer = Buffer.from(solicitud.archivo_base64, 'base64');
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Content-Disposition', `${disposition}; filename="${encodeURIComponent(nombreDescarga)}"`);
+      res.setHeader('Content-Length', buffer.length);
+      return res.end(buffer);
+    } catch (e) {
+      logger.error('DOCUMENTO_METRO_CTRL', 'Error al decodificar base64 del archivo', { error: e.message });
+    }
+  }
+
+  return res.status(404).json({ error: 'El archivo no está disponible en el servidor' });
+};
+
+/**
  * Analiza un documento escaneado/foto del formulario Metro
  * POST /api/aprendiz/documento-metro/analizar
  */
@@ -121,18 +164,36 @@ exports.descargarArchivo = async (req, res) => {
       return res.status(403).json({ error: 'No tienes permiso para acceder a este documento' });
     }
 
-    const rutaRelativa = solicitud.ruta_archivo.startsWith('/') ? solicitud.ruta_archivo.slice(1) : solicitud.ruta_archivo;
-    const rutaAbsoluta = path.join(__dirname, '../../../', rutaRelativa);
-
-    if (!fs.existsSync(rutaAbsoluta)) {
-      return res.status(404).json({ error: 'El archivo físico no se encuentra en el servidor' });
-    }
-
-    const nombreDescarga = solicitud.nombre_archivo_original || path.basename(rutaAbsoluta);
-    return res.download(rutaAbsoluta, nombreDescarga);
+    return _servirArchivo(res, solicitud, false);
   } catch (error) {
     logger.error('DOCUMENTO_METRO_CTRL', 'Error al descargar archivo aprendiz', { error: error.message });
     return res.status(500).json({ error: 'Error al descargar el archivo' });
+  }
+};
+
+/**
+ * Visualiza el archivo inline (para el visor del modal)
+ * GET /api/aprendiz/documento-metro/:id/ver
+ */
+exports.verArchivoInline = async (req, res) => {
+  try {
+    const usuarioId = req.usuario?.id || req.user?.id_usuario || req.query?.usuarioId;
+    const { id } = req.params;
+
+    const solicitud = await documentoMetroService.obtenerSolicitudPorId(id);
+    if (!solicitud) {
+      return res.status(404).json({ error: 'Solicitud no encontrada' });
+    }
+
+    // Si es aprendiz, verificar que le pertenezca
+    if (usuarioId && req.usuario?.rol !== 'admin' && String(solicitud.usuario_id_usuario) !== String(usuarioId)) {
+      return res.status(403).json({ error: 'No tienes permiso para acceder a este documento' });
+    }
+
+    return _servirArchivo(res, solicitud, true);
+  } catch (error) {
+    logger.error('DOCUMENTO_METRO_CTRL', 'Error al visualizar archivo aprendiz', { error: error.message });
+    return res.status(500).json({ error: 'Error al visualizar el archivo' });
   }
 };
 
