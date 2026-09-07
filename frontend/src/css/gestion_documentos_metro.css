@@ -46,27 +46,40 @@
   bottom: 0 !important;
   width: 100vw !important;
   height: 100vh !important;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.75) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   z-index: 999999 !important;
-  padding: 16px;
-  box-sizing: border-box;
+  padding: 24px !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
 }
 
 .modal-dialog-custom {
   background: #ffffff;
   border-radius: 16px;
   width: 100%;
-  max-width: 960px;
-  max-height: 92vh;
+  max-width: 980px;
+  max-height: 86vh;
+  margin: auto !important;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
   overflow: hidden;
-  margin: auto !important;
   position: relative;
+  animation: modalScaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .modal-header-custom {
@@ -77,20 +90,36 @@
 }
 
 .modal-body-custom {
+  padding: 22px 24px;
   overflow-y: auto;
+  max-height: calc(86vh - 65px);
   flex-grow: 1;
-  -webkit-overflow-scrolling: touch;
 }
 
 .document-preview-frame {
-  max-height: 480px;
+  max-height: 440px;
   overflow: auto;
   background: #212529;
+  border-radius: 8px;
 }
 
 .modal-doc-img {
-  max-height: 460px;
+  max-height: 420px;
   object-fit: contain;
   margin: 0 auto;
 }
+
+.modal-btn-exit {
+  transition: all 0.2s ease;
+  background: #ffffff;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+}
+
+.modal-btn-exit:hover {
+  background: #f8d7da;
+  color: #dc3545;
+  border-color: #f5c2c7;
+}
+
 

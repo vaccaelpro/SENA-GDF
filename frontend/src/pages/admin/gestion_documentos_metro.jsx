@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Swal from "sweetalert2";
 import {
   FaSubway,
@@ -29,6 +30,17 @@ const GestionDocumentosMetro = () => {
   const [busqueda, setBusqueda] = useState("");
   const [modalSolicitud, setModalSolicitud] = useState(null);
   const [descargando, setDescargando] = useState(false);
+
+  // Cerrar modal con tecla Escape
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && modalSolicitud) {
+        setModalSolicitud(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [modalSolicitud]);
 
   const cargarSolicitudes = async () => {
     setLoading(true);
@@ -294,175 +306,191 @@ const GestionDocumentosMetro = () => {
         </div>
       </div>
 
-      {/* Modal de Detalle y Auditoría */}
-      {modalSolicitud && (
-        <div className="modal-backdrop-custom animate-fade-in">
-          <div className="modal-dialog-custom">
-            <div className="modal-content-custom">
-              <div className="modal-header-custom d-flex justify-content-between align-items-center">
-                <div className="d-flex align-items-center gap-2">
-                  <FaSubway className="text-success" size={20} />
-                  <h5 className="mb-0 fw-bold">Detalle de Solicitud #{modalSolicitud.id_solicitud}</h5>
+      {/* Modal de Detalle y Auditoría usando Portal para garantizar centrado global sobre toda la pantalla */}
+      {modalSolicitud &&
+        createPortal(
+          <div
+            className="modal-backdrop-custom animate-fade-in"
+            onClick={() => setModalSolicitud(null)}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div
+              className="modal-dialog-custom"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="modal-content-custom">
+                <div className="modal-header-custom d-flex justify-content-between align-items-center">
+                  <div className="d-flex align-items-center gap-2">
+                    <FaSubway className="text-success" size={20} />
+                    <h5 className="mb-0 fw-bold">
+                      Detalle de Solicitud #{modalSolicitud.id_solicitud}
+                    </h5>
+                  </div>
+                  <button
+                    type="button"
+                    className="modal-btn-exit rounded-circle p-2 d-flex align-items-center justify-content-center"
+                    onClick={() => setModalSolicitud(null)}
+                    title="Salir / Cerrar"
+                    aria-label="Cerrar modal"
+                    style={{ width: "34px", height: "34px", border: "1px solid #ced4da", cursor: "pointer" }}
+                  >
+                    <FaTimes size={14} />
+                  </button>
                 </div>
-                <button
-                  className="btn btn-sm btn-light rounded-circle"
-                  onClick={() => setModalSolicitud(null)}
-                >
-                  <FaTimes />
-                </button>
-              </div>
 
-              <div className="modal-body-custom p-4">
-                <div className="row g-4">
-                  {/* Columna Izquierda: Vista Previa del Archivo */}
-                  <div className="col-lg-6">
-                    <div className="d-flex justify-content-between align-items-center mb-2">
-                      <h6 className="fw-bold mb-0">Documento Escaneado:</h6>
-                      <span className="badge bg-light text-secondary border small">
-                        {modalSolicitud.nombre_archivo_original || "Documento Adjunto"}
-                      </span>
+                <div className="modal-body-custom p-4">
+                  <div className="row g-4">
+                    {/* Columna Izquierda: Vista Previa del Archivo */}
+                    <div className="col-lg-6">
+                      <div className="d-flex justify-content-between align-items-center mb-2">
+                        <h6 className="fw-bold mb-0">Documento Escaneado:</h6>
+                        <span className="badge bg-light text-secondary border small">
+                          {modalSolicitud.nombre_archivo_original || "Documento Adjunto"}
+                        </span>
+                      </div>
+
+                      <div className="document-preview-frame rounded border shadow-sm p-2 bg-light text-center">
+                        {modalSolicitud.ruta_archivo?.toLowerCase().endsWith(".pdf") ? (
+                          <div className="pdf-preview-box">
+                            <iframe
+                              src={obtenerUrlVerMetroAdmin(modalSolicitud.id_solicitud)}
+                              title="Documento PDF"
+                              className="w-100 rounded border"
+                              style={{ height: "420px", border: "none" }}
+                            />
+                            <div className="mt-2 text-center">
+                              <a
+                                href={obtenerUrlVerMetroAdmin(modalSolicitud.id_solicitud)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn btn-sm btn-outline-success"
+                              >
+                                <FaEye className="me-1" /> Abrir PDF en pestaña nueva
+                              </a>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="img-preview-box">
+                            <img
+                              src={obtenerUrlVerMetroAdmin(modalSolicitud.id_solicitud)}
+                              alt="Documento escaneado"
+                              className="img-fluid rounded modal-doc-img"
+                            />
+                            <div className="mt-2 text-center">
+                              <a
+                                href={obtenerUrlVerMetroAdmin(modalSolicitud.id_solicitud)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn btn-sm btn-outline-success"
+                              >
+                                <FaEye className="me-1" /> Ver imagen completa
+                              </a>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
-                    <div className="document-preview-frame rounded border shadow-sm p-2 bg-light text-center">
-                      {modalSolicitud.ruta_archivo?.toLowerCase().endsWith(".pdf") ? (
-                        <div className="pdf-preview-box">
-                          <iframe
-                            src={obtenerUrlVerMetroAdmin(modalSolicitud.id_solicitud)}
-                            title="Documento PDF"
-                            className="w-100 rounded border"
-                            style={{ height: "460px", border: "none" }}
-                          />
-                          <div className="mt-2 text-center">
-                            <a
-                              href={obtenerUrlVerMetroAdmin(modalSolicitud.id_solicitud)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="btn btn-sm btn-outline-success"
-                            >
-                              <FaEye className="me-1" /> Abrir PDF en pestaña nueva
-                            </a>
+                    {/* Columna Derecha: Auditoría de la IA */}
+                    <div className="col-lg-6">
+                      <h6 className="fw-bold mb-2">Resultados de la Auditoría Inteligente:</h6>
+
+                      {/* Estado actual */}
+                      <div className="p-3 mb-3 bg-light rounded d-flex justify-content-between align-items-center">
+                        <div>
+                          <span className="small text-muted d-block">Estado de Validación:</span>
+                          <strong className="fs-6">{modalSolicitud.estado_validacion}</strong>
+                        </div>
+                        <div className="d-flex gap-2">
+                          <button
+                            className="btn btn-sm btn-success"
+                            onClick={() => handleCambiarEstado(modalSolicitud.id_solicitud, "APROBADO")}
+                          >
+                            <FaCheckCircle className="me-1" /> Aprobar
+                          </button>
+                          <button
+                            className="btn btn-sm btn-danger"
+                            onClick={() => handleCambiarEstado(modalSolicitud.id_solicitud, "RECHAZADO")}
+                          >
+                            <FaTimesCircle className="me-1" /> Rechazar
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Datos Detectados */}
+                      <div className="card p-3 mb-3 border">
+                        <h6 className="small fw-bold text-uppercase text-muted mb-2">Datos Extraídos por OCR</h6>
+                        <ul className="list-unstyled mb-0 small">
+                          <li className="mb-1">
+                            <strong>Nombre:</strong> {modalSolicitud.nombre_completo || `${modalSolicitud.primer_nombre} ${modalSolicitud.primer_apellido}`}
+                          </li>
+                          <li className="mb-1">
+                            <strong>Documento:</strong> {modalSolicitud.tipo_documento} {modalSolicitud.numero_documento}
+                          </li>
+                          <li className="mb-1">
+                            <strong>Tarjeta Cívica:</strong> {modalSolicitud.tarjeta_civica || "No detectada"}
+                          </li>
+                          <li className="mb-1">
+                            <strong>Dirección:</strong> {modalSolicitud.direccion || "No detectada"}
+                          </li>
+                          <li className="mb-1">
+                            <strong>Barrio / Municipio:</strong> {modalSolicitud.barrio}, {modalSolicitud.municipio}
+                          </li>
+                          <li className="mb-1">
+                            <strong>Estrato:</strong> {modalSolicitud.estrato || "No especificado"}
+                          </li>
+                        </ul>
+                      </div>
+
+                      {/* Verificación de Firmas */}
+                      <div className="card p-3 mb-3 border">
+                        <h6 className="small fw-bold text-uppercase text-muted mb-2">
+                          <FaPenFancy className="me-1" /> Firmas y Mayoría de Edad
+                        </h6>
+                        <div className="row g-2 small">
+                          <div className="col-6">
+                            Firma Estudiante:{" "}
+                            {modalSolicitud.tiene_firma_estudiante ? (
+                              <span className="badge bg-success">Detectada</span>
+                            ) : (
+                              <span className="badge bg-danger">Faltante</span>
+                            )}
+                          </div>
+                          <div className="col-6">
+                            Firma Acudiente:{" "}
+                            {modalSolicitud.tiene_firma_acudiente ? (
+                              <span className="badge bg-success">Detectada</span>
+                            ) : (
+                              <span className="badge bg-secondary">No requerida/No</span>
+                            )}
                           </div>
                         </div>
-                      ) : (
-                        <div className="img-preview-box">
-                          <img
-                            src={obtenerUrlVerMetroAdmin(modalSolicitud.id_solicitud)}
-                            alt="Documento escaneado"
-                            className="img-fluid rounded modal-doc-img"
-                          />
-                          <div className="mt-2 text-center">
-                            <a
-                              href={obtenerUrlVerMetroAdmin(modalSolicitud.id_solicitud)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="btn btn-sm btn-outline-success"
-                            >
-                              <FaEye className="me-1" /> Ver imagen completa
-                            </a>
-                          </div>
+                      </div>
+
+                      {/* Observaciones de la IA */}
+                      {modalSolicitud.observaciones_ia?.evaluacion?.inconsistencias?.length > 0 && (
+                        <div className="p-3 bg-warning-subtle border-warning-subtle rounded small">
+                          <strong className="text-warning-emphasis d-block mb-1">
+                            <FaExclamationTriangle className="me-1" /> Inconsistencias Reportadas:
+                          </strong>
+                          <ul className="mb-0 ps-3">
+                            {modalSolicitud.observaciones_ia.evaluacion.inconsistencias.map((inc, i) => (
+                              <li key={i} className="text-warning-emphasis">
+                                {inc}
+                              </li>
+                            ))}
+                          </ul>
                         </div>
                       )}
                     </div>
                   </div>
-
-                  {/* Columna Derecha: Auditoría de la IA */}
-                  <div className="col-lg-6">
-                    <h6 className="fw-bold mb-2">Resultados de la Auditoría Inteligente:</h6>
-
-                    {/* Estado actual */}
-                    <div className="p-3 mb-3 bg-light rounded d-flex justify-content-between align-items-center">
-                      <div>
-                        <span className="small text-muted d-block">Estado de Validación:</span>
-                        <strong className="fs-6">{modalSolicitud.estado_validacion}</strong>
-                      </div>
-                      <div className="d-flex gap-2">
-                        <button
-                          className="btn btn-sm btn-success"
-                          onClick={() => handleCambiarEstado(modalSolicitud.id_solicitud, "APROBADO")}
-                        >
-                          <FaCheckCircle className="me-1" /> Aprobar
-                        </button>
-                        <button
-                          className="btn btn-sm btn-danger"
-                          onClick={() => handleCambiarEstado(modalSolicitud.id_solicitud, "RECHAZADO")}
-                        >
-                          <FaTimesCircle className="me-1" /> Rechazar
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Datos Detectados */}
-                    <div className="card p-3 mb-3 border">
-                      <h6 className="small fw-bold text-uppercase text-muted mb-2">Datos Extraídos por OCR</h6>
-                      <ul className="list-unstyled mb-0 small">
-                        <li className="mb-1">
-                          <strong>Nombre:</strong> {modalSolicitud.nombre_completo || `${modalSolicitud.primer_nombre} ${modalSolicitud.primer_apellido}`}
-                        </li>
-                        <li className="mb-1">
-                          <strong>Documento:</strong> {modalSolicitud.tipo_documento} {modalSolicitud.numero_documento}
-                        </li>
-                        <li className="mb-1">
-                          <strong>Tarjeta Cívica:</strong> {modalSolicitud.tarjeta_civica || "No detectada"}
-                        </li>
-                        <li className="mb-1">
-                          <strong>Dirección:</strong> {modalSolicitud.direccion || "No detectada"}
-                        </li>
-                        <li className="mb-1">
-                          <strong>Barrio / Municipio:</strong> {modalSolicitud.barrio}, {modalSolicitud.municipio}
-                        </li>
-                        <li className="mb-1">
-                          <strong>Estrato:</strong> {modalSolicitud.estrato || "No especificado"}
-                        </li>
-                      </ul>
-                    </div>
-
-                    {/* Verificación de Firmas */}
-                    <div className="card p-3 mb-3 border">
-                      <h6 className="small fw-bold text-uppercase text-muted mb-2">
-                        <FaPenFancy className="me-1" /> Firmas y Mayoría de Edad
-                      </h6>
-                      <div className="row g-2 small">
-                        <div className="col-6">
-                          Firma Estudiante:{" "}
-                          {modalSolicitud.tiene_firma_estudiante ? (
-                            <span className="badge bg-success">Detectada</span>
-                          ) : (
-                            <span className="badge bg-danger">Faltante</span>
-                          )}
-                        </div>
-                        <div className="col-6">
-                          Firma Acudiente:{" "}
-                          {modalSolicitud.tiene_firma_acudiente ? (
-                            <span className="badge bg-success">Detectada</span>
-                          ) : (
-                            <span className="badge bg-secondary">No requerida/No</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Observaciones de la IA */}
-                    {modalSolicitud.observaciones_ia?.evaluacion?.inconsistencias?.length > 0 && (
-                      <div className="p-3 bg-warning-subtle border-warning-subtle rounded small">
-                        <strong className="text-warning-emphasis d-block mb-1">
-                          <FaExclamationTriangle className="me-1" /> Inconsistencias Reportadas:
-                        </strong>
-                        <ul className="mb-0 ps-3">
-                          {modalSolicitud.observaciones_ia.evaluacion.inconsistencias.map((inc, i) => (
-                            <li key={i} className="text-warning-emphasis">
-                              {inc}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </div>
   );
 };
