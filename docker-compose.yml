@@ -1,0 +1,81 @@
+services:
+  # =========================================================
+  # SERVICIO: Backend (Express + Node.js)
+  # =========================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sena-gdf-backend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./backend/.env
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+    volumes:
+      # Persistencia de archivos subidos en el sistema anfitrión
+      - ./backend/uploads:/app/uploads
+      # Montaje de certificados SSL en solo lectura
+      - ./backend/certs:/app/certs:ro
+    hostname: backend
+    networks:
+      sena-network:
+        aliases:
+          - backend
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3001/api/test || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # =========================================================
+  # SERVICIO: Frontend (React + Nginx)
+  # =========================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - REACT_APP_API_URL=http://localhost:3001/api
+    container_name: sena-gdf-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - sena-network
+
+  # =========================================================
+  # SERVICIO OPCIONAL: Base de Datos MySQL Local
+  # Para activarlo: docker compose --profile local-db up -d
+  # (Por defecto el backend usa la BD de Aiven configurada en .env)
+  # =========================================================
+  # mysql:
+  #   image: mysql:8.0
+  #   container_name: sena-gdf-mysql
+  #   restart: unless-stopped
+  #   profiles: ["local-db"]
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: root_password
+  #     MYSQL_DATABASE: sena
+  #     MYSQL_USER: sena_user
+  #     MYSQL_PASSWORD: sena_password
+  #   ports:
+  #     - "3306:3306"
+  #   volumes:
+  #     - mysql_data:/var/lib/mysql
+  #   networks:
+  #     - sena-network
+
+networks:
+  sena-network:
+    driver: bridge
+
+# volumes:
+#   mysql_data:

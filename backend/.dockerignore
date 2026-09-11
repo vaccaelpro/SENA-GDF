@@ -1,0 +1,11 @@
+node_modules
+npm-debug.log
+yarn-error.log
+.git
+.gitignore
+scratch
+__tests__
+*.md
+.DS_Store
+uploads/*
+!uploads/documentos_metro
