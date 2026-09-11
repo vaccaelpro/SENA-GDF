@@ -105,7 +105,7 @@ const ModalAgregarMeta = ({ onClose, onSuccess, idUsuario }) => {
 
           <div className="form-row">
             <div className="form-group">
-              <label>Valor objetivo (COP) *</label>
+              <label>hector (COP) *</label>
               <input
                 name="valor_objetivo"
                 type="number"
@@ -833,7 +833,7 @@ const MetasDeAhorro = () => {
           <div className="col-md-7">
             <div className="card shadow-sm border-0 p-4 h-100" style={{ borderRadius: "15px" }}>
               <h4 className="fw-bold mb-3 text-dark">Historial de Gastos</h4>
-              
+
               {gastos.length === 0 ? (
                 <div className="text-center py-5 text-muted">
                   <span style={{ fontSize: "2rem" }}>💸</span>
