@@ -1,12 +1,21 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import Lista_grupos from "../lista_grupos";
+import Swal from "sweetalert2";
 
 const mocks = vi.hoisted(() => ({
   listarGrupos: vi.fn(),
   eliminarGrupo: vi.fn(),
   actualizarGrupo: vi.fn(),
 }));
+
+vi.mock("sweetalert2", () => {
+  return {
+    default: {
+      fire: vi.fn().mockResolvedValue({ isConfirmed: false }),
+    },
+  };
+});
 
 vi.mock("../../../services/admin/grupos.service", () => ({
   listarGrupos: mocks.listarGrupos,
@@ -41,7 +50,7 @@ describe("lista_grupos", () => {
   });
 
   it("llama eliminarGrupo al confirmar", async () => {
-    vi.spyOn(window, "confirm").mockReturnValue(true);
+    Swal.fire.mockResolvedValueOnce({ isConfirmed: true });
     mocks.eliminarGrupo.mockResolvedValue({});
 
     render(

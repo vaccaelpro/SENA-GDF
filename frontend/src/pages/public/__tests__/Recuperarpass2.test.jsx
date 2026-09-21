@@ -5,20 +5,22 @@ import RestablecerPassword from "../Recuperarpass2";
 
 const authMocks = vi.hoisted(() => ({
   restablecerPassword: vi.fn(),
+  validarToken: vi.fn(),
 }));
 
 vi.mock("../../../services/auth/auth.service", () => ({
   restablecerPassword: authMocks.restablecerPassword,
+  validarToken: authMocks.validarToken,
 }));
 
 vi.mock("sweetalert2", () => {
-  const swal = {
-    fire: vi.fn(),
-    mixin: vi.fn(() => ({ fire: vi.fn() })),
-    stopTimer: vi.fn(),
-    resumeTimer: vi.fn(),
+  const fireMock = vi.fn().mockResolvedValue({ isConfirmed: true, dismiss: undefined });
+  return {
+    default: {
+      fire: fireMock,
+      mixin: vi.fn(() => ({ fire: fireMock })),
+    },
   };
-  return { default: swal };
 });
 
 import Swal from "sweetalert2";
@@ -35,25 +37,27 @@ const renderConToken = (token = "abc123token") =>
 describe("RestablecerPassword", () => {
   beforeEach(() => {
     authMocks.restablecerPassword.mockReset();
+    authMocks.validarToken.mockReset();
+    authMocks.validarToken.mockResolvedValue({});
     Swal.fire.mockReset();
   });
 
-  it("renderiza el formulario para restablecer contraseña", () => {
+  it("renderiza el formulario para restablecer contraseña", async () => {
     renderConToken();
 
     expect(
-      screen.getByPlaceholderText("Nueva contraseña (mín. 8 caracteres)")
+      await screen.findByPlaceholderText("Nueva contraseña (mín. 8 caracteres)")
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Cambiar Contraseña" })
     ).toBeInTheDocument();
   });
 
-  it("no llama a restablecerPassword y muestra Swal 'Contraseña No Segura' con contraseña débil", () => {
+  it("no llama a restablecerPassword y muestra Swal 'Contraseña No Segura' con contraseña débil", async () => {
     renderConToken();
 
     fireEvent.change(
-      screen.getByPlaceholderText("Nueva contraseña (mín. 8 caracteres)"),
+      await screen.findByPlaceholderText("Nueva contraseña (mín. 8 caracteres)"),
       { target: { value: "abc" } }
     );
     fireEvent.click(screen.getByRole("button", { name: "Cambiar Contraseña" }));
@@ -70,7 +74,7 @@ describe("RestablecerPassword", () => {
     renderConToken("abc123token");
 
     fireEvent.change(
-      screen.getByPlaceholderText("Nueva contraseña (mín. 8 caracteres)"),
+      await screen.findByPlaceholderText("Nueva contraseña (mín. 8 caracteres)"),
       { target: { value: "Abc12345" } }
     );
     fireEvent.click(screen.getByRole("button", { name: "Cambiar Contraseña" }));
@@ -97,7 +101,7 @@ describe("RestablecerPassword", () => {
     renderConToken();
 
     fireEvent.change(
-      screen.getByPlaceholderText("Nueva contraseña (mín. 8 caracteres)"),
+      await screen.findByPlaceholderText("Nueva contraseña (mín. 8 caracteres)"),
       { target: { value: "Abc12345" } }
     );
     fireEvent.click(screen.getByRole("button", { name: "Cambiar Contraseña" }));
