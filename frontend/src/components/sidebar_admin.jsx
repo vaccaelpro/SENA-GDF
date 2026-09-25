@@ -7,6 +7,7 @@ import {
   BsChatRightTextFill,
   BsPeopleFill,
   BsGearFill,
+  BsDatabaseGear,
   BsBoxArrowLeft,
   BsX
 } from "react-icons/bs";
@@ -51,6 +52,12 @@ const Sidebar_administrador = ({ isOpen, onClose }) => {
         <div className="menu-item" onClick={onClose}>
           <Link to="/Tabla_gestion_usuarios">
             <BsPersonFillGear /> Gestión de Usuarios
+          </Link>
+        </div>
+
+        <div className="menu-item" onClick={onClose}>
+          <Link to="/Tabla_gestion_usuarios_jpa">
+            <BsDatabaseGear /> Gestión de Usuarios JPA
           </Link>
         </div>
 

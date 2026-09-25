@@ -1,0 +1,90 @@
+/**
+ * Estilos exclusivos de Gestión de Usuarios JPA.
+ * Hereda los tokens del sistema de diseño de gestion_usuarios.css
+ * (custom-table, page-item-btn, form-control-premium, btn-edit/btn-delete):
+ * esta página importa ambos archivos. Aquí solo viven lo específico del módulo.
+ */
+
+/* Columna de fecha: compacta y de apoyo visual */
+.col-fecha {
+    font-size: 0.82rem;
+    color: #6c757d;
+    white-space: nowrap;
+}
+
+/* Alerta de error de carga con reintento */
+.jpa-error-alert {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 40px 20px;
+    background: #fff5f5;
+    border: 1px solid #f5c6cb;
+    border-radius: 12px;
+    color: #a94442;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.08);
+}
+
+.jpa-error-alert .jpa-error-icon {
+    font-size: 1.6rem;
+}
+
+.jpa-error-alert .jpa-error-text {
+    font-weight: 600;
+    text-align: center;
+    max-width: 520px;
+}
+
+.btn-retry {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+    color: #ffffff;
+    padding: 8px 22px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-retry:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+}
+
+/* Texto de ayuda bajo el input de contraseña en modo edición */
+.jpa-password-hint {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.78rem;
+    color: #6c757d;
+}
+
+/* Botón "Nuevo Usuario" coherente con el gradiente del sistema */
+.btn-new-user {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+    color: #ffffff;
+    padding: 10px 22px;
+    border-radius: 10px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    transition: all 0.3s ease;
+}
+
+.btn-new-user:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.35);
+}
+
+/* Barra superior de la página: buscador + botón de creación */
+.jpa-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.jpa-toolbar .search-container {
+    flex: 1 1 320px;
+    margin-bottom: 0;
+}
