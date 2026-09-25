@@ -31,6 +31,18 @@ export const buscarUsuariosJpa = async (term, page = 0) => {
   return res.data;
 };
 
+/**
+ * AND search: BOTH criteria must match — exact primerNombre and documento.
+ * `documento` must be a valid integer or the API answers 400; callers should
+ * validate client-side before invoking. Returns the paged envelope.
+ */
+export const buscarUsuariosJpaAnd = async ({ primerNombre, documento }, page = 0) => {
+  const res = await apiJpa.get(`${BASE}/search/and`, {
+    params: { primerNombre, documento, page, size: PAGE_SIZE },
+  });
+  return res.data;
+};
+
 /** Crear un usuario. `contrasena` es obligatoria (mínimo 8 caracteres). */
 export const crearUsuarioJpa = async (payload) => {
   const res = await apiJpa.post(BASE, payload);

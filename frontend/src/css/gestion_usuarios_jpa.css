@@ -88,3 +88,93 @@
     flex: 1 1 320px;
     margin-bottom: 0;
 }
+
+/* Search mode selector (Todos / OR / AND) — Bootstrap outline buttons
+   with the module's green as the accent color */
+.jpa-search-modes {
+    flex: 0 0 auto;
+}
+
+.jpa-search-modes .btn {
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    padding: 8px 18px;
+}
+
+/* Filter row below the toolbar: OR input / AND form + clear action */
+.jpa-filter-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.jpa-filter-row .search-container {
+    flex: 1 1 320px;
+    margin-bottom: 0;
+}
+
+.jpa-and-field {
+    flex: 1 1 240px;
+}
+
+.jpa-and-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+/* Submit button for the AND form, same gradient family as btn-new-user */
+.btn-search-jpa {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+    color: #ffffff;
+    padding: 8px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-search-jpa:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.35);
+}
+
+/* Neutral reset action: clears filters and returns to the paged list */
+.btn-clear-filters {
+    background: #ffffff;
+    border: 1px solid #ced4da;
+    color: #6c757d;
+    padding: 8px 18px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-clear-filters:hover {
+    border-color: #28a745;
+    color: #28a745;
+}
+
+/* Small reminder line shown while an AND filter is committed */
+.jpa-active-filter {
+    margin: -8px 0 12px;
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.jpa-active-filter-clear {
+    background: none;
+    border: none;
+    color: #28a745;
+    font-weight: 600;
+    padding: 0 0 0 6px;
+    text-decoration: underline;
+}
+
+.jpa-active-filter-clear:hover {
+    color: #1e7e34;
+}

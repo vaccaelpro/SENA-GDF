@@ -8,7 +8,8 @@
  * DEL LADO DEL SERVIDOR con el envelope { content, page }: la API fija
  * el tamaño de página en 7, y la paginación se conduce con
  * page.number / page.totalPages, nunca con lo que pedimos.
- * La búsqueda usa el endpoint OR (nombre, apellido o documento).
+ * La búsqueda usa los dos endpoints documentados: OR (un término contra
+ * nombre, apellido o documento) y AND (primerNombre exacto + documento).
  */
 import { useState, useEffect } from "react";
 import "../../css/gestion_usuarios.css";
@@ -24,6 +25,7 @@ import {
 import {
   listarUsuariosJpa,
   buscarUsuariosJpa,
+  buscarUsuariosJpaAnd,
   crearUsuarioJpa,
   actualizarUsuarioJpa,
   eliminarUsuarioJpa,
@@ -58,6 +60,14 @@ const GestionUsuariosJpa = () => {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
 
+  // Search mode: "all" (plain paged list) | "or" (single term) | "and" (name + documento)
+  const [searchMode, setSearchMode] = useState("all");
+  // AND mode keeps a draft (what the user types) apart from the committed
+  // criteria actually sent to the API, so pagination never uses half-typed input.
+  const [andDraft, setAndDraft] = useState({ primerNombre: "", documento: "" });
+  const [andCriteria, setAndCriteria] = useState(null);
+  const [andErrors, setAndErrors] = useState({});
+
   // Paginación del lado del servidor (0-based, como la API)
   const [pagina, setPagina] = useState(0);
   const [totalPaginas, setTotalPaginas] = useState(1);
@@ -85,9 +95,12 @@ const GestionUsuariosJpa = () => {
     setCargando(true);
     setError(null);
     try {
-      const data = termino
-        ? await buscarUsuariosJpa(termino, pag)
-        : await listarUsuariosJpa(pag);
+      // Priority: committed AND filter > committed OR term > plain list.
+      const data = andCriteria
+        ? await buscarUsuariosJpaAnd(andCriteria, pag)
+        : termino
+          ? await buscarUsuariosJpa(termino, pag)
+          : await listarUsuariosJpa(pag);
 
       const contenido = data?.content ?? [];
       const meta = data?.page ?? { number: 0, totalPages: 1, totalElements: contenido.length };
@@ -115,7 +128,58 @@ const GestionUsuariosJpa = () => {
   useEffect(() => {
     cargarDatos(pagina);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pagina, termino]);
+  }, [pagina, termino, andCriteria]);
+
+  // Switching modes or clearing always drops any committed filter and
+  // returns to page 0, so the plain paged list refetches clean.
+  const handleSearchModeChange = (nextMode) => {
+    if (nextMode === searchMode) return;
+    setSearchMode(nextMode);
+    setBusqueda("");
+    setTermino("");
+    setAndDraft({ primerNombre: "", documento: "" });
+    setAndCriteria(null);
+    setAndErrors({});
+    setPagina(0);
+  };
+
+  // Clear/reset action: back to the plain paged list.
+  const clearFilters = () => handleSearchModeChange("all");
+
+  const handleAndDraftChange = (e) => {
+    const { name, value } = e.target;
+    setAndDraft((prev) => ({ ...prev, [name]: value }));
+    if (andErrors[name]) {
+      setAndErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  // The AND endpoint requires both params and documento must be an integer
+  // (it answers 400 otherwise), so both are validated before calling.
+  const validateAndDraft = () => {
+    const errors = {};
+    if (!andDraft.primerNombre.trim()) {
+      errors.primerNombre = "El primer nombre es obligatorio para esta búsqueda.";
+    }
+    const doc = andDraft.documento.trim();
+    if (!doc) {
+      errors.documento = "El documento es obligatorio para esta búsqueda.";
+    } else if (!/^\d+$/.test(doc)) {
+      errors.documento = "El documento debe ser un número entero, sin letras ni símbolos.";
+    }
+    setAndErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleAndSearchSubmit = (e) => {
+    e.preventDefault();
+    if (!validateAndDraft()) return;
+    setPagina(0);
+    setAndCriteria({
+      primerNombre: andDraft.primerNombre.trim(),
+      documento: Number(andDraft.documento.trim()),
+    });
+  };
 
   const formatearFecha = (iso) => {
     if (!iso) return "—";
@@ -330,24 +394,115 @@ const GestionUsuariosJpa = () => {
     <>
       <br />
       <div className="p-4">
-        <div className="jpa-toolbar mb-4">
-          <div className="input-group search-container">
-            <span className="input-group-text bg-white border-end-0">
-              <BsSearch />
-            </span>
-            <input
-              type="text"
-              className="form-control border-start-0"
-              placeholder="Buscar por nombre, apellido o documento..."
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-            />
+        <div className="jpa-toolbar mb-3">
+          <div className="btn-group jpa-search-modes" role="group" aria-label="Modo de búsqueda">
+            <button
+              type="button"
+              className={`btn btn-outline-success ${searchMode === "all" ? "active" : ""}`}
+              onClick={() => handleSearchModeChange("all")}
+            >
+              Todos
+            </button>
+            <button
+              type="button"
+              className={`btn btn-outline-success ${searchMode === "or" ? "active" : ""}`}
+              title="Coincide con nombre, apellido o documento"
+              onClick={() => handleSearchModeChange("or")}
+            >
+              Búsqueda OR
+            </button>
+            <button
+              type="button"
+              className={`btn btn-outline-success ${searchMode === "and" ? "active" : ""}`}
+              title="Deben coincidir el primer nombre y el documento"
+              onClick={() => handleSearchModeChange("and")}
+            >
+              Búsqueda AND
+            </button>
           </div>
           <button type="button" className="btn-new-user" onClick={handleAbrirCrear}>
             <BsPlusCircle className="me-2" />
             Nuevo Usuario
           </button>
         </div>
+
+        {searchMode === "or" && (
+          <div className="jpa-filter-row mb-4">
+            <div className="input-group search-container">
+              <span className="input-group-text bg-white border-end-0">
+                <BsSearch />
+              </span>
+              <input
+                type="text"
+                className="form-control border-start-0"
+                placeholder="Buscar por nombre, apellido o documento..."
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                autoFocus
+              />
+            </div>
+            <button type="button" className="btn-clear-filters" onClick={clearFilters}>
+              Limpiar
+            </button>
+          </div>
+        )}
+
+        {searchMode === "and" && (
+          <form className="jpa-filter-row jpa-and-form mb-4" onSubmit={handleAndSearchSubmit} noValidate>
+            <div className="jpa-and-field">
+              <input
+                type="text"
+                name="primerNombre"
+                className={`form-control ${andErrors.primerNombre ? "border-danger" : ""}`}
+                placeholder="Primer nombre (exacto)"
+                aria-label="Primer nombre"
+                value={andDraft.primerNombre}
+                onChange={handleAndDraftChange}
+                autoFocus
+              />
+              {andErrors.primerNombre && (
+                <small className="text-danger font-weight-bold d-block mt-1">
+                  ⚠️ {andErrors.primerNombre}
+                </small>
+              )}
+            </div>
+            <div className="jpa-and-field">
+              <input
+                type="text"
+                name="documento"
+                inputMode="numeric"
+                className={`form-control ${andErrors.documento ? "border-danger" : ""}`}
+                placeholder="Documento (solo números)"
+                aria-label="Documento"
+                value={andDraft.documento}
+                onChange={handleAndDraftChange}
+              />
+              {andErrors.documento && (
+                <small className="text-danger font-weight-bold d-block mt-1">
+                  ⚠️ {andErrors.documento}
+                </small>
+              )}
+            </div>
+            <div className="jpa-and-actions">
+              <button type="submit" className="btn-search-jpa">
+                <BsSearch className="me-2" />
+                Buscar
+              </button>
+              <button type="button" className="btn-clear-filters" onClick={clearFilters}>
+                Limpiar
+              </button>
+            </div>
+          </form>
+        )}
+
+        {searchMode === "and" && andCriteria && (
+          <p className="jpa-active-filter">
+            Filtro activo: primer nombre «{andCriteria.primerNombre}» y documento {andCriteria.documento}.
+            <button type="button" className="jpa-active-filter-clear" onClick={clearFilters}>
+              Quitar filtro
+            </button>
+          </p>
+        )}
 
         <div className="table-responsive">
           {cargando ? (

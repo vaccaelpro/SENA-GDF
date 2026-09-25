@@ -116,6 +116,16 @@ describe("usuariosJpa.service", () => {
     });
   });
 
+  it("buscarUsuariosJpaAnd usa el endpoint AND con ambos criterios", async () => {
+    instance.get.mockResolvedValueOnce({ data: { content: [], page: { number: 1, totalPages: 2 } } });
+
+    await service.buscarUsuariosJpaAnd({ primerNombre: "Ana", documento: 1032547896 }, 1);
+
+    expect(instance.get).toHaveBeenCalledWith("/api/users/search/and", {
+      params: { primerNombre: "Ana", documento: 1032547896, page: 1, size: 7 },
+    });
+  });
+
   it("crearUsuarioJpa hace POST del payload y devuelve el usuario creado", async () => {
     const payload = { primerNombre: "Ana", documento: 1032547896, contrasena: "super-secret-123" };
     instance.post.mockResolvedValueOnce({ data: { id: 42, primerNombre: "Ana" } });
